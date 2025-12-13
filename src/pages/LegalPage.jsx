@@ -11,8 +11,7 @@ const LegalPage = () => {
                     <p>
                         Le site <strong>FlavorQuest</strong> est édité par :<br />
                         <strong>FlavorQuest SRL</strong><br />
-                        Siège social : Rue de Fer 1, 5000 Namur, Belgique<br />
-                        TVA : BE 0123.456.789<br />
+
                         Email : <a href="mailto:contact@flavorquest.be" className="text-brand-orange hover:underline">contact@flavorquest.be</a>
                     </p>
                 </section>

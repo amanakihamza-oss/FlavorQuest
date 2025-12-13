@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { X, Save, Image as ImageIcon, Leaf, Clock, Baby, Award, Utensils, Wheat, Sun, Heart, Mountain, Coins, Wifi, PawPrint, Truck } from 'lucide-react';
 import { usePlaces } from '../context/PlacesContext';
 

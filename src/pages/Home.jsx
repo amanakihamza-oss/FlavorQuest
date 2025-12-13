@@ -65,7 +65,7 @@ const Home = () => {
     });
 
     return (
-        <div className="pb-10">
+        <div className="pb-24 md:pb-10">
             <Helmet>
                 <script type="application/ld+json">{JSON.stringify(schema)}</script>
             </Helmet>
@@ -110,7 +110,7 @@ const Home = () => {
                     </div>
 
                     {/* Mobile Sticky Toggle (Fixed at bottom) */}
-                    <div className="md:hidden fixed bottom-24 left-1/2 transform -translate-x-1/2 z-40 bg-white/90 backdrop-blur-md shadow-2xl p-1.5 rounded-full border border-gray-100 ring-1 ring-black/5 flex gap-1 animate-scale-in">
+                    <div className="md:hidden fixed bottom-20 left-1/2 transform -translate-x-1/2 z-30 bg-white/90 backdrop-blur-md shadow-2xl p-1.5 rounded-full border border-gray-100 ring-1 ring-black/5 flex gap-1 animate-scale-in">
                         <button
                             onClick={() => setViewMode('list')}
                             className={`px-6 py-3 rounded-full transition-all flex items-center gap-2 text-sm font-bold ${viewMode === 'list' ? 'bg-brand-dark text-white shadow-lg' : 'text-gray-500'}`}
