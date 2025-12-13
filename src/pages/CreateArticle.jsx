@@ -211,11 +211,71 @@ const CreateArticle = () => {
                         required
                         rows="3"
                         value={formData.excerpt}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
+                        placeholder="Un court résumé qui donne envie de lire..."
+                    />
+                </div>
+
+                {/* Content */}
+                <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Contenu de l'article (HTML autorisé)</label>
+
+                    {/* Formatting Toolbar */}
+                    <div className="flex items-center gap-2 mb-2 bg-gray-50 p-1.5 rounded-lg border border-gray-200 w-fit">
+                        <button
+                            type="button"
+                            onClick={() => insertFormat('bold')}
+                            className="px-3 py-1.5 hover:bg-white hover:shadow-sm rounded-md transition-all font-bold text-gray-700 text-sm border border-transparent hover:border-gray-100"
+                            title="Mettre en gras"
+                        >
+                            B
+                        </button>
+                        <div className="w-px h-5 bg-gray-300 mx-1"></div>
+                        <button
+                            type="button"
+                            onClick={() => insertFormat('h2')}
+                            className="px-3 py-1.5 hover:bg-white hover:shadow-sm rounded-md transition-all font-bold text-gray-700 text-sm border border-transparent hover:border-gray-100"
+                            title="Ajouter un grand titre"
+                        >
+                            H2
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => insertFormat('h3')}
+                            className="px-3 py-1.5 hover:bg-white hover:shadow-sm rounded-md transition-all font-bold text-gray-700 text-sm border border-transparent hover:border-gray-100"
+                            title="Ajouter un sous-titre"
+                        >
+                            H3
+                        </button>
+                    </div>
+
+                    <textarea
+                        ref={textareaRef}
+                        name="content"
+                        required
+                        rows="12"
+                        value={formData.content}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20 font-mono text-sm leading-relaxed"
+                        placeholder="Écrivez votre article ici..."
+                    />
+                    <div className="text-xs text-gray-400 mt-2 flex flex-col gap-1">
+                        <p>Astuce : Sélectionnez du texte et cliquez sur les boutons pour formater.</p>
+                        <p>Lien externe : <code>&lt;a href=&quot;https://site.com&quot;&gt;Votre lien&lt;/a&gt;</code></p>
+                    </div>
+                </div>
+
+                <button
+                    type="submit"
+                    className="w-full bg-brand-orange text-white font-bold py-4 rounded-xl hover:bg-orange-600 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-brand-orange/20"
+                >
+                    <Save size={20} /> Soumettre pour validation
                 </button>
             </form>
         </div>
-            </div >
-        </div >
+    </div >
+</div >
     );
 };
 
