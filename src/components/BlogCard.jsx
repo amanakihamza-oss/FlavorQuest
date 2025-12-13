@@ -14,9 +14,11 @@ const BlogCard = ({ article }) => {
                         className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
                     />
                     <div className="absolute top-4 left-4">
-                        <span className="bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider text-brand-dark shadow-sm">
-                            {article.city}
-                        </span>
+                        {article.city && (
+                            <span className="bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider text-brand-dark shadow-sm">
+                                {article.city}
+                            </span>
+                        )}
                     </div>
                 </div>
 

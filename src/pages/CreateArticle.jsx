@@ -11,6 +11,43 @@ const CreateArticle = () => {
     const { user } = useAuth();
     const { showToast } = useToast();
     const navigate = useNavigate();
+    const textareaRef = React.useRef(null);
+
+    const insertFormat = (tag) => {
+        const textarea = textareaRef.current;
+        if (!textarea) return;
+
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const text = formData.content;
+        const selectedText = text.substring(start, end);
+
+        let formattedText = '';
+
+        switch (tag) {
+            case 'bold':
+                formattedText = `<strong>${selectedText || 'Texte en gras'}</strong>`;
+                break;
+            case 'h2':
+                formattedText = `\n<h2>${selectedText || 'Votre Titre'}</h2>\n`;
+                break;
+            case 'h3':
+                formattedText = `\n<h3>${selectedText || 'Votre Sous-titre'}</h3>\n`;
+                break;
+            default:
+                return;
+        }
+
+        const newContent = text.substring(0, start) + formattedText + text.substring(end);
+
+        setFormData(prev => ({ ...prev, content: newContent }));
+
+        // Restore focus and selection
+        setTimeout(() => {
+            textarea.focus();
+            // Optional: try to select the inner text, but simple focus back is good enough for now
+        }, 0);
+    };
 
     const [formData, setFormData] = useState({
         title: '',
@@ -19,7 +56,8 @@ const CreateArticle = () => {
         category: 'Découverte',
         city: '',
         image: '',
-        author: user?.name || 'Explorateur Anonyme'
+        author: user?.name || 'Explorateur Anonyme',
+        readTime: ''
     });
 
     const handleChange = (e) => {
@@ -116,75 +154,68 @@ const CreateArticle = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* City */}
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Ville / Région</label>
+                                <label className="block text-sm font-bold text-gray-700 mb-2">Ville / Région (Optionnel)</label>
                                 <input
                                     type="text"
                                     name="city"
-                                    required
                                     value={formData.city}
                                     onChange={handleChange}
                                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
-                                    placeholder="Ex: Namur"
+                                    placeholder="Ex: Namur (Laisser vide si général)"
                                 />
                             </div>
                         </div>
 
-                        {/* Image URL */}
-                        <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">Image de couverture (URL)</label>
-                            <div className="relative">
-                                <ImageIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                                <input
-                                    type="url"
-                                    name="image"
-                                    required
-                                    value={formData.image}
-                                    onChange={handleChange}
-                                    className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
-                                    placeholder="https://images.unsplash.com/..."
-                                />
-                            </div>
-                        </div>
+                </div>
 
-                        {/* Excerpt */}
-                        <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">Introduction (Extrait)</label>
-                            <textarea
-                                name="excerpt"
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Reading Time */}
+                    <div>
+                        <label className="block text-sm font-bold text-gray-700 mb-2">Temps de lecture</label>
+                        <div className="relative">
+                            <input
+                                type="text"
+                                name="readTime"
                                 required
-                                rows="3"
-                                value={formData.excerpt}
+                                value={formData.readTime}
                                 onChange={handleChange}
                                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
-                                placeholder="Un court résumé qui donne envie de lire..."
+                                placeholder="Ex: 5 min"
                             />
                         </div>
+                    </div>
 
-                        {/* Content */}
-                        <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">Contenu de l'article (HTML autorisé)</label>
-                            <textarea
-                                name="content"
+                    {/* Image URL */}
+                    <div>
+                        <label className="block text-sm font-bold text-gray-700 mb-2">Image de couverture (URL)</label>
+                        <div className="relative">
+                            <ImageIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                            <input
+                                type="url"
+                                name="image"
                                 required
-                                rows="10"
-                                value={formData.content}
+                                value={formData.image}
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20 font-mono text-sm"
-                                placeholder="<h2>Mon titre</h2><p>Mon paragraphe...</p>"
+                                className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
+                                placeholder="https://images.unsplash.com/..."
                             />
-                            <p className="text-xs text-gray-400 mt-2">Vous pouvez utiliser des balises HTML simples pour formater votre texte.</p>
                         </div>
-
-                        <button
-                            type="submit"
-                            className="w-full bg-brand-orange text-white font-bold py-4 rounded-xl hover:bg-orange-600 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-brand-orange/20"
-                        >
-                            <Save size={20} /> Soumettre pour validation
-                        </button>
-                    </form>
+                    </div>
                 </div>
-            </div>
+
+                {/* Excerpt */}
+                <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Introduction (Extrait)</label>
+                    <textarea
+                        name="excerpt"
+                        required
+                        rows="3"
+                        value={formData.excerpt}
+                </button>
+            </form>
         </div>
+            </div >
+        </div >
     );
 };
 

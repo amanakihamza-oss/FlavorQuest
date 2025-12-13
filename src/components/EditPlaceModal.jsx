@@ -1,9 +1,48 @@
-import React, { useState, useEffect } from 'react';
-import { X, Save, Image as ImageIcon } from 'lucide-react';
+import { X, Save, Image as ImageIcon, Leaf, Clock, Baby, Award, Utensils, Wheat, Sun, Heart, Mountain, Coins, Wifi, PawPrint, Truck } from 'lucide-react';
 import { usePlaces } from '../context/PlacesContext';
+
+const ICON_MAP = {
+    'Leaf': Leaf,
+    'Clock': Clock,
+    'Baby': Baby,
+    'Award': Award,
+    'Utensils': Utensils,
+    'Wheat': Wheat,
+    'Sun': Sun,
+    'Heart': Heart,
+    'Mountain': Mountain,
+    'Coins': Coins,
+    'Wifi': Wifi,
+    'PawPrint': PawPrint,
+    'Truck': Truck
+};
 
 const EditPlaceModal = ({ isOpen, onClose, place }) => {
     const { updatePlace, filters } = usePlaces();
+    // ... (rest of component)
+    // inside map loop:
+    {
+        filters.map(filter => {
+            const Icon = ICON_MAP[filter.icon];
+            return (
+                <button
+                    key={filter.id}
+                    type="button"
+                    onClick={() => toggleTag(filter.id)}
+                    className={`px-4 py-3 rounded-xl border text-sm font-medium transition-all flex items-center gap-2 ${formData.tags.includes(filter.id)
+                        ? 'bg-brand-orange/10 border-brand-orange text-brand-orange'
+                        : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
+                        }`}
+                >
+                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${formData.tags.includes(filter.id) ? 'bg-brand-orange border-brand-orange' : 'border-gray-400'}`}>
+                        {formData.tags.includes(filter.id) && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
+                    </div>
+                    {Icon && <Icon size={16} />}
+                    {filter.label}
+                </button>
+            );
+        })
+    }
     const [formData, setFormData] = useState({
         name: '',
         category: 'Brasserie',
@@ -131,22 +170,26 @@ const EditPlaceModal = ({ isOpen, onClose, place }) => {
                                 Filtres & Caractéristiques
                             </h3>
                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                {filters.map(filter => (
-                                    <button
-                                        key={filter.id}
-                                        type="button"
-                                        onClick={() => toggleTag(filter.id)}
-                                        className={`px-4 py-3 rounded-xl border text-sm font-medium transition-all flex items-center gap-2 ${formData.tags.includes(filter.id)
-                                            ? 'bg-brand-orange/10 border-brand-orange text-brand-orange'
-                                            : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
-                                            }`}
-                                    >
-                                        <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${formData.tags.includes(filter.id) ? 'bg-brand-orange border-brand-orange' : 'border-gray-400'}`}>
-                                            {formData.tags.includes(filter.id) && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
-                                        </div>
-                                        {filter.icon} {filter.label}
-                                    </button>
-                                ))}
+                                {filters.map(filter => {
+                                    const Icon = ICON_MAP[filter.icon];
+                                    return (
+                                        <button
+                                            key={filter.id}
+                                            type="button"
+                                            onClick={() => toggleTag(filter.id)}
+                                            className={`px-4 py-3 rounded-xl border text-sm font-medium transition-all flex items-center gap-2 ${formData.tags.includes(filter.id)
+                                                ? 'bg-brand-orange/10 border-brand-orange text-brand-orange'
+                                                : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
+                                                }`}
+                                        >
+                                            <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${formData.tags.includes(filter.id) ? 'bg-brand-orange border-brand-orange' : 'border-gray-400'}`}>
+                                                {formData.tags.includes(filter.id) && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
+                                            </div>
+                                            {Icon && <Icon size={16} />}
+                                            {filter.label}
+                                        </button>
+                                    );
+                                })}
                             </div>
                         </div>
                     </div>

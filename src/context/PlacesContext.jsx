@@ -113,8 +113,15 @@ export const PlacesProvider = ({ children }) => {
         { id: 'vegetarian', label: 'Végétarien', icon: 'Leaf' },
         { id: 'gluten-free', label: 'Sans Gluten', icon: 'Wheat' },
         { id: 'late-night', label: 'Ouvert tard', icon: 'Clock' },
-        { id: 'kids', label: 'Enfants bienvenus', icon: 'Baby' },
+        { id: 'kids', label: 'Enfants', icon: 'Baby' },
         { id: 'top-rated', label: 'Mieux notés', icon: 'Award' },
+        { id: 'terrace', label: 'Terrasse', icon: 'Sun' },
+        { id: 'romantic', label: 'Romantique', icon: 'Heart' },
+        { id: 'view', label: 'Belle Vue', icon: 'Mountain' },
+        { id: 'cheap', label: 'Petit Prix', icon: 'Coins' },
+        { id: 'wifi', label: 'Wifi', icon: 'Wifi' },
+        { id: 'pets', label: 'Chiens admis', icon: 'PawPrint' },
+        { id: 'delivery', label: 'Livraison', icon: 'Truck' },
     ];
 
     const [filters, setFilters] = useState(() => {

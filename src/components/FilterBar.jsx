@@ -1,5 +1,4 @@
-import React from 'react';
-import { Leaf, Clock, Baby, Award, Utensils, Wheat } from 'lucide-react';
+import { Leaf, Clock, Baby, Award, Utensils, Wheat, Sun, Heart, Mountain, Coins, Wifi, PawPrint, Truck } from 'lucide-react';
 import clsx from 'clsx';
 import { usePlaces } from '../context/PlacesContext';
 
@@ -9,7 +8,14 @@ const ICON_MAP = {
     'Baby': Baby,
     'Award': Award,
     'Utensils': Utensils,
-    'Wheat': Wheat
+    'Wheat': Wheat,
+    'Sun': Sun,
+    'Heart': Heart,
+    'Mountain': Mountain,
+    'Coins': Coins,
+    'Wifi': Wifi,
+    'PawPrint': PawPrint,
+    'Truck': Truck
 };
 
 const FilterBar = ({ activeFilters = [], onToggle }) => {

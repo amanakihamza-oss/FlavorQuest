@@ -67,9 +67,11 @@ const BlogArticle = () => {
                             <span className="bg-brand-orange text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
                                 {article.category}
                             </span>
-                            <span className="bg-white/20 backdrop-blur text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1">
-                                <MapPin size={12} /> {article.city}
-                            </span>
+                            {article.city && (
+                                <span className="bg-white/20 backdrop-blur text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1">
+                                    <MapPin size={12} /> {article.city}
+                                </span>
+                            )}
                         </div>
 
                         <h1 className="text-3xl md:text-5xl font-bold text-white leading-tight">
