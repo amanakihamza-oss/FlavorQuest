@@ -76,7 +76,17 @@ const INITIAL_GEMS = [
 export const PlacesProvider = ({ children }) => {
     // Initialize places from mock data
     // We will augment this with real Firestore reviews dyanmically
-    const [places, setPlaces] = useState(INITIAL_GEMS);
+    // Initialize places from localStorage or fallback to Mock Data
+    const [places, setPlaces] = useState(() => {
+        const saved = localStorage.getItem('flavorquest_places');
+        return saved ? JSON.parse(saved) : INITIAL_GEMS;
+    });
+
+    // Persist places to localStorage whenever they change
+    useEffect(() => {
+        localStorage.setItem('flavorquest_places', JSON.stringify(places));
+    }, [places]);
+
     const [firestoreReviews, setFirestoreReviews] = useState([]);
 
     const INITIAL_FILTERS = [
@@ -162,29 +172,32 @@ export const PlacesProvider = ({ children }) => {
         setPlaces(prev => fn(prev));
     };
 
-    // Admin Actions (operating on local state + mock persistence if we wanted, but let's stick to memory/mock for places)
+    // Note: We use UpdateLocalPlace which now effectively updates the persisted state via the useEffect above.
+    const addPlace = async (newPlace) => {
+        let imageUrl = newPlace.image;
 
-    // Initialize places from mock data
-    // We will augment this with real Firestore reviews dyanmically
-    const [places, setPlaces] = useState(INITIAL_GEMS);
-    const [firestoreReviews, setFirestoreReviews] = useState([]);
+        // If image is a File object, upload it
+        if (newPlace.image instanceof File) {
+            try {
+                const storageRef = ref(storage, `places/${Date.now()}_${newPlace.image.name}`);
+                const snapshot = await uploadBytes(storageRef, newPlace.image);
+                imageUrl = await getDownloadURL(snapshot.ref);
+            } catch (error) {
+                console.error("Upload failed", error);
+                // Fallback to placeholder
+                imageUrl = 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=2070&auto=format&fit=crop';
+            }
+        }
 
-    // Import storage and helpers needed inside the component or at top level
-    // imports were done at top. 
-    // We need to import: ref, uploadBytes, getDownloadURL from firebase/storage
-    // BUT imports must be at the top level. I missed adding them to the file imports in the previous step.
-    // I will add them now in a separate replace call or assume I can do it here if possible.
-    // Wait, replacing imports *and* function body in one go is better with multi_replace or separate calls.
-    // I'll stick to replacing `addPlace` here, BUT I first need to ensure imports are present.
-    // Since I cannot do two things in one replace easily without context, I will create a logic here that assumes imports exist, 
-    // AND I will make a separate call to add imports.
+        const finalPlace = {
+            ...newPlace,
+            image: imageUrl,
+            id: Date.now().toString(),
+            validationStatus: 'pending'
+        };
 
-    // Actually, let's look at the plan. I need to update imports first.
-    // Let me ABORT this specific tool call mentally and issue a `replace_file_content` for imports first.
-    // I will use this turn to update imports, and NEXT turn to update Logic.
-
-    // Oh wait, I am the model. I can just do sequential tool calls.
-    // STARTING WITH IMPORTS.
+        updateLocalPlace(prev => [finalPlace, ...prev]);
+    };
 
     const updatePlace = (id, data) => updateLocalPlace(prev => prev.map(p => p.id === id ? { ...p, ...data } : p));
     const approvePlace = (id) => updateLocalPlace(prev => prev.map(p => p.id === id ? { ...p, validationStatus: 'approved' } : p));
