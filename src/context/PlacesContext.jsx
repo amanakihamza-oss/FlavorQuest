@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { db, storage } from '../firebase';
+import { db } from '../firebase';
 import { collection, addDoc, onSnapshot, query, doc, setDoc, deleteDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { uploadToImgBB } from '../utils/imgbb';
 
 const PlacesContext = createContext();
 
@@ -171,26 +171,18 @@ export const PlacesProvider = ({ children }) => {
         let imageUrl = newPlace.image;
 
         if (newPlace.image instanceof File) {
-            try {
-                const storageRef = ref(storage, `places/${Date.now()}_${newPlace.image.name}`);
-                const snapshot = await uploadBytes(storageRef, newPlace.image);
-                imageUrl = await getDownloadURL(snapshot.ref);
-            } catch (error) {
-                console.error("Upload failed", error);
-                imageUrl = 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=2070&auto=format&fit=crop';
-            }
+            // Upload to ImgBB
+            imageUrl = await uploadToImgBB(newPlace.image);
         }
 
         const finalPlace = {
             ...newPlace,
-            image: imageUrl || "",
+            image: imageUrl || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=2070&auto=format&fit=crop",
             submittedAt: new Date().toISOString(),
             validationStatus: 'pending'
         };
 
         // Add to Firestore
-        // We use addDoc to auto-generate ID, or we can use setDoc if we want to control IDs.
-        // Let's use addDoc.
         await addDoc(collection(db, 'places'), finalPlace);
     };
 
