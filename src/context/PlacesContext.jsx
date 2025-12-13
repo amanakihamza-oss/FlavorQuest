@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { db, storage } from '../firebase';
-import { collection, addDoc, onSnapshot, query } from 'firebase/firestore';
+import { collection, addDoc, onSnapshot, query, doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const PlacesContext = createContext();
@@ -76,18 +76,37 @@ const INITIAL_GEMS = [
 export const PlacesProvider = ({ children }) => {
     // Initialize places from mock data
     // We will augment this with real Firestore reviews dyanmically
-    // Initialize places from localStorage or fallback to Mock Data
-    const [places, setPlaces] = useState(() => {
-        const saved = localStorage.getItem('flavorquest_places');
-        return saved ? JSON.parse(saved) : INITIAL_GEMS;
-    });
+    // Initialize places from Mock Data + Firestore
+    // Now we switch to Pure Firestore for persistence (with initial mock fallback if empty, optional)
+    // Actually, to fully migrate, we should rely on Firestore. The Mock Data can be seeded if needed, but let's assume we start fresh or migration happens.
+    // For this transition, we will listen to 'places' collection.
 
-    // Persist places to localStorage whenever they change
-    useEffect(() => {
-        localStorage.setItem('flavorquest_places', JSON.stringify(places));
-    }, [places]);
-
+    const [places, setPlaces] = useState([]);
     const [firestoreReviews, setFirestoreReviews] = useState([]);
+
+    // Listen to Places from Firestore
+    useEffect(() => {
+        const q = query(collection(db, 'places'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const placesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            // If Firestore is empty, we could fallback to mock, but let's prefer real data.
+            // If user has zero places, it will be empty. 
+            // For demo purposes, if strictly empty, maybe we merge mocks? 
+            // Let's just use real data to ensure specific "User submits -> Admin sees" workflow works robustly.
+            setPlaces(placesData.length > 0 ? placesData : INITIAL_GEMS);
+        });
+        return () => unsubscribe();
+    }, []);
+
+    // Listen to Reviews
+    useEffect(() => {
+        const q = query(collection(db, 'reviews'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const reviewsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setFirestoreReviews(reviewsData);
+        });
+        return () => unsubscribe();
+    }, []);
 
     const INITIAL_FILTERS = [
         { id: 'halal', label: 'Halal', icon: 'Utensils' },
@@ -107,43 +126,27 @@ export const PlacesProvider = ({ children }) => {
         localStorage.setItem('flavorquest_filters', JSON.stringify(filters));
     }, [filters]);
 
-    // Listen to Real Reviews from Firestore
-    useEffect(() => {
-        // Subscribe to 'reviews' collection
-        const q = query(collection(db, 'reviews'));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const reviewsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            setFirestoreReviews(reviewsData);
-        });
-
-        return () => unsubscribe();
-    }, []);
-
-    // Merge Mock Places with Real Reviews to calculate ratings
+    // Merge Logic (remains mostly same, but ensures places have data)
     const placesWithRatings = places.map(place => {
-        // Get initial mock stats
-        const initial = INITIAL_GEMS.find(g => g.id === place.id) || place;
-        const initialScore = initial.rating * initial.reviews; // e.g 4.8 * 124
-
-        // Get real reviews for this place
         const realReviews = firestoreReviews.filter(r => r.placeId === place.id);
-
         if (realReviews.length === 0) return place;
 
-        // Calculate new combined stats
+        const initialReviewsCount = place.reviews || 0;
+        const initialRating = place.rating || 0;
+        const initialScore = initialRating * initialReviewsCount;
+
         const realScore = realReviews.reduce((acc, r) => acc + Number(r.rating), 0);
-        const totalReviews = initial.reviews + realReviews.length;
+        const totalReviews = initialReviewsCount + realReviews.length;
         const totalScore = initialScore + realScore;
-        const newRating = (totalScore / totalReviews).toFixed(1);
+        const newRating = totalReviews > 0 ? (totalScore / totalReviews).toFixed(1) : 0;
 
         return {
             ...place,
             rating: parseFloat(newRating),
             reviews: totalReviews,
-            userReviews: realReviews // Attach real reviews for Detail page
+            userReviews: realReviews
         };
     });
-
 
     const addFilter = (filter) => {
         setFilters(prev => [...prev, { ...filter, id: filter.id || Date.now().toString() }]);
@@ -153,30 +156,20 @@ export const PlacesProvider = ({ children }) => {
         setFilters(prev => prev.filter(f => f.id !== id));
     };
 
-    const addReview = async (placeId, review) => {
+    // --- Actions (Now using Firestore) ---
+
+    // Generic Firestore Update
+    const updateFirestorePlace = async (id, data) => {
         try {
-            // Write to Firestore
-            await addDoc(collection(db, 'reviews'), {
-                placeId,
-                ...review,
-                createdAt: new Date().toISOString()
-            });
-            // No need to update local state manually, the listener will pick it up
-        } catch (error) {
-            console.error("Error adding review:", error);
+            await setDoc(doc(db, 'places', id), data, { merge: true });
+        } catch (e) {
+            console.error("Error update place:", e);
         }
     };
 
-    // Keep the "Admin" functions updating local state for now as Places aren't in Firestore yet
-    const updateLocalPlace = (fn) => {
-        setPlaces(prev => fn(prev));
-    };
-
-    // Note: We use UpdateLocalPlace which now effectively updates the persisted state via the useEffect above.
     const addPlace = async (newPlace) => {
         let imageUrl = newPlace.image;
 
-        // If image is a File object, upload it
         if (newPlace.image instanceof File) {
             try {
                 const storageRef = ref(storage, `places/${Date.now()}_${newPlace.image.name}`);
@@ -184,45 +177,75 @@ export const PlacesProvider = ({ children }) => {
                 imageUrl = await getDownloadURL(snapshot.ref);
             } catch (error) {
                 console.error("Upload failed", error);
-                // Fallback to placeholder
                 imageUrl = 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=2070&auto=format&fit=crop';
             }
         }
 
         const finalPlace = {
             ...newPlace,
-            image: imageUrl,
-            id: Date.now().toString(),
+            image: imageUrl || "",
+            submittedAt: new Date().toISOString(),
             validationStatus: 'pending'
         };
 
-        updateLocalPlace(prev => [finalPlace, ...prev]);
+        // Add to Firestore
+        // We use addDoc to auto-generate ID, or we can use setDoc if we want to control IDs.
+        // Let's use addDoc.
+        await addDoc(collection(db, 'places'), finalPlace);
     };
 
-    const updatePlace = (id, data) => updateLocalPlace(prev => prev.map(p => p.id === id ? { ...p, ...data } : p));
-    const approvePlace = (id) => updateLocalPlace(prev => prev.map(p => p.id === id ? { ...p, validationStatus: 'approved' } : p));
-    const rejectPlace = (id) => updateLocalPlace(prev => prev.map(p => p.id === id ? { ...p, validationStatus: 'rejected' } : p));
-    const deletePlace = (id) => updateLocalPlace(prev => prev.filter(p => p.id !== id));
-    const reviewPlace = (id) => updateLocalPlace(prev => prev.map(p => p.id === id ? { ...p, validationStatus: 'review' } : p));
-    const sendFeedback = (id, msg) => {
-        updateLocalPlace(prev => prev.map(p => {
-            if (p.id === id) {
-                const currentHistory = p.feedbackHistory || [];
-                return {
-                    ...p,
-                    validationStatus: 'rejected', // Usually feedback implies rejection or needs changes
-                    feedbackHistory: [
-                        ...currentHistory,
-                        {
-                            date: new Date().toISOString(),
-                            message: msg,
-                            author: 'Admin'
-                        }
-                    ]
-                };
+    const updatePlace = (id, data) => updateFirestorePlace(id, data);
+    const approvePlace = (id) => updateFirestorePlace(id, { validationStatus: 'approved' });
+    const rejectPlace = (id) => updateFirestorePlace(id, { validationStatus: 'rejected' });
+    const reviewPlace = (id) => updateFirestorePlace(id, { validationStatus: 'review' });
+
+    const deletePlace = async (id) => {
+        try {
+            await deleteDoc(doc(db, 'places', id));
+        } catch (e) {
+            console.error("Delete failed", e);
+        }
+    };
+
+    const sendFeedback = async (id, msg) => {
+        // We need to fetch the current place to get history, or just use arrayUnion if we structured it well.
+        // For simplicity, fetching generic update with array logic is harder in one stateless go without knowing previous data.
+        // Actually, transaction is best, but let's rely on reading from local `places` state which is synced.
+        const place = places.find(p => p.id === id);
+        if (!place) return;
+
+        const currentHistory = place.feedbackHistory || [];
+        const newHistory = [
+            ...currentHistory,
+            {
+                date: new Date().toISOString(),
+                message: msg,
+                author: 'Admin'
             }
-            return p;
-        }));
+        ];
+
+        await updateFirestorePlace(id, {
+            validationStatus: 'rejected',
+            feedbackHistory: newHistory
+        });
+    };
+
+    // We need to import deleteDoc, setDoc, doc
+    // I will add imports in the next tool call because I can't easily edit top of file here.
+    // WAIT, I should check if they are imported. `addDoc` is imported. `doc` and `setDoc` are NOT.
+
+    // I will simply proceed with this replace, and immediately fix imports.
+
+    const addReview = async (placeId, review) => {
+        try {
+            await addDoc(collection(db, 'reviews'), {
+                placeId,
+                ...review,
+                createdAt: new Date().toISOString()
+            });
+        } catch (error) {
+            console.error("Error adding review:", error);
+        }
     };
 
     const getUserReviewCount = (userName) => {
