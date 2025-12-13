@@ -23,7 +23,7 @@ const FilterBar = ({ activeFilters = [], onToggle }) => {
 
     return (
         <div className="w-full overflow-x-auto no-scrollbar py-4 px-6 md:px-8 bg-white border-b border-gray-100/50 sticky top-[72px] md:top-[76px] z-40 backdrop-blur-md bg-white/90">
-            <div className="flex gap-3 min-w-max">
+            <div className="flex flex-nowrap gap-3 min-w-max">
                 {filters.map((filter) => {
                     const isActive = activeFilters.includes(filter.id);
                     const Icon = ICON_MAP[filter.icon];

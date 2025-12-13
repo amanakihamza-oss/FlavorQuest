@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { Home, Search, Heart, User } from 'lucide-react';
+import { Home, Search, Heart, User, Globe } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import LanguageSwitcher from './LanguageSwitcher';
@@ -70,6 +70,7 @@ const Layout = () => {
             {/* Mobile Bottom Navigation */}
             <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 px-6 py-3 flex justify-between items-center safe-area-bottom">
                 <NavIcon to="/" icon={Home} label={t('nav_home')} />
+                <NavIcon to="/blog" icon={Globe} label={t('nav_mag')} />
                 <NavIcon to="/search" icon={Search} label={t('nav_search')} />
                 <NavIcon to="/saved" icon={Heart} label={t('nav_saved')} />
                 <NavIcon to="/profile" icon={User} label={t('nav_profile')} onClick={handleProfileClick} />
