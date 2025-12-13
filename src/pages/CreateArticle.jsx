@@ -166,116 +166,115 @@ const CreateArticle = () => {
                             </div>
                         </div>
 
-                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Reading Time */}
-                    <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2">Temps de lecture</label>
-                        <div className="relative">
-                            <input
-                                type="text"
-                                name="readTime"
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Reading Time */}
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-2">Temps de lecture</label>
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        name="readTime"
+                                        required
+                                        value={formData.readTime}
+                                        onChange={handleChange}
+                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
+                                        placeholder="Ex: 5 min"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Image URL */}
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-2">Image de couverture (URL)</label>
+                                <div className="relative">
+                                    <ImageIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                                    <input
+                                        type="url"
+                                        name="image"
+                                        required
+                                        value={formData.image}
+                                        onChange={handleChange}
+                                        className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
+                                        placeholder="https://images.unsplash.com/..."
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Excerpt */}
+                        <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-2">Introduction (Extrait)</label>
+                            <textarea
+                                name="excerpt"
                                 required
-                                value={formData.readTime}
+                                rows="3"
+                                value={formData.excerpt}
                                 onChange={handleChange}
                                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
-                                placeholder="Ex: 5 min"
+                                placeholder="Un court résumé qui donne envie de lire..."
                             />
                         </div>
-                    </div>
 
-                    {/* Image URL */}
-                    <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2">Image de couverture (URL)</label>
-                        <div className="relative">
-                            <ImageIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                            <input
-                                type="url"
-                                name="image"
+                        {/* Content */}
+                        <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-2">Contenu de l'article (HTML autorisé)</label>
+
+                            {/* Formatting Toolbar */}
+                            <div className="flex items-center gap-2 mb-2 bg-gray-50 p-1.5 rounded-lg border border-gray-200 w-fit">
+                                <button
+                                    type="button"
+                                    onClick={() => insertFormat('bold')}
+                                    className="px-3 py-1.5 hover:bg-white hover:shadow-sm rounded-md transition-all font-bold text-gray-700 text-sm border border-transparent hover:border-gray-100"
+                                    title="Mettre en gras"
+                                >
+                                    B
+                                </button>
+                                <div className="w-px h-5 bg-gray-300 mx-1"></div>
+                                <button
+                                    type="button"
+                                    onClick={() => insertFormat('h2')}
+                                    className="px-3 py-1.5 hover:bg-white hover:shadow-sm rounded-md transition-all font-bold text-gray-700 text-sm border border-transparent hover:border-gray-100"
+                                    title="Ajouter un grand titre"
+                                >
+                                    H2
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => insertFormat('h3')}
+                                    className="px-3 py-1.5 hover:bg-white hover:shadow-sm rounded-md transition-all font-bold text-gray-700 text-sm border border-transparent hover:border-gray-100"
+                                    title="Ajouter un sous-titre"
+                                >
+                                    H3
+                                </button>
+                            </div>
+
+                            <textarea
+                                ref={textareaRef}
+                                name="content"
                                 required
-                                value={formData.image}
+                                rows="12"
+                                value={formData.content}
                                 onChange={handleChange}
-                                className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
-                                placeholder="https://images.unsplash.com/..."
+                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20 font-mono text-sm leading-relaxed"
+                                placeholder="Écrivez votre article ici..."
                             />
+                            <div className="text-xs text-gray-400 mt-2 flex flex-col gap-1">
+                                <p>Astuce : Sélectionnez du texte et cliquez sur les boutons pour formater.</p>
+                                <p>Lien externe : <code>&lt;a href=&quot;https://site.com&quot;&gt;Votre lien&lt;/a&gt;</code></p>
+                            </div>
                         </div>
-                    </div>
-                </div>
 
-                {/* Excerpt */}
-                <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">Introduction (Extrait)</label>
-                    <textarea
-                        name="excerpt"
-                        required
-                        rows="3"
-                        value={formData.excerpt}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
-                        placeholder="Un court résumé qui donne envie de lire..."
-                    />
-                </div>
-
-                {/* Content */}
-                <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">Contenu de l'article (HTML autorisé)</label>
-
-                    {/* Formatting Toolbar */}
-                    <div className="flex items-center gap-2 mb-2 bg-gray-50 p-1.5 rounded-lg border border-gray-200 w-fit">
                         <button
-                            type="button"
-                            onClick={() => insertFormat('bold')}
-                            className="px-3 py-1.5 hover:bg-white hover:shadow-sm rounded-md transition-all font-bold text-gray-700 text-sm border border-transparent hover:border-gray-100"
-                            title="Mettre en gras"
+                            type="submit"
+                            className="w-full bg-brand-orange text-white font-bold py-4 rounded-xl hover:bg-orange-600 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-brand-orange/20"
                         >
-                            B
+                            <Save size={20} /> Soumettre pour validation
                         </button>
-                        <div className="w-px h-5 bg-gray-300 mx-1"></div>
-                        <button
-                            type="button"
-                            onClick={() => insertFormat('h2')}
-                            className="px-3 py-1.5 hover:bg-white hover:shadow-sm rounded-md transition-all font-bold text-gray-700 text-sm border border-transparent hover:border-gray-100"
-                            title="Ajouter un grand titre"
-                        >
-                            H2
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => insertFormat('h3')}
-                            className="px-3 py-1.5 hover:bg-white hover:shadow-sm rounded-md transition-all font-bold text-gray-700 text-sm border border-transparent hover:border-gray-100"
-                            title="Ajouter un sous-titre"
-                        >
-                            H3
-                        </button>
-                    </div>
-
-                    <textarea
-                        ref={textareaRef}
-                        name="content"
-                        required
-                        rows="12"
-                        value={formData.content}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20 font-mono text-sm leading-relaxed"
-                        placeholder="Écrivez votre article ici..."
-                    />
-                    <div className="text-xs text-gray-400 mt-2 flex flex-col gap-1">
-                        <p>Astuce : Sélectionnez du texte et cliquez sur les boutons pour formater.</p>
-                        <p>Lien externe : <code>&lt;a href=&quot;https://site.com&quot;&gt;Votre lien&lt;/a&gt;</code></p>
-                    </div>
+                    </form>
                 </div>
-
-                <button
-                    type="submit"
-                    className="w-full bg-brand-orange text-white font-bold py-4 rounded-xl hover:bg-orange-600 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-brand-orange/20"
-                >
-                    <Save size={20} /> Soumettre pour validation
-                </button>
-            </form>
-        </div>
-    </div >
-</div >
+            </div >
+        </div >
     );
 };
 
