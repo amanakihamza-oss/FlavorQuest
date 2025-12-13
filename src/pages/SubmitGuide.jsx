@@ -30,7 +30,7 @@ const SubmitGuide = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const [isSubmitting, setIsSubmitting] = useState(false);
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
