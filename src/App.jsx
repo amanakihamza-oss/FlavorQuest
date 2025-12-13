@@ -23,6 +23,7 @@ import FavoritesPage from './pages/FavoritesPage';
 import ProfilePage from './pages/ProfilePage';
 import PrivacyPage from './pages/PrivacyPage';
 import LegalPage from './pages/LegalPage';
+import ClaimPlace from './pages/ClaimPlace';
 import NotFound from './pages/NotFound';
 
 // Context Providers
@@ -69,6 +70,7 @@ function App() {
                                         } />
                                         <Route path="/privacy" element={<PrivacyPage />} />
                                         <Route path="/legal" element={<LegalPage />} />
+                                        <Route path="/claim/:id" element={<ClaimPlace />} />
                                         <Route path="*" element={<NotFound />} />
                                     </Route>
                                 </Routes>

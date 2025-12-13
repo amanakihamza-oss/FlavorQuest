@@ -4,7 +4,7 @@ import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 
-const PlaceCard = ({ id, name, rating, reviews, image, category, distance, status, city }) => {
+const PlaceCard = ({ id, name, rating, reviews, image, category, distance, status, city, isSponsored }) => {
     const { favorites, toggleFavorite, isAuthenticated, setShowAuthModal } = useAuth();
     const { showToast } = useToast();
     const isFavorite = favorites.includes(id);
@@ -25,7 +25,7 @@ const PlaceCard = ({ id, name, rating, reviews, image, category, distance, statu
 
     return (
         <NavLink to={`/place/${id}`} className="block group">
-            <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 relative">
+            <div className={`bg-white rounded-2xl overflow-hidden transition-all duration-300 border relative ${isSponsored ? 'border-yellow-400 shadow-md shadow-yellow-100 hover:shadow-yellow-200' : 'border-gray-100 shadow-sm hover:shadow-xl'}`}>
                 {/* Image Container */}
                 <div className="relative h-48 overflow-hidden">
                     <img
@@ -36,6 +36,13 @@ const PlaceCard = ({ id, name, rating, reviews, image, category, distance, statu
                     <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-2 py-1 rounded-md text-xs font-bold text-brand-orange uppercase tracking-wider">
                         {category}
                     </div>
+
+                    {/* Sponsored Badge */}
+                    {isSponsored && (
+                        <div className="absolute top-3 right-12 bg-yellow-400 text-white px-2 py-1 rounded-md text-xs font-bold uppercase tracking-wider shadow-sm flex items-center gap-1">
+                            <Star size={10} className="fill-white" /> Partner
+                        </div>
+                    )}
                     {/* Heart Button */}
                     <button
                         onClick={handleHeartClick}

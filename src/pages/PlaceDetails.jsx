@@ -18,16 +18,17 @@ const PlaceDetails = () => {
         addReview(place.id, reviewData);
     };
 
-    // Schema Markup for Restaurant
+    // Enhanced Schema Markup for Local SEO
     const schema = {
         "@context": "https://schema.org",
         "@type": "Restaurant",
         "name": place.name,
-        "image": place.image,
+        "image": [place.image],
+        "description": place.description || `Découvrez ${place.name} à ${place.city || 'Namur'}.`,
         "address": {
             "@type": "PostalAddress",
-            "streetAddress": "Rue de l'Exemple 123", // Mock data
-            "addressLocality": "Namur",
+            "streetAddress": place.address || "Centre ville",
+            "addressLocality": place.city || "Namur",
             "postalCode": "5000",
             "addressCountry": "BE"
         },
@@ -37,26 +38,50 @@ const PlaceDetails = () => {
             "longitude": place.lng || 4.8720
         },
         "url": window.location.href,
-        "telephone": "+3281000000",
+        "telephone": "+3281000000", // Mock
+        "servesCuisine": place.category,
         "priceRange": "€€",
         "aggregateRating": {
             "@type": "AggregateRating",
-            "ratingValue": place.rating,
-            "reviewCount": place.reviews
+            "ratingValue": place.rating || 4.5,
+            "reviewCount": place.reviews || 1
         }
     };
+
+    const pageTitle = `${place.name} à ${place.city || 'Namur'} - Avis & Menu | FlavorQuest`;
+    const pageDesc = `Découvrez ${place.name}, une pépite ${place.category} à ${place.city || 'Namur'}. Note: ${place.rating}/5 sur ${place.reviews} avis. Photos, menu et horaires.`;
 
     return (
         <div className="bg-white min-h-screen pb-20">
             <Helmet>
-                <title>{place.name} - FlavorQuest</title>
-                <meta name="description" content={`Découvrez ${place.name}, une pépite ${place.category} à Namur.`} />
+                {/* Standard Meta Tags */}
+                <title>{pageTitle}</title>
+                <meta name="description" content={pageDesc} />
+
+                {/* Open Graph / Facebook */}
+                <meta property="og:type" content="restaurant" />
+                <meta property="og:url" content={window.location.href} />
+                <meta property="og:title" content={pageTitle} />
+                <meta property="og:description" content={pageDesc} />
+                <meta property="og:image" content={place.image} />
+
+                {/* Twitter */}
+                <meta property="twitter:card" content="summary_large_image" />
+                <meta property="twitter:title" content={pageTitle} />
+                <meta property="twitter:description" content={pageDesc} />
+                <meta property="twitter:image" content={place.image} />
+
+                {/* Structured Data (JSON-LD) */}
                 <script type="application/ld+json">{JSON.stringify(schema)}</script>
             </Helmet>
 
             {/* Hero Image */}
             <div className="relative h-[40vh] md:h-[50vh]">
-                <img src={place.image} alt={place.name} className="w-full h-full object-cover" />
+                <img
+                    src={place.image}
+                    alt={`Plat ${place.category} chez ${place.name} à ${place.city || 'Namur'}`}
+                    className="w-full h-full object-cover"
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
 
                 <Link to="/" className="absolute top-6 left-6 p-3 bg-white/20 backdrop-blur-md rounded-full text-white hover:bg-white/30 transition-all">
@@ -182,6 +207,13 @@ const PlaceDetails = () => {
                             <h3 className="font-bold text-green-800 text-sm">Lieu Vérifié</h3>
                             <p className="text-green-700 text-xs mt-1">Cette pépite a été validée par l'équipe FlavorQuest pour sa qualité.</p>
                         </div>
+                    </div>
+
+                    {/* Claim Business Link */}
+                    <div className="text-center pt-2">
+                        <Link to={`/claim/${place.id}`} className="text-xs text-gray-400 hover:text-brand-orange hover:underline transition-colors">
+                            Vous êtes le propriétaire ? Revendiquez votre fiche
+                        </Link>
                     </div>
                 </div>
             </div>

@@ -57,6 +57,13 @@ const Home = () => {
         });
     });
 
+    const sortedPlaces = [...approvedPlaces].sort((a, b) => {
+        // Sponsored first
+        if (a.isSponsored && !b.isSponsored) return -1;
+        if (!a.isSponsored && b.isSponsored) return 1;
+        return 0;
+    });
+
     return (
         <div className="pb-10">
             <Helmet>
@@ -120,13 +127,13 @@ const Home = () => {
 
                     {viewMode === 'list' ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in">
-                            {approvedPlaces.map(place => (
+                            {sortedPlaces.map(place => (
                                 <PlaceCard key={place.id} {...place} />
                             ))}
                         </div>
                     ) : (
                         <div className="animate-fade-in max-w-6xl mx-auto">
-                            <Map places={approvedPlaces} />
+                            <Map places={sortedPlaces} />
                         </div>
                     )}
                 </section>
