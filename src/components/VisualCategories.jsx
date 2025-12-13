@@ -5,8 +5,13 @@ import { usePlaces } from '../context/PlacesContext';
 
 const CATEGORIES = [
     {
+        id: 'Restaurant',
+        label: 'Restaurant',
+        image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=2070&auto=format&fit=crop',
+    },
+    {
         id: 'Brasserie',
-        label: 'Brasserie & Resto',
+        label: 'Brasserie',
         image: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=1974&auto=format&fit=crop',
     },
     {

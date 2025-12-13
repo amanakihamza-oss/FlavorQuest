@@ -101,7 +101,7 @@ const BlogArticle = () => {
                     </p>
 
                     {/* Render HTML content safely */}
-                    <div dangerouslySetInnerHTML={{ __html: article.content }} />
+                    <div dangerouslySetInnerHTML={{ __html: article.content }} className="whitespace-pre-line" />
                 </article>
 
                 {/* Sidebar: Related Places */}

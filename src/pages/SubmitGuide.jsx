@@ -171,11 +171,11 @@ const SubmitGuide = () => {
                                 onChange={handleChange}
                                 className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange transition-all font-medium appearance-none"
                             >
-                                <option>Restaurant</option>
-                                <option>Brasserie</option>
-                                <option>Café</option>
-                                <option>Snack</option>
-                                <option>Vegan</option>
+                                <option value="Restaurant">Restaurant</option>
+                                <option value="Brasserie">Brasserie</option>
+                                <option value="Snack">Fast Food</option>
+                                <option value="Café">Café & Douceurs</option>
+                                <option value="Vegan">Healthy & Vegan</option>
                             </select>
                         </div>
                     </div>

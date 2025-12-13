@@ -128,9 +128,16 @@ const Map = ({ places }) => {
                                     </div>
                                     <h3 className="font-bold text-gray-900 text-sm mb-1">{place.name}</h3>
                                     <div className="flex justify-between items-center mt-2">
-                                        <div className="flex items-center gap-1 text-xs text-gray-500">
-                                            <MapPin size={10} />
-                                            {place.city || 'Namur'}
+                                        <div className="flex flex-col gap-0.5 text-xs text-gray-500">
+                                            <div className="flex items-center gap-1">
+                                                <MapPin size={10} />
+                                                <span className="font-bold">{place.city || 'Namur'}</span>
+                                            </div>
+                                            {place.address && (
+                                                <p className="pl-3.5 text-gray-400 line-clamp-1" title={place.address}>
+                                                    {place.address}
+                                                </p>
+                                            )}
                                         </div>
                                         <Link to={`/place/${place.id}`} className="text-xs bg-brand-dark text-white px-3 py-1.5 rounded-full font-bold hover:bg-black transition-colors">
                                             Voir

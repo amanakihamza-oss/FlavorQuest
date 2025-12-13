@@ -25,20 +25,27 @@ const Hero = () => {
                 </h1>
 
                 {/* Search Bar */}
-                <div className="w-full relative flex items-center bg-white rounded-full shadow-xl overflow-hidden p-1.5 focus-within:ring-2 focus-within:ring-brand-orange transition-all duration-300 transform hover:scale-[1.01]">
+                <form onSubmit={(e) => {
+                    e.preventDefault();
+                    if (e.target.search.value.trim()) {
+                        window.location.href = `/search?q=${encodeURIComponent(e.target.search.value.trim())}`;
+                    }
+                }} className="w-full relative flex items-center bg-white rounded-full shadow-xl overflow-hidden p-1.5 focus-within:ring-2 focus-within:ring-brand-orange transition-all duration-300 transform hover:scale-[1.01]">
                     <div className="pl-4 text-gray-400">
                         <Search size={22} />
                     </div>
                     <input
+                        name="search"
                         type="text"
                         placeholder={t('hero_search_placeholder')}
                         className="flex-grow px-3 py-3 text-brand-dark outline-none placeholder-gray-400 font-medium bg-transparent"
                     />
-                    <button className="flex items-center gap-2 bg-brand-gray text-brand-dark px-4 py-3 rounded-full hover:bg-gray-200 transition-colors border-l border-gray-200 text-sm font-semibold">
+                    <button type="submit" className="hidden"></button> {/* Hidden submit for Enter key */}
+                    <button type="button" onClick={() => window.location.href = '/search'} className="flex items-center gap-2 bg-brand-gray text-brand-dark px-4 py-3 rounded-full hover:bg-gray-200 transition-colors border-l border-gray-200 text-sm font-semibold">
                         <MapPin size={18} className="text-brand-orange" />
                         <span className="hidden sm:inline">{t('hero_nearby')}</span>
                     </button>
-                </div>
+                </form>
 
                 <p className="text-gray-200 text-sm md:text-base font-medium">
                     {t('hero_subtitle')}

@@ -51,7 +51,10 @@ const PlaceCard = ({ id, name, rating, reviews, image, category, distance, statu
                         <Heart size={18} className={isFavorite ? "fill-red-500 text-red-500" : "text-gray-400"} />
                     </button>
                     {status && (
-                        <div className="absolute bottom-3 right-3 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                        <div className={`absolute bottom-3 right-3 px-2 py-1 rounded-full text-xs font-medium text-white ${status === 'Ouvert' ? 'bg-green-500' :
+                            status === 'Fermé' ? 'bg-red-500' :
+                                'bg-orange-500'
+                            }`}>
                             {status}
                         </div>
                     )}
