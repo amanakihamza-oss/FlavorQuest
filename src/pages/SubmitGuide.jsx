@@ -11,6 +11,7 @@ const SubmitGuide = () => {
     const { isAuthenticated, setShowAuthModal } = useAuth();
 
     // Form state
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         category: 'Brasserie',
@@ -29,26 +30,51 @@ const SubmitGuide = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsSubmitting(true);
 
-        // Create new place object
-        const newPlace = {
-            ...formData,
-            // Pass the raw File object if it exists, otherwise null
-            image: formData.image,
-            rating: 0,
-            reviews: 0,
-            status: 'Fermé', // Default
-            distance: '0.0 km', // Mock
-            validationStatus: 'pending', // IMPORTANT for Admin
-            feedback: []
-        };
+        try {
+            // Create new place object
+            const newPlace = {
+                ...formData,
+                image: formData.image,
+                rating: 0,
+                reviews: 0,
+                status: 'Fermé',
+                distance: '0.0 km', // Mock
+                validationStatus: 'pending',
+                feedback: []
+            };
 
-        // We await the async addPlace which now handles upload
-        await addPlace(newPlace);
-        navigate('/');
+            await addPlace(newPlace);
+            navigate('/');
+        } catch (error) {
+            console.error("Erreur lors de l'envoi :", error);
+            alert("Une erreur est survenue lors de l'envoi. Veuillez réessayer.");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
+
+    // ... (rest of the code)
+
+    // And update submit button:
+    // This replace is tricky because I need to update state definition AND the button.
+    // I will split this into two calls or use multi-replace if I can target ranges.
+    // I will use replace_file_content for the Logic first, then button.
+    // Wait, the block above only updates `handleSubmit`. I need to insert `isSubmitting` state too.
+    // I'll assume I can rewrite the top part of the component.
+
+    // Oh, I see `isSubmitting` is needed. 
+    // I will use `replace_file_content` to replace the `handleSubmit` AND the state initialization by targeting a larger block starting from `const [formData...` or similar.
+
+    // Actually, I can just insert `const [isSubmitting, setIsSubmitting] = useState(false);` near other hooks.
+
+    // Let's do it in one large block for `handleSubmit` but first I need to add the state variable.
+
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -224,10 +250,17 @@ const SubmitGuide = () => {
                     <div className="pt-4">
                         <button
                             type="submit"
-                            className="w-full bg-brand-orange text-white py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 hover:bg-orange-600 transition-all shadow-lg shadow-orange-200 transform hover:scale-[1.02]"
+                            disabled={isSubmitting}
+                            className="w-full bg-brand-orange text-white py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 hover:bg-orange-600 transition-all shadow-lg shadow-orange-200 transform hover:scale-[1.02] disabled:opacity-70 disabled:cursor-wait"
                         >
-                            <Send size={20} />
-                            Envoyer ma pépite
+                            {isSubmitting ? (
+                                <>Envoi en cours...</>
+                            ) : (
+                                <>
+                                    <Send size={20} />
+                                    Envoyer ma pépite
+                                </>
+                            )}
                         </button>
                     </div>
                 </form>

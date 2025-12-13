@@ -204,7 +204,26 @@ export const PlacesProvider = ({ children }) => {
     const rejectPlace = (id) => updateLocalPlace(prev => prev.map(p => p.id === id ? { ...p, validationStatus: 'rejected' } : p));
     const deletePlace = (id) => updateLocalPlace(prev => prev.filter(p => p.id !== id));
     const reviewPlace = (id) => updateLocalPlace(prev => prev.map(p => p.id === id ? { ...p, validationStatus: 'review' } : p));
-    const sendFeedback = (id, msg) => { }; // No-op or toast
+    const sendFeedback = (id, msg) => {
+        updateLocalPlace(prev => prev.map(p => {
+            if (p.id === id) {
+                const currentHistory = p.feedbackHistory || [];
+                return {
+                    ...p,
+                    validationStatus: 'rejected', // Usually feedback implies rejection or needs changes
+                    feedbackHistory: [
+                        ...currentHistory,
+                        {
+                            date: new Date().toISOString(),
+                            message: msg,
+                            author: 'Admin'
+                        }
+                    ]
+                };
+            }
+            return p;
+        }));
+    };
 
     const getUserReviewCount = (userName) => {
         if (!userName) return 0;
