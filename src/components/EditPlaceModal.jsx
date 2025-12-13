@@ -46,6 +46,8 @@ const EditPlaceModal = ({ isOpen, onClose, place }) => {
     const [formData, setFormData] = useState({
         name: '',
         category: 'Brasserie',
+        website: '',
+        openingHours: '',
         description: '',
         image: '',
         tags: []
@@ -56,6 +58,8 @@ const EditPlaceModal = ({ isOpen, onClose, place }) => {
             setFormData({
                 name: place.name || '',
                 category: place.category || 'Brasserie',
+                website: place.website || '',
+                openingHours: place.openingHours || '',
                 description: place.description || '',
                 image: place.image || '',
                 tags: place.tags || []
@@ -134,6 +138,17 @@ const EditPlaceModal = ({ isOpen, onClose, place }) => {
                                 </div>
                             </div>
                             <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">Horaires</label>
+                                <textarea
+                                    name="openingHours"
+                                    value={formData.openingHours}
+                                    onChange={handleChange}
+                                    rows={2}
+                                    className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
+                                    placeholder="Lun-Dim: 12h-22h..."
+                                />
+                            </div>
+                            <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-1">Description</label>
                                 <textarea
                                     name="description"
@@ -160,6 +175,18 @@ const EditPlaceModal = ({ isOpen, onClose, place }) => {
                                         </div>
                                     )}
                                 </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">Site Web</label>
+                                <input
+                                    type="text"
+                                    name="website"
+                                    value={formData.website}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
+                                    placeholder="https://..."
+                                />
                             </div>
                         </div>
 

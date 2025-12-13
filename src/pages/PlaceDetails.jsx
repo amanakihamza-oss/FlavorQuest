@@ -189,13 +189,25 @@ const PlaceDetails = () => {
                         </div>
                         <div className="flex items-center gap-3 text-gray-700">
                             <Globe className="text-brand-orange" />
-                            <a href="#" className="hover:text-brand-orange transition-colors">visiter-le-site.be</a>
+                            {place.website ? (
+                                <a href={place.website} target="_blank" rel="noopener noreferrer" className="hover:text-brand-orange transition-colors truncate max-w-[200px]">
+                                    {place.website.replace(/^https?:\/\//, '')}
+                                </a>
+                            ) : (
+                                <span className="text-gray-400 italic">Site web non disponible</span>
+                            )}
                         </div>
                         <div className="border-t border-gray-200 pt-4 mt-4">
                             <h3 className="font-bold mb-2">Horaires</h3>
-                            <div className="space-y-1 text-sm text-gray-600">
-                                <div className="flex justify-between"><span>Lun - Ven</span> <span>11h - 22h</span></div>
-                                <div className="flex justify-between"><span>Sam - Dim</span> <span>11h - 23h</span></div>
+                            <div className="space-y-1 text-sm text-gray-600 whitespace-pre-line">
+                                {place.openingHours ? (
+                                    <p>{place.openingHours}</p>
+                                ) : (
+                                    <div className="space-y-1">
+                                        <div className="flex justify-between"><span>Lun - Ven</span> <span>11h - 22h</span></div>
+                                        <div className="flex justify-between"><span>Sam - Dim</span> <span>11h - 23h</span></div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

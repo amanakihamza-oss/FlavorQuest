@@ -15,8 +15,10 @@ const SubmitGuide = () => {
     const [formData, setFormData] = useState({
         name: '',
         category: 'Brasserie',
-        address: '',
+        addresse: '',
         city: '',
+        website: '',
+        openingHours: '',
         description: '',
         image: null,
         tags: []
@@ -189,6 +191,30 @@ const SubmitGuide = () => {
                             className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange transition-all font-medium"
                             placeholder="Ex: Rue de la Gare 12, 4000 Liège"
                         />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-bold text-brand-dark uppercase mb-2">Site Web (Optionnel)</label>
+                        <input
+                            type="url"
+                            name="website"
+                            value={formData.website}
+                            onChange={handleChange}
+                            className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange transition-all font-medium"
+                            placeholder="Ex: https://mon-resto.be"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-bold text-brand-dark uppercase mb-2">Horaires (Texte libre)</label>
+                        <textarea
+                            name="openingHours"
+                            value={formData.openingHours}
+                            onChange={handleChange}
+                            rows="2"
+                            className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange transition-all font-medium resize-none"
+                            placeholder="Ex: Lun-Ven: 11h-22h, Sam: 12h-23h..."
+                        ></textarea>
                     </div>
 
                     <div>
