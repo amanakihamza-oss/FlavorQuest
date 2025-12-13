@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F97316;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#EA580C;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Background with rounded corners -->
+  <rect width="512" height="512" rx="128" fill="url(#grad)" />
+  
+  <!-- Gem/Diamond Icon -->
+  <g transform="translate(106, 126) scale(0.6)" fill="none" stroke="white" stroke-width="35" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Top flat -->
+    <path d="M110 0 L390 0 L500 130 L250 500 L0 130 Z" />
+    <!-- Inner facets -->
+    <path d="M0 130 L500 130" /> <!-- Horizontal line -->
+    <path d="M110 0 L150 130 L250 500 L350 130 L390 0" /> <!-- Vertical-ish lines -->
+    <path d="M250 500 L250 130" /> <!-- Middle vertical -->
+  </g>
+</svg>

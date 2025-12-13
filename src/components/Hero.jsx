@@ -1,0 +1,51 @@
+import React from 'react';
+import { Search, MapPin } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
+
+const Hero = () => {
+    const { t } = useLanguage();
+
+    return (
+        <div className="relative w-full h-[60vh] md:h-[500px] flex items-center justify-center bg-gray-900 overflow-hidden">
+            {/* Background Overlay */}
+            <div className="absolute inset-0 z-0">
+                <img
+                    src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=2070&auto=format&fit=crop"
+                    alt="Delicious Food"
+                    className="w-full h-full object-cover opacity-60"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+            </div>
+
+            {/* Content */}
+            <div className="relative z-10 w-full max-w-2xl px-6 flex flex-col items-center text-center space-y-6">
+                <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight drop-shadow-md">
+                    {t('hero_title_1')} <br />
+                    <span className="text-brand-orange">{t('hero_title_2')}</span>
+                </h1>
+
+                {/* Search Bar */}
+                <div className="w-full relative flex items-center bg-white rounded-full shadow-xl overflow-hidden p-1.5 focus-within:ring-2 focus-within:ring-brand-orange transition-all duration-300 transform hover:scale-[1.01]">
+                    <div className="pl-4 text-gray-400">
+                        <Search size={22} />
+                    </div>
+                    <input
+                        type="text"
+                        placeholder={t('hero_search_placeholder')}
+                        className="flex-grow px-3 py-3 text-brand-dark outline-none placeholder-gray-400 font-medium bg-transparent"
+                    />
+                    <button className="flex items-center gap-2 bg-brand-gray text-brand-dark px-4 py-3 rounded-full hover:bg-gray-200 transition-colors border-l border-gray-200 text-sm font-semibold">
+                        <MapPin size={18} className="text-brand-orange" />
+                        <span className="hidden sm:inline">{t('hero_nearby')}</span>
+                    </button>
+                </div>
+
+                <p className="text-gray-200 text-sm md:text-base font-medium">
+                    {t('hero_subtitle')}
+                </p>
+            </div>
+        </div>
+    );
+};
+
+export default Hero;
