@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { db } from '../firebase';
+import { db, storage } from '../firebase';
 import { collection, addDoc, onSnapshot, query } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const PlacesContext = createContext();
 
@@ -162,7 +163,29 @@ export const PlacesProvider = ({ children }) => {
     };
 
     // Admin Actions (operating on local state + mock persistence if we wanted, but let's stick to memory/mock for places)
-    const addPlace = (newPlace) => updateLocalPlace(prev => [{ ...newPlace, id: Date.now().toString(), validationStatus: 'pending' }, ...prev]);
+
+    // Initialize places from mock data
+    // We will augment this with real Firestore reviews dyanmically
+    const [places, setPlaces] = useState(INITIAL_GEMS);
+    const [firestoreReviews, setFirestoreReviews] = useState([]);
+
+    // Import storage and helpers needed inside the component or at top level
+    // imports were done at top. 
+    // We need to import: ref, uploadBytes, getDownloadURL from firebase/storage
+    // BUT imports must be at the top level. I missed adding them to the file imports in the previous step.
+    // I will add them now in a separate replace call or assume I can do it here if possible.
+    // Wait, replacing imports *and* function body in one go is better with multi_replace or separate calls.
+    // I'll stick to replacing `addPlace` here, BUT I first need to ensure imports are present.
+    // Since I cannot do two things in one replace easily without context, I will create a logic here that assumes imports exist, 
+    // AND I will make a separate call to add imports.
+
+    // Actually, let's look at the plan. I need to update imports first.
+    // Let me ABORT this specific tool call mentally and issue a `replace_file_content` for imports first.
+    // I will use this turn to update imports, and NEXT turn to update Logic.
+
+    // Oh wait, I am the model. I can just do sequential tool calls.
+    // STARTING WITH IMPORTS.
+
     const updatePlace = (id, data) => updateLocalPlace(prev => prev.map(p => p.id === id ? { ...p, ...data } : p));
     const approvePlace = (id) => updateLocalPlace(prev => prev.map(p => p.id === id ? { ...p, validationStatus: 'approved' } : p));
     const rejectPlace = (id) => updateLocalPlace(prev => prev.map(p => p.id === id ? { ...p, validationStatus: 'rejected' } : p));

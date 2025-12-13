@@ -29,13 +29,14 @@ const SubmitGuide = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         // Create new place object
         const newPlace = {
             ...formData,
-            image: formData.image ? URL.createObjectURL(formData.image) : 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=2070&auto=format&fit=crop', // Temporary mock
+            // Pass the raw File object if it exists, otherwise null
+            image: formData.image,
             rating: 0,
             reviews: 0,
             status: 'Fermé', // Default
@@ -44,7 +45,8 @@ const SubmitGuide = () => {
             feedback: []
         };
 
-        addPlace(newPlace);
+        // We await the async addPlace which now handles upload
+        await addPlace(newPlace);
         navigate('/');
     };
 
