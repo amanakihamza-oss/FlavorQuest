@@ -180,9 +180,44 @@ const SubmitGuide = () => {
 
                     <div>
                         <label className="block text-sm font-bold text-gray-700 mb-2">Photos</label>
-                        <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center text-gray-400 hover:border-brand-orange hover:text-brand-orange hover:bg-orange-50 transition-all cursor-pointer">
-                            <Camera size={32} className="mb-2" />
-                            <span className="font-medium">Cliquez pour ajouter des photos</span>
+                        <div
+                            className={`border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center transition-all cursor-pointer relative overflow-hidden ${formData.image ? 'border-brand-orange bg-orange-50' : 'border-gray-300 hover:border-brand-orange hover:bg-orange-50 text-gray-400 hover:text-brand-orange'}`}
+                            onDragOver={(e) => e.preventDefault()}
+                            onDrop={(e) => {
+                                e.preventDefault();
+                                const file = e.dataTransfer.files[0];
+                                if (file) setFormData({ ...formData, image: file });
+                            }}
+                            onClick={() => document.getElementById('fileInput').click()}
+                        >
+                            <input
+                                id="fileInput"
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={(e) => {
+                                    if (e.target.files[0]) setFormData({ ...formData, image: e.target.files[0] });
+                                }}
+                            />
+
+                            {formData.image ? (
+                                <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-black/50 group">
+                                    <img
+                                        src={URL.createObjectURL(formData.image)}
+                                        alt="Preview"
+                                        className="absolute inset-0 w-full h-full object-cover"
+                                    />
+                                    <div className="z-10 bg-white/90 p-3 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <Camera size={24} className="text-brand-dark" />
+                                    </div>
+                                    <p className="absolute bottom-4 text-white text-xs font-bold drop-shadow-md opacity-0 group-hover:opacity-100 transition-opacity">Cliquez pour changer</p>
+                                </div>
+                            ) : (
+                                <>
+                                    <Camera size={32} className="mb-2" />
+                                    <span className="font-medium text-center">Cliquez ou glissez une image ici</span>
+                                </>
+                            )}
                         </div>
                     </div>
 
