@@ -82,6 +82,20 @@ const CreateArticle = () => {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Author */}
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-2">Auteur</label>
+                                <input
+                                    type="text"
+                                    name="author"
+                                    required
+                                    value={formData.author}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
+                                    placeholder="Votre nom ou pseudonyme"
+                                />
+                            </div>
+
                             {/* Category */}
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-2">Catégorie</label>
@@ -97,7 +111,9 @@ const CreateArticle = () => {
                                     <option value="Recette">Recette</option>
                                 </select>
                             </div>
+                        </div>
 
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* City */}
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-2">Ville / Région</label>

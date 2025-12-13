@@ -18,6 +18,12 @@ const Layout = () => {
         }
     };
 
+    React.useEffect(() => {
+        const handleOpenAuth = () => setShowAuthModal(true);
+        document.addEventListener('open-auth-modal', handleOpenAuth);
+        return () => document.removeEventListener('open-auth-modal', handleOpenAuth);
+    }, [setShowAuthModal]);
+
     return (
         <div className="flex flex-col min-h-screen bg-brand-gray pb-20 md:pb-0">
             {/* Desktop Header */}
@@ -33,9 +39,7 @@ const Layout = () => {
                 <div className="flex items-center gap-6">
                     <nav className="flex gap-6">
                         <NavLink to="/" className={({ isActive }) => isActive ? "text-brand-orange font-medium" : "text-brand-dark hover:text-brand-orange"}>{t('nav_home')}</NavLink>
-                        <NavLink to="/blog" className={({ isActive }) => `font-medium hover:text-brand-orange transition-colors ${isActive ? 'text-brand-orange' : 'text-gray-600'}`}>
-                            {t('nav_mag')}
-                        </NavLink>
+                        <NavLink to="/blog" className={({ isActive }) => isActive ? "text-brand-orange font-medium" : "text-brand-dark hover:text-brand-orange"}>{t('nav_mag')}</NavLink>
                         <NavLink to="/search" className={({ isActive }) => isActive ? "text-brand-orange font-medium" : "text-brand-dark hover:text-brand-orange"}>{t('nav_search')}</NavLink>
                         <NavLink to="/submit" className={({ isActive }) => isActive ? "text-brand-orange font-medium" : "text-brand-dark hover:text-brand-orange"}>{t('nav_submit')}</NavLink>
                     </nav>

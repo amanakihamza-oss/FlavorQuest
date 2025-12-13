@@ -77,7 +77,9 @@ const EditPlaceModal = ({ isOpen, onClose, place }) => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1">Catégorie</label>
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">
+                                        Section "Envie de quoi ?"
+                                    </label>
                                     <select
                                         name="category"
                                         value={formData.category}
@@ -85,10 +87,11 @@ const EditPlaceModal = ({ isOpen, onClose, place }) => {
                                         className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
                                     >
                                         <option value="Brasserie">Brasserie & Resto</option>
-                                        <option value="Snack">Fast Food / Snack</option>
-                                        <option value="Vegan">Vegan / Healthy</option>
-                                        <option value="Café">Café / Douceurs</option>
+                                        <option value="Snack">Fast Food</option>
+                                        <option value="Vegan">Healthy & Vegan</option>
+                                        <option value="Café">Café & Douceurs</option>
                                     </select>
+                                    <p className="text-xs text-gray-400 mt-1">Détermine l'affichage sur l'accueil</p>
                                 </div>
                             </div>
                             <div>

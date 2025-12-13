@@ -57,14 +57,19 @@ const BlogHome = () => {
                         ))}
                     </div>
 
-                    {isAuthenticated && (
-                        <button
-                            onClick={() => navigate('/blog/new')}
-                            className="w-full md:w-auto px-6 py-3 bg-brand-orange text-white rounded-xl font-bold text-sm hover:bg-orange-600 transition-colors shadow-md shadow-brand-orange/20 flex items-center justify-center gap-2 whitespace-nowrap"
-                        >
-                            <PenTool size={16} /> Rédiger un article
-                        </button>
-                    )}
+                    <button
+                        onClick={() => {
+                            if (isAuthenticated) {
+                                navigate('/blog/new');
+                            } else {
+                                // Trigger auth modal if not logged in
+                                document.dispatchEvent(new CustomEvent('open-auth-modal'));
+                            }
+                        }}
+                        className="w-full md:w-auto px-6 py-3 bg-brand-orange text-white rounded-xl font-bold text-sm hover:bg-orange-600 transition-colors shadow-md shadow-brand-orange/20 flex items-center justify-center gap-2 whitespace-nowrap"
+                    >
+                        <PenTool size={16} /> Rédiger un article
+                    </button>
                 </div>
 
                 {/* Articles Grid */}
