@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Camera, MapPin, Tag, Plus, ArrowLeft, Lock, Send } from 'lucide-react';
 import OpeningHoursInput from '../components/OpeningHoursInput';
 import { NavLink, useNavigate } from 'react-router-dom';
+import { geocodeAddress } from '../utils/geocoding';
 import { usePlaces } from '../context/PlacesContext';
 import { useAuth } from '../context/AuthContext';
 import { Helmet } from 'react-helmet-async';
@@ -16,7 +17,7 @@ const SubmitGuide = () => {
     const [formData, setFormData] = useState({
         name: '',
         category: 'Brasserie',
-        addresse: '',
+        address: '', // Fixed typo from 'addresse' to 'address' based on context usage, but let's check input name
         city: '',
         website: '',
         openingHours: {},
@@ -33,23 +34,28 @@ const SubmitGuide = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
 
         try {
+            // Geocode the address
+            const fullAddress = `${formData.address}, ${formData.city}`;
+            const coordinates = await geocodeAddress(fullAddress);
+
             // Create new place object
             const newPlace = {
                 ...formData,
                 image: formData.image,
                 rating: 0,
                 reviews: 0,
-                status: 'Fermé',
+                status: 'Closed', // Default initial status
                 distance: '0.0 km', // Mock
                 validationStatus: 'pending',
-                feedback: []
+                feedback: [],
+                // Add coordinates if found, else default center (Namur) or null
+                lat: coordinates ? coordinates.lat : 50.4674,
+                lng: coordinates ? coordinates.lng : 4.8710
             };
 
             await addPlace(newPlace);
@@ -61,23 +67,6 @@ const SubmitGuide = () => {
             setIsSubmitting(false);
         }
     };
-
-    // ... (rest of the code)
-
-    // And update submit button:
-    // This replace is tricky because I need to update state definition AND the button.
-    // I will split this into two calls or use multi-replace if I can target ranges.
-    // I will use replace_file_content for the Logic first, then button.
-    // Wait, the block above only updates `handleSubmit`. I need to insert `isSubmitting` state too.
-    // I'll assume I can rewrite the top part of the component.
-
-    // Oh, I see `isSubmitting` is needed. 
-    // I will use `replace_file_content` to replace the `handleSubmit` AND the state initialization by targeting a larger block starting from `const [formData...` or similar.
-
-    // Actually, I can just insert `const [isSubmitting, setIsSubmitting] = useState(false);` near other hooks.
-
-    // Let's do it in one large block for `handleSubmit` but first I need to add the state variable.
-
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];

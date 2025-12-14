@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Star, MapPin, Clock, Phone, Globe, ChevronLeft, ShieldCheck, User } from 'lucide-react';
 import { usePlaces } from '../context/PlacesContext';
 import { getFormattedHours } from '../utils/time';
+import { checkIsOpen } from '../utils/hours';
 import SEO from '../components/SEO';
 import ReviewForm from '../components/ReviewForm';
 
@@ -14,6 +15,8 @@ const PlaceDetails = () => {
     if (!place) {
         return <div className="text-center py-20">Lieu introuvable</div>;
     }
+
+    const { status, color } = checkIsOpen(place.openingHours);
 
     const handleReviewSubmit = (reviewData) => {
         addReview(place.id, reviewData);
@@ -90,8 +93,8 @@ const PlaceDetails = () => {
                             <span className="flex items-center gap-1">
                                 <MapPin size={18} /> {place.distance}
                             </span>
-                            <span className="flex items-center gap-1">
-                                <Clock size={18} /> {place.status}
+                            <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold ${color}`}>
+                                <Clock size={16} /> {status}
                             </span>
                         </div>
                     </div>

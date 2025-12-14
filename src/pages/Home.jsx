@@ -193,7 +193,7 @@ const Home = () => {
                         </a>
                     </div>
                     <img
-                        src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=1974&auto=format&fit=crop"
+                        src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=60&w=800&auto=format&fit=crop"
                         alt="Community"
                         className="w-full md:w-1/3 rounded-2xl shadow-xl rotate-3 hover:rotate-0 transition-transform duration-500"
                     />

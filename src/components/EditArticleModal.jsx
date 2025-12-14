@@ -150,6 +150,7 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
                 .ql-editor {
                     min-height: 200px;
                     font-size: 1rem;
+                    padding-bottom: 8rem;
                 }
             `}</style>
         </div>

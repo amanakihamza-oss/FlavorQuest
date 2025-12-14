@@ -1,6 +1,6 @@
 import React from 'react';
 import { Star, MapPin, Clock, Heart } from 'lucide-react';
-import { isRestaurantOpen } from '../utils/time';
+import { checkIsOpen } from '../utils/hours';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -53,12 +53,13 @@ const PlaceCard = ({ id, name, rating, reviews, image, category, distance, statu
                     </button>
                     {/* Status Badge Logic */}
                     {(() => {
-                        const automated = typeof openingHours === 'object' ? isRestaurantOpen(openingHours) : null;
+                        const { status: dynamicStatus, color } = checkIsOpen(openingHours);
 
-                        // Use automated if available (and not "Inconnu"), otherwise manual status
-                        const displayStatus = (automated && automated.status !== 'Inconnu') ? automated.status : status;
-                        const displayColor = (automated && automated.status !== 'Inconnu') ? automated.color :
-                            (status === 'Ouvert' ? 'bg-green-500' : status === 'Fermé' ? 'bg-red-500' : 'bg-orange-500');
+                        // If "Horaires inconnus", fallback to static status if provided, or hide
+                        const displayStatus = (dynamicStatus !== 'Horaires inconnus') ? dynamicStatus : status;
+                        // Map static status to color if fallback needed
+                        const displayColor = (dynamicStatus !== 'Horaires inconnus') ? color :
+                            (status === 'Ouvert' ? 'bg-green-500' : status === 'Fermé' ? 'bg-red-500' : 'bg-gray-400');
 
                         if (!displayStatus) return null;
 

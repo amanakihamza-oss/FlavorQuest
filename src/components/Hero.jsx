@@ -10,7 +10,7 @@ const Hero = () => {
             {/* Background Overlay */}
             <div className="absolute inset-0 z-0">
                 <img
-                    src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=2070&auto=format&fit=crop"
+                    src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=60&w=1200&auto=format&fit=crop"
                     alt="Delicious Food"
                     className="w-full h-full object-cover opacity-60"
                 />

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, Save, Image as ImageIcon, Leaf, Clock, Baby, Award, Utensils, Wheat, Sun, Heart, Mountain, Coins, Wifi, PawPrint, Truck } from 'lucide-react';
 import OpeningHoursInput from './OpeningHoursInput';
+import { geocodeAddress } from '../utils/geocoding';
 import { usePlaces } from '../context/PlacesContext';
 
 const ICON_MAP = {
@@ -21,13 +22,13 @@ const ICON_MAP = {
 
 const EditPlaceModal = ({ isOpen, onClose, place }) => {
     const { updatePlace, filters } = usePlaces();
-    // ... (rest of component)
-    // inside map loop:
 
     const [formData, setFormData] = useState({
         name: '',
         category: 'Brasserie',
         status: 'Fermé',
+        city: '',
+        address: '',
         website: '',
         openingHours: {},
         description: '',
@@ -41,6 +42,8 @@ const EditPlaceModal = ({ isOpen, onClose, place }) => {
                 name: place.name || '',
                 category: place.category || 'Brasserie',
                 status: place.status || 'Fermé',
+                city: place.city || '',
+                address: place.address || '',
                 website: place.website || '',
                 openingHours: typeof place.openingHours === 'object' ? place.openingHours : {},
                 description: place.description || '',
@@ -64,11 +67,31 @@ const EditPlaceModal = ({ isOpen, onClose, place }) => {
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        updatePlace(place.id, formData);
+
+        let finalData = { ...formData };
+
+        // Check if address/city changed to trigger re-geocoding
+        // We compare with original place data to avoid unnecessary API calls
+        if (place && (formData.address !== place.address || formData.city !== place.city)) {
+            try {
+                const fullAddress = `${formData.address}, ${formData.city}`;
+                const coordinates = await geocodeAddress(fullAddress);
+                if (coordinates) {
+                    finalData.lat = coordinates.lat;
+                    finalData.lng = coordinates.lng;
+                    // Optional: toast success "Adresse géolocalisée !"
+                } else {
+                    alert("Attention : L'adresse n'a pas pu être géolocalisée automatiquement. Le point sur la carte risque de ne pas être jour.");
+                }
+            } catch (error) {
+                console.error("Geocoding update failed", error);
+            }
+        }
+
+        updatePlace(place.id, finalData);
         onClose();
-        // Optional: Trigger a toast notification here
     };
 
     if (!isOpen) return null;

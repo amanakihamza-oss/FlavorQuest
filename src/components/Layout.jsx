@@ -1,5 +1,5 @@
 import React from 'react';
-import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { Home, Search, Heart, User, Globe } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
@@ -10,6 +10,8 @@ const Layout = () => {
     const { t } = useLanguage();
     const { isAuthenticated, setShowAuthModal } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+    const isHomePage = location.pathname === '/';
 
     const handleProfileClick = (e) => {
         if (!isAuthenticated) {
@@ -34,7 +36,11 @@ const Layout = () => {
                     className="flex items-center gap-2 hover:opacity-80 transition-opacity"
                 >
                     <img src="/favicon.svg" alt="" className="h-8 w-8" />
-                    <h1 className="text-2xl font-bold text-brand-orange">FlavorQuest</h1>
+                    {isHomePage ? (
+                        <h1 className="text-2xl font-bold text-brand-orange">FlavorQuest</h1>
+                    ) : (
+                        <span className="text-2xl font-bold text-brand-orange">FlavorQuest</span>
+                    )}
                 </NavLink>
                 <div className="flex items-center gap-6">
                     <nav className="flex gap-6">

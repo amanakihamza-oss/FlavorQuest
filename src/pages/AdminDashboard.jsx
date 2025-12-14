@@ -8,6 +8,7 @@ import EditArticleModal from '../components/EditArticleModal';
 
 const AdminDashboard = () => {
     const { places, approvePlace, rejectPlace, reviewPlace, deletePlace, sendFeedback, filters, addFilter, deleteFilter } = usePlaces();
+    const { articles, approveArticle, rejectArticle, deleteArticle } = useBlog(); // Ensure we destruct actions here for ArticleList
     const [selectedPlace, setSelectedPlace] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -15,16 +16,52 @@ const AdminDashboard = () => {
     const [isArticleEditModalOpen, setIsArticleEditModalOpen] = useState(false);
     const [articleToEdit, setArticleToEdit] = useState(null);
     const [activeTab, setActiveTab] = useState('places');
+    const [searchTerm, setSearchTerm] = useState('');
+
+    // --- Statistics Logic (Real & Faithful) ---
+    const stats = {
+        placesPending: places.filter(p => p.validationStatus === 'pending').length,
+        placesTotal: places.length,
+        articlesPending: (articles || []).filter(a => a.status === 'pending').length,
+        reviewsTotal: places.reduce((acc, p) => acc + (p.userReviews ? p.userReviews.length : 0), 0) // Counting ONLY real user reviews
+    };
+
+    // --- Filtering Logic ---
+    const filterBySearch = (item, type) => {
+        if (!searchTerm) return true;
+        const lowSearch = searchTerm.toLowerCase();
+        if (type === 'place') {
+            return item.name.toLowerCase().includes(lowSearch) ||
+                (item.city || '').toLowerCase().includes(lowSearch);
+        }
+        if (type === 'article') {
+            return item.title.toLowerCase().includes(lowSearch) ||
+                item.author.toLowerCase().includes(lowSearch);
+        }
+        return true;
+    };
 
     // Sort: Pending first
     const STATUS_ORDER = { 'pending': 0, 'review': 1, 'rejected': 2, 'approved': 3 };
 
-    const sortedPlaces = [...places].sort((a, b) => {
-        const statusA = STATUS_ORDER[a.validationStatus] ?? 99;
-        const statusB = STATUS_ORDER[b.validationStatus] ?? 99;
-        if (statusA !== statusB) return statusA - statusB;
-        return new Date(b.submittedAt || 0) - new Date(a.submittedAt || 0);
-    });
+    const sortedPlaces = [...places]
+        .filter(p => filterBySearch(p, 'place'))
+        .sort((a, b) => {
+            const statusA = STATUS_ORDER[a.validationStatus] ?? 99;
+            const statusB = STATUS_ORDER[b.validationStatus] ?? 99;
+            if (statusA !== statusB) return statusA - statusB;
+            return new Date(b.submittedAt || 0) - new Date(a.submittedAt || 0);
+        });
+
+    // Derived articles with search
+    const safeArticles = Array.isArray(articles) ? articles : [];
+    const sortedArticles = [...safeArticles]
+        .filter(a => filterBySearch(a, 'article'))
+        .sort((a, b) => {
+            const statusA = STATUS_ORDER[a.status] ?? 99;
+            const statusB = STATUS_ORDER[b.status] ?? 99;
+            return statusA - statusB;
+        });
 
     const handleOpenFeedback = (place) => {
         setSelectedPlace(place);
@@ -35,7 +72,6 @@ const AdminDashboard = () => {
         if (selectedPlace) {
             sendFeedback(selectedPlace.id, message);
             setIsModalOpen(false);
-            // Optionally: add toast notification here
             alert(`Message envoyé à l'auteur de "${selectedPlace.name}" !`);
         }
     };
@@ -51,11 +87,9 @@ const AdminDashboard = () => {
     };
 
     const getStatusBadge = (place) => {
-        // Show "Message Sent" badge if feedback logic existed, otherwise standard logic
         if (place.feedbackHistory?.length > 0 && place.validationStatus !== 'approved') {
             return <StatusBadge icon={MessageSquare} label="Message envoyé" color="purple" />;
         }
-
         switch (place.validationStatus) {
             case 'pending': return <StatusBadge icon={Clock} label="En attente" color="yellow" />;
             case 'review': return <StatusBadge icon={Eye} label="En vérification" color="blue" />;
@@ -69,70 +103,155 @@ const AdminDashboard = () => {
         <div className="max-w-7xl mx-auto px-6 py-10">
             <h1 className="text-3xl font-bold text-brand-dark mb-8">Tableau de bord Admin</h1>
 
-            <div className="flex gap-4 mb-8">
-                <button
-                    onClick={() => setActiveTab('places')}
-                    className={`px-6 py-3 rounded-xl font-bold transition-all ${activeTab === 'places' ? 'bg-brand-orange text-white shadow-lg shadow-brand-orange/20' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
-                >
-                    📍 Lieux
-                </button>
-                <button
-                    onClick={() => setActiveTab('articles')}
-                    className={`px-6 py-3 rounded-xl font-bold transition-all ${activeTab === 'articles' ? 'bg-brand-orange text-white shadow-lg shadow-brand-orange/20' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
-                >
-                    📰 Articles
-                </button>
-            </div>
-
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 min-h-[400px]">
-                <div className="overflow-x-visible">
-                    {activeTab === 'places' ? (
-                        <table className="w-full text-left border-collapse">
-                            <thead className="bg-gray-50 border-b border-gray-100">
-                                <tr>
-                                    <th className="px-6 py-4 font-bold text-gray-700">Lieu</th>
-                                    <th className="px-6 py-4 font-bold text-gray-700">Catégorie</th>
-                                    <th className="px-6 py-4 font-bold text-gray-700">Statut</th>
-                                    <th className="px-6 py-4 font-bold text-gray-700 text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-50">
-                                {sortedPlaces.map((place, index) => (
-                                    <tr key={place.id} className="hover:bg-gray-50/50 transition-colors group">
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-3">
-                                                <img src={place.image} alt="" className="w-12 h-12 rounded-lg object-cover shadow-sm" />
-                                                <div>
-                                                    <p className="font-bold text-brand-dark text-base">{place.name}</p>
-                                                    <p className="text-xs text-gray-400 mt-0.5 max-w-[200px] truncate">{place.description || "Pas de description"}</p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <span className="bg-gray-100 px-2 py-1 rounded text-xs font-medium uppercase tracking-wide text-gray-600">
-                                                {place.category}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            {getStatusBadge(place)}
-                                        </td>
-                                        <td className="px-6 py-4 text-right">
-                                            <ActionDropdown
-                                                place={place}
-                                                actions={{ approvePlace, rejectPlace, reviewPlace, deletePlace, openFeedback: () => handleOpenFeedback(place), openEdit: () => handleEditPlace(place) }}
-                                                isLast={index >= sortedPlaces.length - 2}
-                                            />
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    ) : (
-
-                        <ArticleList onEdit={handleEditArticle} />
-                    )}
+            {/* KPI Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
+                    <div className="w-12 h-12 bg-orange-100 text-brand-orange rounded-xl flex items-center justify-center">
+                        <Clock size={24} />
+                    </div>
+                    <div>
+                        <p className="text-gray-500 text-sm font-medium">Lieux en attente</p>
+                        <p className="text-2xl font-bold text-gray-900">{stats.placesPending}</p>
+                    </div>
+                </div>
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
+                    <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center">
+                        <Pen size={24} />
+                    </div>
+                    <div>
+                        <p className="text-gray-500 text-sm font-medium">Articles en attente</p>
+                        <p className="text-2xl font-bold text-gray-900">{stats.articlesPending}</p>
+                    </div>
+                </div>
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
+                    <div className="w-12 h-12 bg-green-100 text-green-600 rounded-xl flex items-center justify-center">
+                        <Check size={24} />
+                    </div>
+                    <div>
+                        <p className="text-gray-500 text-sm font-medium">Lieux Totaux</p>
+                        <p className="text-2xl font-bold text-gray-900">{stats.placesTotal}</p>
+                    </div>
+                </div>
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
+                    <div className="w-12 h-12 bg-yellow-100 text-yellow-600 rounded-xl flex items-center justify-center">
+                        <MessageSquare size={24} />
+                    </div>
+                    <div>
+                        <p className="text-gray-500 text-sm font-medium">Nouveaux Avis</p>
+                        <p className="text-2xl font-bold text-gray-900">{stats.reviewsTotal}</p>
+                    </div>
                 </div>
             </div>
+
+            {/* Header Controls */}
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
+                <div className="flex gap-2 bg-gray-100 p-1 rounded-xl">
+                    <button
+                        onClick={() => setActiveTab('places')}
+                        className={`px-6 py-2.5 rounded-lg font-bold text-sm transition-all ${activeTab === 'places' ? 'bg-white text-brand-dark shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                    >
+                        📍 Lieux
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('articles')}
+                        className={`px-6 py-2.5 rounded-lg font-bold text-sm transition-all ${activeTab === 'articles' ? 'bg-white text-brand-dark shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                    >
+                        📰 Articles
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('config')}
+                        className={`px-6 py-2.5 rounded-lg font-bold text-sm transition-all ${activeTab === 'config' ? 'bg-white text-brand-dark shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                    >
+                        ⚙️ Config
+                    </button>
+                </div>
+
+                {/* Search Bar - Only for list tabs */}
+                {activeTab !== 'config' && (
+                    <div className="relative w-full md:w-80">
+                        <input
+                            type="text"
+                            placeholder={activeTab === 'places' ? "Rechercher un lieu..." : "Rechercher un article..."}
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange transition-all"
+                        />
+                        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                            {/* Small search icon if desired, or relying on placeholder */}
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {activeTab === 'config' ? (
+                <div className="animate-fade-in">
+                    <h2 className="text-xl font-bold text-brand-dark mb-4">Configuration globale</h2>
+                    <FilterManager />
+                </div>
+            ) : (
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 min-h-[400px] animate-fade-in">
+                    <div className="overflow-x-visible">
+                        {activeTab === 'places' ? (
+                            <table className="w-full text-left border-collapse">
+                                <thead className="bg-gray-50 border-b border-gray-100">
+                                    <tr>
+                                        <th className="px-6 py-4 font-bold text-gray-700">Lieu</th>
+                                        <th className="px-6 py-4 font-bold text-gray-700">Catégorie</th>
+                                        <th className="px-6 py-4 font-bold text-gray-700">Statut</th>
+                                        <th className="px-6 py-4 font-bold text-gray-700 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-50">
+                                    {sortedPlaces.length > 0 ? sortedPlaces.map((place, index) => (
+                                        <tr key={place.id} className="hover:bg-gray-50/50 transition-colors group">
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center gap-3">
+                                                    <img src={place.image} alt="" className="w-12 h-12 rounded-lg object-cover shadow-sm bg-gray-100" />
+                                                    <div>
+                                                        <p className="font-bold text-brand-dark text-base">{place.name}</p>
+                                                        <p className="text-xs text-gray-400 mt-0.5 max-w-[200px] truncate">{place.city} • {place.description || "Pas de description"}</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <span className="bg-gray-100 px-2 py-1 rounded text-xs font-medium uppercase tracking-wide text-gray-600">
+                                                    {place.category}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                {getStatusBadge(place)}
+                                            </td>
+                                            <td className="px-6 py-4 text-right">
+                                                <ActionDropdown
+                                                    place={place}
+                                                    actions={{ approvePlace, rejectPlace, reviewPlace, deletePlace, openFeedback: () => handleOpenFeedback(place), openEdit: () => handleEditPlace(place) }}
+                                                    isLast={index >= sortedPlaces.length - 2}
+                                                />
+                                            </td>
+                                        </tr>
+                                    )) : (
+                                        <tr>
+                                            <td colSpan="4" className="px-6 py-10 text-center text-gray-400 italic">
+                                                Aucun résultat trouvé pour "{searchTerm}"
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        ) : (
+                            <ArticleList
+                                onEdit={handleEditArticle}
+                                articles={sortedArticles}
+                                approveArticle={approveArticle}
+                                rejectArticle={rejectArticle}
+                                deleteArticle={deleteArticle}
+                            />
+                        )}
+                    </div>
+                </div>
+            )}
+
 
             <FeedbackModal
                 isOpen={isModalOpen}
@@ -153,10 +272,7 @@ const AdminDashboard = () => {
                 article={articleToEdit}
             />
 
-            <div className="mt-12 mb-20">
-                <h2 className="text-2xl font-bold text-brand-dark mb-6">Gestion des Filtres</h2>
-                <FilterManager />
-            </div>
+
         </div>
     );
 };
@@ -370,20 +486,8 @@ const ActionDropdown = ({ place, actions, isLast }) => {
 };
 
 
-const ArticleList = ({ onEdit }) => {
-    const { articles, approveArticle, rejectArticle, deleteArticle } = useBlog();
-
-    // Sort: Pending first
-    const STATUS_ORDER = { 'pending': 0, 'rejected': 2, 'approved': 3 };
-
-    // Safety check for articles
-    const safeArticles = Array.isArray(articles) ? articles : [];
-
-    const sortedArticles = [...safeArticles].sort((a, b) => {
-        const statusA = STATUS_ORDER[a.status] ?? 99;
-        const statusB = STATUS_ORDER[b.status] ?? 99;
-        return statusA - statusB; // Simple sort by status
-    });
+const ArticleList = ({ onEdit, articles, approveArticle, rejectArticle, deleteArticle }) => {
+    // Articles are now passed as props to support filtering from parent
 
     const getStatusBadge = (status) => {
         switch (status) {
@@ -405,11 +509,11 @@ const ArticleList = ({ onEdit }) => {
                 </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-                {sortedArticles.map((article) => (
+                {articles.length > 0 ? articles.map((article) => (
                     <tr key={article.id} className="hover:bg-gray-50/50 transition-colors">
                         <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
-                                <img src={article.image} alt="" className="w-12 h-12 rounded-lg object-cover shadow-sm" />
+                                <img src={article.image} alt="" className="w-12 h-12 rounded-lg object-cover shadow-sm bg-gray-100" />
                                 <div>
                                     <p className="font-bold text-brand-dark text-base line-clamp-1">{article.title}</p>
                                     <p className="text-xs text-gray-400 mt-0.5">{article.category} • {article.city}</p>
@@ -461,7 +565,13 @@ const ArticleList = ({ onEdit }) => {
                             </div>
                         </td>
                     </tr>
-                ))}
+                )) : (
+                    <tr>
+                        <td colSpan="4" className="px-6 py-10 text-center text-gray-400 italic">
+                            Aucun article trouvé.
+                        </td>
+                    </tr>
+                )}
             </tbody>
         </table>
     );
