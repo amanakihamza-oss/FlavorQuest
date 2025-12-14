@@ -1,16 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Hero from '../components/Hero';
 import FilterBar from '../components/FilterBar';
 import PlaceCard from '../components/PlaceCard';
 import { ArrowRight, Sparkles, Map as MapIcon, List, BookOpen } from 'lucide-react';
-import { Helmet } from 'react-helmet-async';
+import SEO from '../components/SEO';
 import { useLanguage } from '../context/LanguageContext';
 import { usePlaces } from '../context/PlacesContext';
 import Map from '../components/Map';
-import { useState } from 'react';
 import VisualCategories from '../components/VisualCategories';
 import { useBlog } from '../context/BlogContext';
 import BlogCard from '../components/BlogCard';
+import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'framer-motion';
 
 const Home = () => {
     // Basic Organization Schema for the Homepage
@@ -32,6 +32,18 @@ const Home = () => {
     const [viewMode, setViewMode] = useState('list'); // 'list' or 'map'
     const [activeTags, setActiveTags] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState(null);
+    const [isToggleVisible, setIsToggleVisible] = useState(true);
+    const { scrollY } = useScroll();
+
+    useMotionValueEvent(scrollY, "change", (latest) => {
+        const previous = scrollY.getPrevious();
+        // Hide if scrolling down AND scrolled passed 150px
+        if (latest > previous && latest > 150) {
+            setIsToggleVisible(false);
+        } else {
+            setIsToggleVisible(true);
+        }
+    });
 
     const toggleFilter = (tagId) => {
         setActiveTags(prev =>
@@ -66,9 +78,11 @@ const Home = () => {
 
     return (
         <div className="pb-24 md:pb-10">
-            <Helmet>
-                <script type="application/ld+json">{JSON.stringify(schema)}</script>
-            </Helmet>
+            <SEO
+                title="Guide des Meilleurs Restaurants & Snacks en Wallonie"
+                description="Découvrez les meilleures pépites culinaires de Wallonie : restaurants, snacks, brasseries et plus encore sur FlavorQuest."
+                schema={schema}
+            />
 
             <Hero />
             <div className="mt-8 border-b border-gray-100/50 pb-8">
@@ -110,20 +124,30 @@ const Home = () => {
                     </div>
 
                     {/* Mobile Sticky Toggle (Fixed at bottom) */}
-                    <div className="md:hidden fixed bottom-20 left-1/2 transform -translate-x-1/2 z-30 bg-white/90 backdrop-blur-md shadow-2xl p-1.5 rounded-full border border-gray-100 ring-1 ring-black/5 flex gap-1 animate-scale-in">
-                        <button
-                            onClick={() => setViewMode('list')}
-                            className={`px-6 py-3 rounded-full transition-all flex items-center gap-2 text-sm font-bold ${viewMode === 'list' ? 'bg-brand-dark text-white shadow-lg' : 'text-gray-500'}`}
-                        >
-                            <List size={18} /> Liste
-                        </button>
-                        <button
-                            onClick={() => setViewMode('map')}
-                            className={`px-6 py-3 rounded-full transition-all flex items-center gap-2 text-sm font-bold ${viewMode === 'map' ? 'bg-brand-dark text-white shadow-lg' : 'text-gray-500'}`}
-                        >
-                            <MapIcon size={18} /> Carte
-                        </button>
-                    </div>
+                    <AnimatePresence>
+                        {isToggleVisible && (
+                            <motion.div
+                                initial={{ y: 100, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                exit={{ y: 100, opacity: 0 }}
+                                transition={{ duration: 0.3 }}
+                                className="md:hidden fixed bottom-28 left-1/2 transform -translate-x-1/2 z-40 bg-white/90 backdrop-blur-md shadow-xl p-1.5 rounded-full border border-gray-100 ring-1 ring-black/5 flex gap-1"
+                            >
+                                <button
+                                    onClick={() => setViewMode('list')}
+                                    className={`px-6 py-3 rounded-full transition-all flex items-center gap-2 text-sm font-bold ${viewMode === 'list' ? 'bg-brand-dark text-white shadow-lg' : 'text-gray-500'}`}
+                                >
+                                    <List size={18} /> Liste
+                                </button>
+                                <button
+                                    onClick={() => setViewMode('map')}
+                                    className={`px-6 py-3 rounded-full transition-all flex items-center gap-2 text-sm font-bold ${viewMode === 'map' ? 'bg-brand-dark text-white shadow-lg' : 'text-gray-500'}`}
+                                >
+                                    <MapIcon size={18} /> Carte
+                                </button>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
 
                     {viewMode === 'list' ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in">

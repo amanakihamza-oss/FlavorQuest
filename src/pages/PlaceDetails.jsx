@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Star, MapPin, Clock, Phone, Globe, ChevronLeft, ShieldCheck, User } from 'lucide-react';
 import { usePlaces } from '../context/PlacesContext';
-import { Helmet } from 'react-helmet-async';
+import { getFormattedHours } from '../utils/time';
+import SEO from '../components/SEO';
 import ReviewForm from '../components/ReviewForm';
 
 const PlaceDetails = () => {
@@ -48,32 +49,18 @@ const PlaceDetails = () => {
         }
     };
 
-    const pageTitle = `${place.name} à ${place.city || 'Namur'} - Avis & Menu | FlavorQuest`;
+    const pageTitle = `${place.name} à ${place.city || 'Namur'} - Avis & Menu`;
     const pageDesc = `Découvrez ${place.name}, une pépite ${place.category} à ${place.city || 'Namur'}. Note: ${place.rating}/5 sur ${place.reviews} avis. Photos, menu et horaires.`;
 
     return (
         <div className="bg-white min-h-screen pb-20">
-            <Helmet>
-                {/* Standard Meta Tags */}
-                <title>{pageTitle}</title>
-                <meta name="description" content={pageDesc} />
-
-                {/* Open Graph / Facebook */}
-                <meta property="og:type" content="restaurant" />
-                <meta property="og:url" content={window.location.href} />
-                <meta property="og:title" content={pageTitle} />
-                <meta property="og:description" content={pageDesc} />
-                <meta property="og:image" content={place.image} />
-
-                {/* Twitter */}
-                <meta property="twitter:card" content="summary_large_image" />
-                <meta property="twitter:title" content={pageTitle} />
-                <meta property="twitter:description" content={pageDesc} />
-                <meta property="twitter:image" content={place.image} />
-
-                {/* Structured Data (JSON-LD) */}
-                <script type="application/ld+json">{JSON.stringify(schema)}</script>
-            </Helmet>
+            <SEO
+                title={pageTitle}
+                description={pageDesc}
+                image={place.image}
+                schema={schema}
+                type="restaurant"
+            />
 
             {/* Hero Image */}
             <div className="relative h-[40vh] md:h-[50vh]">
@@ -199,14 +186,16 @@ const PlaceDetails = () => {
                         </div>
                         <div className="border-t border-gray-200 pt-4 mt-4">
                             <h3 className="font-bold mb-2">Horaires</h3>
-                            <div className="space-y-1 text-sm text-gray-600 whitespace-pre-line">
-                                {place.openingHours ? (
-                                    <p>{place.openingHours}</p>
+                            <div className="space-y-1 text-sm text-gray-600">
+                                {typeof place.openingHours === 'object' ? (
+                                    getFormattedHours(place.openingHours).map((schedule, idx) => (
+                                        <div key={idx} className={`flex justify-between ${schedule.isToday ? 'font-bold text-brand-dark bg-brand-yellow/10 px-2 rounded' : ''}`}>
+                                            <span>{schedule.day}</span>
+                                            <span>{schedule.hours}</span>
+                                        </div>
+                                    ))
                                 ) : (
-                                    <div className="space-y-1">
-                                        <div className="flex justify-between"><span>Lun - Ven</span> <span>11h - 22h</span></div>
-                                        <div className="flex justify-between"><span>Sam - Dim</span> <span>11h - 23h</span></div>
-                                    </div>
+                                    place.openingHours ? <p className="whitespace-pre-line">{place.openingHours}</p> : <div className="italic text-gray-400">Horaires non renseignés</div>
                                 )}
                             </div>
                         </div>

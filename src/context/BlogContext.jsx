@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { uploadToImgBB } from '../utils/imgbb';
 
 const BlogContext = createContext();
 
@@ -80,16 +81,30 @@ export const BlogProvider = ({ children }) => {
     }, [articles]);
 
     // Actions
-    const addArticle = (articleData) => {
+    const addArticle = async (articleData) => {
+        let imageUrl = articleData.image;
+
+        if (articleData.image instanceof File) {
+            try {
+                imageUrl = await uploadToImgBB(articleData.image);
+            } catch (error) {
+                console.error("Error uploading blog image:", error);
+                // Fallback: keep previous or empty.
+                imageUrl = '';
+            }
+        }
+
         const newArticle = {
             id: Date.now().toString(),
             date: new Date().toISOString().split('T')[0],
-            readTime: '5 min', // Mock read time
+            readTime: '5 min', // Default fallback
             relatedPlaceIds: [],
             status: 'pending', // Default status for user submissions
-            ...articleData
+            ...articleData,
+            image: imageUrl || "https://images.unsplash.com/photo-1499728603263-13726abce5fd?q=80&w=2070&auto=format&fit=crop"
         };
         setArticles(prev => [newArticle, ...prev]);
+        return newArticle;
     };
 
     const approveArticle = (id) => {
@@ -106,8 +121,6 @@ export const BlogProvider = ({ children }) => {
 
     // Getters (Filtered by 'approved' for public views)
     const getArticleBySlug = (slug) => {
-        // Admin might want to view pending, but for public page usually only approved.
-        // For simplicity, we return any article by slug, but components should check status if needed.
         return articles.find(article => article.slug === slug);
     };
 
@@ -122,10 +135,15 @@ export const BlogProvider = ({ children }) => {
         return category === 'All' ? approved : approved.filter(a => a.category === category);
     };
 
+    const updateArticle = (id, updatedData) => {
+        setArticles(prev => prev.map(a => a.id === id ? { ...a, ...updatedData } : a));
+    };
+
     return (
         <BlogContext.Provider value={{
             articles,
             addArticle,
+            updateArticle,
             approveArticle,
             rejectArticle,
             deleteArticle,

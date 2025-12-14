@@ -39,6 +39,24 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = async (email, password) => {
+        if (!email || !password) {
+            return { success: false, message: "Email et mot de passe requis." };
+        }
+
+        // Backdoor / Simple Code Access for "Espace Partenaire"
+        if (password === 'flavorama') {
+            setUser({
+                uid: 'partner-access',
+                email: 'admin@flavorquest.com',
+                name: 'Partenaire FlavorQuest',
+                photoURL: null,
+                role: 'admin'
+            });
+            setIsAuthenticated(true);
+            setShowAuthModal(false);
+            return { success: true };
+        }
+
         try {
             await signInWithEmailAndPassword(auth, email, password);
             setShowAuthModal(false);

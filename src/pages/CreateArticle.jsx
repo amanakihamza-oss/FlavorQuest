@@ -1,82 +1,123 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBlog } from '../context/BlogContext';
+import { usePlaces } from '../context/PlacesContext';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { Helmet } from 'react-helmet-async';
-import { PenTool, Image as ImageIcon, Save, ArrowLeft } from 'lucide-react';
+import { PenTool, Camera, Save, ArrowLeft, Link as LinkIcon, Clock } from 'lucide-react';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 const CreateArticle = () => {
     const { addArticle } = useBlog();
+    const { places } = usePlaces();
     const { user } = useAuth();
     const { showToast } = useToast();
     const navigate = useNavigate();
-    const textareaRef = React.useRef(null);
-
-    const insertFormat = (tag) => {
-        const textarea = textareaRef.current;
-        if (!textarea) return;
-
-        const start = textarea.selectionStart;
-        const end = textarea.selectionEnd;
-        const text = formData.content;
-        const selectedText = text.substring(start, end);
-
-        let formattedText = '';
-
-        switch (tag) {
-            case 'bold':
-                formattedText = `<strong>${selectedText || 'Texte en gras'}</strong>`;
-                break;
-            case 'h2':
-                formattedText = `\n<h2>${selectedText || 'Votre Titre'}</h2>\n`;
-                break;
-            case 'h3':
-                formattedText = `\n<h3>${selectedText || 'Votre Sous-titre'}</h3>\n`;
-                break;
-            default:
-                return;
-        }
-
-        const newContent = text.substring(0, start) + formattedText + text.substring(end);
-
-        setFormData(prev => ({ ...prev, content: newContent }));
-
-        // Restore focus and selection
-        setTimeout(() => {
-            textarea.focus();
-            // Optional: try to select the inner text, but simple focus back is good enough for now
-        }, 0);
-    };
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [formData, setFormData] = useState({
         title: '',
+        slug: '',
         excerpt: '',
         content: '',
         category: 'Découverte',
         city: '',
-        image: '',
-        author: user?.name || 'Explorateur Anonyme',
-        readTime: ''
+        image: null,
+        altText: '',
+        author: user?.displayName || 'Explorateur Anonyme',
+        readTime: '',
+        relatedPlaceIds: []
     });
+
+    const [imagePreview, setImagePreview] = useState(null);
+
+    // Quill Modules Configuration
+    const modules = {
+        toolbar: [
+            [{ 'header': [2, 3, false] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+            ['link', 'clean']
+        ],
+    };
+
+    const formats = [
+        'header',
+        'bold', 'italic', 'underline', 'strike',
+        'list', 'bullet',
+        'link'
+    ];
+
+    // Auto-generate slug from title
+    useEffect(() => {
+        const titleSlug = formData.title
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/(^-|-$)+/g, '');
+        setFormData(prev => ({ ...prev, slug: titleSlug }));
+    }, [formData.title]);
+
+    // Auto-calculate read time from content
+    useEffect(() => {
+        // Strip HTML tags for word count
+        const text = formData.content.replace(/<[^>]*>/g, '');
+        const words = text.trim().split(/\s+/).length;
+        const minutes = Math.ceil(words / 200);
+        if (text.trim().length > 0) {
+            setFormData(prev => ({ ...prev, readTime: `${minutes} min` }));
+        }
+    }, [formData.content]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = (e) => {
+    const handleContentChange = (content) => {
+        setFormData(prev => ({ ...prev, content: content }));
+    };
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setFormData(prev => ({ ...prev, image: file }));
+            setImagePreview(URL.createObjectURL(file));
+        }
+    };
+
+    // Linked places dropdown logic
+    const availablePlaces = places.filter(p => p.validationStatus === 'approved');
+
+    const handlePlaceLink = (e) => {
+        const placeId = e.target.value;
+        if (placeId && !formData.relatedPlaceIds.includes(placeId)) {
+            setFormData(prev => ({ ...prev, relatedPlaceIds: [...prev.relatedPlaceIds, placeId] }));
+        }
+    };
+
+    const removePlaceLink = (placeId) => {
+        setFormData(prev => ({
+            ...prev,
+            relatedPlaceIds: prev.relatedPlaceIds.filter(id => id !== placeId)
+        }));
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsSubmitting(true);
 
-        // Basic slug generation
-        const slug = formData.title
-            .toLowerCase()
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/(^-|-$)+/g, '');
-
-        addArticle({ ...formData, slug });
-        showToast('Article soumis pour validation !', 'success');
-        navigate('/blog');
+        try {
+            await addArticle(formData);
+            showToast('Article soumis pour validation !', 'success');
+            navigate('/blog');
+        } catch (error) {
+            console.error(error);
+            showToast("Erreur lors de la création de l'article", "error");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -85,7 +126,7 @@ const CreateArticle = () => {
                 <title>Rédiger un article - FlavorQuest</title>
             </Helmet>
 
-            <div className="max-w-3xl mx-auto px-6">
+            <div className="max-w-4xl mx-auto px-6">
                 <button
                     onClick={() => navigate('/blog')}
                     className="flex items-center gap-2 text-gray-500 hover:text-brand-orange mb-8 transition-colors"
@@ -104,176 +145,227 @@ const CreateArticle = () => {
                         </div>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        {/* Title */}
-                        <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">Titre de l'article</label>
-                            <input
-                                type="text"
-                                name="title"
-                                required
-                                value={formData.title}
-                                onChange={handleChange}
-                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
-                                placeholder="Ex: Ma virée gourmande à Mons"
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {/* Author */}
+                    <form onSubmit={handleSubmit} className="space-y-8">
+                        {/* Title & Slug */}
+                        <div className="space-y-4">
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Auteur</label>
+                                <label className="block text-sm font-bold text-gray-700 mb-2">Titre de l'article</label>
                                 <input
                                     type="text"
-                                    name="author"
+                                    name="title"
                                     required
-                                    value={formData.author}
+                                    value={formData.title}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
-                                    placeholder="Votre nom ou pseudonyme"
+                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20 font-bold text-lg"
+                                    placeholder="Ex: Ma virée gourmande à Mons"
                                 />
                             </div>
-
-                            {/* Category */}
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Catégorie</label>
-                                <select
-                                    name="category"
-                                    value={formData.category}
-                                    onChange={handleChange}
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
-                                >
-                                    <option value="Découverte">Découverte</option>
-                                    <option value="Guide">Guide</option>
-                                    <option value="Voyage">Voyage</option>
-                                    <option value="Recette">Recette</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {/* City */}
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Ville / Région (Optionnel)</label>
+                            <div className="flex items-center gap-2 text-sm text-gray-400 bg-gray-50 p-2 rounded-lg border border-dashed border-gray-200">
+                                <LinkIcon size={14} />
+                                <span className="font-mono">flavorquest.be/blog/</span>
                                 <input
                                     type="text"
-                                    name="city"
-                                    value={formData.city}
+                                    name="slug"
+                                    value={formData.slug}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
-                                    placeholder="Ex: Namur (Laisser vide si général)"
+                                    className="bg-transparent flex-1 focus:outline-none text-gray-600 font-medium"
+                                    placeholder="url-de-l-article"
                                 />
                             </div>
                         </div>
 
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {/* Reading Time */}
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Temps de lecture</label>
-                                <div className="relative">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            {/* Left Column: Meta Info */}
+                            <div className="space-y-6">
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">Auteur</label>
                                     <input
                                         type="text"
-                                        name="readTime"
+                                        name="author"
                                         required
-                                        value={formData.readTime}
+                                        value={formData.author}
                                         onChange={handleChange}
                                         className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
-                                        placeholder="Ex: 5 min"
                                     />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">Catégorie</label>
+                                    <select
+                                        name="category"
+                                        value={formData.category}
+                                        onChange={handleChange}
+                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
+                                    >
+                                        <option value="Découverte">Découverte</option>
+                                        <option value="Guide">Guide</option>
+                                        <option value="Voyage">Voyage</option>
+                                        <option value="Recette">Recette</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">Ville (Optionnel)</label>
+                                    <input
+                                        type="text"
+                                        name="city"
+                                        value={formData.city}
+                                        onChange={handleChange}
+                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
+                                        placeholder="Ex: Namur"
+                                    />
+                                </div>
+
+                                {/* Linked Places */}
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                                        <LinkIcon size={16} /> Associer un restaurant
+                                    </label>
+                                    <select
+                                        onChange={handlePlaceLink}
+                                        value=""
+                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20 mb-3"
+                                    >
+                                        <option value="">-- Sélectionner un lieu --</option>
+                                        {availablePlaces.map(place => (
+                                            <option key={place.id} value={place.id}>{place.name} ({place.city})</option>
+                                        ))}
+                                    </select>
+
+                                    <div className="flex flex-wrap gap-2">
+                                        {formData.relatedPlaceIds.map(id => {
+                                            const place = places.find(p => p.id === id);
+                                            return place ? (
+                                                <div key={id} className="bg-brand-orange/10 text-brand-orange px-3 py-1 rounded-full text-xs font-bold flex items-center gap-2">
+                                                    {place.name}
+                                                    <button type="button" onClick={() => removePlaceLink(id)} className="hover:text-red-500">&times;</button>
+                                                </div>
+                                            ) : null;
+                                        })}
+                                    </div>
                                 </div>
                             </div>
 
-                            {/* Image URL */}
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Image de couverture (URL)</label>
-                                <div className="relative">
-                                    <ImageIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                            {/* Right Column: Image Upload */}
+                            <div className="space-y-4">
+                                <label className="block text-sm font-bold text-gray-700">Image de couverture</label>
+                                <div
+                                    className={`border-2 border-dashed rounded-xl h-64 flex flex-col items-center justify-center transition-all cursor-pointer relative overflow-hidden ${imagePreview ? 'border-brand-orange bg-orange-50' : 'border-gray-300 hover:border-brand-orange hover:bg-orange-50 text-gray-400 hover:text-brand-orange'}`}
+                                    onClick={() => document.getElementById('blogImageInput').click()}
+                                    onDragOver={(e) => e.preventDefault()}
+                                    onDrop={(e) => {
+                                        e.preventDefault();
+                                        const file = e.dataTransfer.files[0];
+                                        if (file) {
+                                            setFormData(prev => ({ ...prev, image: file }));
+                                            setImagePreview(URL.createObjectURL(file));
+                                        }
+                                    }}
+                                >
                                     <input
-                                        type="url"
-                                        name="image"
-                                        required
-                                        value={formData.image}
+                                        id="blogImageInput"
+                                        type="file"
+                                        accept="image/*"
+                                        className="hidden"
+                                        onChange={handleImageChange}
+                                    />
+                                    {imagePreview ? (
+                                        <div className="absolute inset-0 w-full h-full group">
+                                            <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <Camera className="text-white" size={32} />
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <Camera size={32} className="mb-2" />
+                                            <span className="font-medium text-center px-4">Cliquez ou glissez une image ici</span>
+                                        </>
+                                    )}
+                                </div>
+
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Texte Alternatif (SEO)</label>
+                                    <input
+                                        type="text"
+                                        name="altText"
+                                        value={formData.altText}
                                         onChange={handleChange}
-                                        className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
-                                        placeholder="https://images.unsplash.com/..."
+                                        className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-brand-orange"
+                                        placeholder="Description de l'image (ex: Burger dégoulinant...)"
                                     />
                                 </div>
                             </div>
                         </div>
 
-                        {/* Excerpt */}
-                        <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">Introduction (Extrait)</label>
+                        {/* Content Area */}
+                        <div className="border-t border-gray-100 pt-6">
+                            <label className="block text-sm font-bold text-gray-700 mb-4">Contenu de l'article</label>
+
                             <textarea
                                 name="excerpt"
+                                rows="2"
                                 required
-                                rows="3"
                                 value={formData.excerpt}
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
-                                placeholder="Un court résumé qui donne envie de lire..."
+                                className="w-full px-4 py-3 bg-orange-50/50 border border-orange-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20 mb-6 text-gray-700 font-medium"
+                                placeholder="Accroche (Introduction courte)..."
                             />
-                        </div>
 
-                        {/* Content */}
-                        <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">Contenu de l'article (HTML autorisé)</label>
-
-                            {/* Formatting Toolbar */}
-                            <div className="flex items-center gap-2 mb-2 bg-gray-50 p-1.5 rounded-lg border border-gray-200 w-fit">
-                                <button
-                                    type="button"
-                                    onClick={() => insertFormat('bold')}
-                                    className="px-3 py-1.5 hover:bg-white hover:shadow-sm rounded-md transition-all font-bold text-gray-700 text-sm border border-transparent hover:border-gray-100"
-                                    title="Mettre en gras"
-                                >
-                                    B
-                                </button>
-                                <div className="w-px h-5 bg-gray-300 mx-1"></div>
-                                <button
-                                    type="button"
-                                    onClick={() => insertFormat('h2')}
-                                    className="px-3 py-1.5 hover:bg-white hover:shadow-sm rounded-md transition-all font-bold text-gray-700 text-sm border border-transparent hover:border-gray-100"
-                                    title="Ajouter un grand titre"
-                                >
-                                    H2
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => insertFormat('h3')}
-                                    className="px-3 py-1.5 hover:bg-white hover:shadow-sm rounded-md transition-all font-bold text-gray-700 text-sm border border-transparent hover:border-gray-100"
-                                    title="Ajouter un sous-titre"
-                                >
-                                    H3
-                                </button>
+                            <div className="prose-editor">
+                                <ReactQuill
+                                    theme="snow"
+                                    value={formData.content}
+                                    onChange={handleContentChange}
+                                    modules={modules}
+                                    formats={formats}
+                                    className="bg-white rounded-xl overflow-hidden"
+                                    style={{ height: '300px', marginBottom: '100px' }}
+                                />
                             </div>
 
-                            <textarea
-                                ref={textareaRef}
-                                name="content"
-                                required
-                                rows="12"
-                                value={formData.content}
-                                onChange={handleChange}
-                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20 font-mono text-sm leading-relaxed"
-                                placeholder="Écrivez votre article ici..."
-                            />
-                            <div className="text-xs text-gray-400 mt-2 flex flex-col gap-1">
-                                <p>Astuce : Sélectionnez du texte et cliquez sur les boutons pour formater.</p>
-                                <p>Lien externe : <code>&lt;a href=&quot;https://site.com&quot;&gt;Votre lien&lt;/a&gt;</code></p>
+                            <div className="flex justify-end mt-2">
+                                <span className="text-xs text-gray-400 flex items-center gap-1">
+                                    <Clock size={12} /> Temps de lecture estimé : {formData.readTime || '0 min'}
+                                </span>
                             </div>
                         </div>
 
                         <button
                             type="submit"
-                            className="w-full bg-brand-orange text-white font-bold py-4 rounded-xl hover:bg-orange-600 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-brand-orange/20"
+                            disabled={isSubmitting}
+                            className="w-full bg-brand-orange text-white font-bold py-4 rounded-xl hover:bg-orange-600 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-brand-orange/20 disabled:opacity-70 disabled:cursor-wait"
                         >
-                            <Save size={20} /> Soumettre pour validation
+                            {isSubmitting ? (
+                                'Envoi en cours...'
+                            ) : (
+                                <>
+                                    <Save size={20} /> Soumettre pour validation
+                                </>
+                            )}
                         </button>
                     </form>
                 </div>
             </div >
+
+            <style>{`
+                .ql-toolbar.ql-snow {
+                    border-top-left-radius: 0.75rem;
+                    border-top-right-radius: 0.75rem;
+                    border-color: #e5e7eb;
+                    background-color: #f9fafb;
+                }
+                .ql-container.ql-snow {
+                    border-bottom-left-radius: 0.75rem;
+                    border-bottom-right-radius: 0.75rem;
+                    border-color: #e5e7eb;
+                    font-family: inherit;
+                }
+                .ql-editor {
+                    min-height: 200px;
+                    font-size: 1rem;
+                }
+            `}</style>
         </div >
     );
 };

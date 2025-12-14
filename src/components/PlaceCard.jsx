@@ -1,10 +1,11 @@
 import React from 'react';
 import { Star, MapPin, Clock, Heart } from 'lucide-react';
+import { isRestaurantOpen } from '../utils/time';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 
-const PlaceCard = ({ id, name, rating, reviews, image, category, distance, status, city, isSponsored }) => {
+const PlaceCard = ({ id, name, rating, reviews, image, category, distance, status, openingHours, city, isSponsored }) => {
     const { favorites, toggleFavorite, isAuthenticated, setShowAuthModal } = useAuth();
     const { showToast } = useToast();
     const isFavorite = favorites.includes(id);
@@ -50,14 +51,23 @@ const PlaceCard = ({ id, name, rating, reviews, image, category, distance, statu
                     >
                         <Heart size={18} className={isFavorite ? "fill-red-500 text-red-500" : "text-gray-400"} />
                     </button>
-                    {status && (
-                        <div className={`absolute bottom-3 right-3 px-2 py-1 rounded-full text-xs font-medium text-white ${status === 'Ouvert' ? 'bg-green-500' :
-                            status === 'Fermé' ? 'bg-red-500' :
-                                'bg-orange-500'
-                            }`}>
-                            {status}
-                        </div>
-                    )}
+                    {/* Status Badge Logic */}
+                    {(() => {
+                        const automated = typeof openingHours === 'object' ? isRestaurantOpen(openingHours) : null;
+
+                        // Use automated if available (and not "Inconnu"), otherwise manual status
+                        const displayStatus = (automated && automated.status !== 'Inconnu') ? automated.status : status;
+                        const displayColor = (automated && automated.status !== 'Inconnu') ? automated.color :
+                            (status === 'Ouvert' ? 'bg-green-500' : status === 'Fermé' ? 'bg-red-500' : 'bg-orange-500');
+
+                        if (!displayStatus) return null;
+
+                        return (
+                            <div className={`absolute bottom-3 right-3 px-2 py-1 rounded-full text-xs font-medium text-white ${displayColor}`}>
+                                {displayStatus}
+                            </div>
+                        );
+                    })()}
                 </div>
 
                 {/* Content */}

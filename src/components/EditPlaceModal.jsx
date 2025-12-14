@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X, Save, Image as ImageIcon, Leaf, Clock, Baby, Award, Utensils, Wheat, Sun, Heart, Mountain, Coins, Wifi, PawPrint, Truck } from 'lucide-react';
+import OpeningHoursInput from './OpeningHoursInput';
 import { usePlaces } from '../context/PlacesContext';
 
 const ICON_MAP = {
@@ -28,7 +29,7 @@ const EditPlaceModal = ({ isOpen, onClose, place }) => {
         category: 'Brasserie',
         status: 'Fermé',
         website: '',
-        openingHours: '',
+        openingHours: {},
         description: '',
         image: '',
         tags: []
@@ -41,7 +42,7 @@ const EditPlaceModal = ({ isOpen, onClose, place }) => {
                 category: place.category || 'Brasserie',
                 status: place.status || 'Fermé',
                 website: place.website || '',
-                openingHours: place.openingHours || '',
+                openingHours: typeof place.openingHours === 'object' ? place.openingHours : {},
                 description: place.description || '',
                 image: place.image || '',
                 tags: place.tags || []
@@ -137,14 +138,9 @@ const EditPlaceModal = ({ isOpen, onClose, place }) => {
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-1">Horaires</label>
-                                <textarea
-                                    name="openingHours"
-                                    value={formData.openingHours}
-                                    onChange={handleChange}
-                                    rows={2}
-                                    className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
-                                    placeholder="Lun-Dim: 12h-22h..."
+                                <OpeningHoursInput
+                                    value={typeof formData.openingHours === 'object' ? formData.openingHours : {}}
+                                    onChange={(newHours) => setFormData(prev => ({ ...prev, openingHours: newHours }))}
                                 />
                             </div>
                             <div>

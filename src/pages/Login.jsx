@@ -10,9 +10,12 @@ const Login = () => {
     const { login } = useAuth();
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (login(password)) {
+        // Uses a hardcoded administrative email to allow password-only login for the user
+        const result = await login('admin@flavorquest.com', password);
+
+        if (result.success) {
             navigate('/admin');
         } else {
             setError(true);

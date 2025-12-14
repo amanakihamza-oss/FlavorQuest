@@ -22,7 +22,7 @@ const FilterBar = ({ activeFilters = [], onToggle }) => {
     const { filters } = usePlaces();
 
     return (
-        <div className="w-full overflow-x-auto no-scrollbar py-4 px-6 md:px-8 bg-white border-b border-gray-100/50 sticky top-[72px] md:top-[76px] z-40 backdrop-blur-md bg-white/90">
+        <div className="w-full overflow-x-auto no-scrollbar py-4 px-6 md:px-8 sticky top-0 md:top-[64px] z-40 bg-white/95 backdrop-blur-md border-b border-gray-100/50 shadow-sm transition-all duration-300">
             <div className="flex flex-nowrap gap-3 min-w-max">
                 {filters.map((filter) => {
                     const isActive = activeFilters.includes(filter.id);

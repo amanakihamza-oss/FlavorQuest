@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useBlog } from '../context/BlogContext';
 import { usePlaces } from '../context/PlacesContext';
 import PlaceCard from '../components/PlaceCard';
-import { Helmet } from 'react-helmet-async';
+import SEO from '../components/SEO';
 import { Clock, Calendar, User, ChevronLeft, MapPin } from 'lucide-react';
 
 const BlogArticle = () => {
@@ -46,11 +46,13 @@ const BlogArticle = () => {
 
     return (
         <div className="min-h-screen bg-white pb-20">
-            <Helmet>
-                <title>{article.title} - FlavorQuest</title>
-                <meta name="description" content={article.excerpt} />
-                <script type="application/ld+json">{JSON.stringify(schema)}</script>
-            </Helmet>
+            <SEO
+                title={`${article.title}`}
+                description={article.excerpt}
+                image={article.image}
+                schema={schema}
+                type="article"
+            />
 
             {/* Immersive Header */}
             <div className="relative h-[50vh] min-h-[400px]">

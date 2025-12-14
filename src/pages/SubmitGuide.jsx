@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Camera, MapPin, Tag, Plus, ArrowLeft, Lock, Send } from 'lucide-react';
+import OpeningHoursInput from '../components/OpeningHoursInput';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { usePlaces } from '../context/PlacesContext';
 import { useAuth } from '../context/AuthContext';
@@ -18,7 +19,7 @@ const SubmitGuide = () => {
         addresse: '',
         city: '',
         website: '',
-        openingHours: '',
+        openingHours: {},
         description: '',
         image: null,
         tags: []
@@ -206,15 +207,10 @@ const SubmitGuide = () => {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-bold text-brand-dark uppercase mb-2">Horaires (Texte libre)</label>
-                        <textarea
-                            name="openingHours"
+                        <OpeningHoursInput
                             value={formData.openingHours}
-                            onChange={handleChange}
-                            rows="2"
-                            className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange transition-all font-medium resize-none"
-                            placeholder="Ex: Lun-Ven: 11h-22h, Sam: 12h-23h..."
-                        ></textarea>
+                            onChange={(newHours) => setFormData({ ...formData, openingHours: newHours })}
+                        />
                     </div>
 
                     <div>

@@ -4,6 +4,7 @@ import { useBlog } from '../context/BlogContext';
 import { Check, X, Clock, Eye, Trash2, AlertCircle, MoreHorizontal, ChevronDown, MessageSquare, Pen } from 'lucide-react';
 import FeedbackModal from '../components/FeedbackModal';
 import EditPlaceModal from '../components/EditPlaceModal';
+import EditArticleModal from '../components/EditArticleModal';
 
 const AdminDashboard = () => {
     const { places, approvePlace, rejectPlace, reviewPlace, deletePlace, sendFeedback, filters, addFilter, deleteFilter } = usePlaces();
@@ -11,6 +12,8 @@ const AdminDashboard = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [placeToEdit, setPlaceToEdit] = useState(null);
+    const [isArticleEditModalOpen, setIsArticleEditModalOpen] = useState(false);
+    const [articleToEdit, setArticleToEdit] = useState(null);
     const [activeTab, setActiveTab] = useState('places');
 
     // Sort: Pending first
@@ -40,6 +43,11 @@ const AdminDashboard = () => {
     const handleEditPlace = (place) => {
         setPlaceToEdit(place);
         setIsEditModalOpen(true);
+    };
+
+    const handleEditArticle = (article) => {
+        setArticleToEdit(article);
+        setIsArticleEditModalOpen(true);
     };
 
     const getStatusBadge = (place) => {
@@ -120,7 +128,8 @@ const AdminDashboard = () => {
                             </tbody>
                         </table>
                     ) : (
-                        <ArticleList />
+
+                        <ArticleList onEdit={handleEditArticle} />
                     )}
                 </div>
             </div>
@@ -136,6 +145,12 @@ const AdminDashboard = () => {
                 isOpen={isEditModalOpen}
                 onClose={() => setIsEditModalOpen(false)}
                 place={placeToEdit}
+            />
+
+            <EditArticleModal
+                isOpen={isArticleEditModalOpen}
+                onClose={() => setIsArticleEditModalOpen(false)}
+                article={articleToEdit}
             />
 
             <div className="mt-12 mb-20">
@@ -355,7 +370,7 @@ const ActionDropdown = ({ place, actions, isLast }) => {
 };
 
 
-const ArticleList = () => {
+const ArticleList = ({ onEdit }) => {
     const { articles, approveArticle, rejectArticle, deleteArticle } = useBlog();
 
     // Sort: Pending first
@@ -409,6 +424,13 @@ const ArticleList = () => {
                         </td>
                         <td className="px-6 py-4 text-right">
                             <div className="flex justify-end gap-2">
+                                <button
+                                    onClick={() => onEdit(article)}
+                                    className="p-2 bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-100 transition-colors"
+                                    title="Modifier"
+                                >
+                                    <Pen size={18} />
+                                </button>
                                 {article.status === 'pending' && (
                                     <>
                                         <button
