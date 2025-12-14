@@ -1,5 +1,5 @@
-import React from 'react';
-import { ArrowRight } from 'lucide-react';
+import React, { useRef } from 'react';
+import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 
 import { usePlaces } from '../context/PlacesContext';
 
@@ -33,6 +33,7 @@ const CATEGORIES = [
 
 const VisualCategories = ({ onSelect }) => {
     const { places } = usePlaces();
+    const containerRef = useRef(null);
 
     // Calculate counts
     const categoryCounts = places.reduce((acc, place) => {
@@ -41,6 +42,12 @@ const VisualCategories = ({ onSelect }) => {
         }
         return acc;
     }, {});
+
+    const scroll = (offset) => {
+        if (containerRef.current) {
+            containerRef.current.scrollBy({ left: offset, behavior: 'smooth' });
+        }
+    };
 
     return (
         <section className="py-8">
@@ -54,33 +61,52 @@ const VisualCategories = ({ onSelect }) => {
                 </button>
             </div>
 
-            <div className="overflow-x-auto no-scrollbar pb-4 px-6 md:px-0 max-w-7xl mx-auto">
-                <div className="flex gap-4 min-w-max md:justify-center">
-                    {CATEGORIES.map(cat => {
-                        const count = categoryCounts[cat.id] || 0;
-                        if (count === 0) return null; // Hide if 0 as per user preference (option A)
+            <div className="relative max-w-7xl mx-auto group">
+                {/* Desktop Scroll Buttons */}
+                <button
+                    onClick={() => scroll(-300)}
+                    className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 bg-white/90 backdrop-blur-sm border border-gray-100 rounded-full items-center justify-center shadow-lg text-brand-dark opacity-0 group-hover:opacity-100 transition-opacity hover:bg-brand-orange hover:text-white"
+                >
+                    <ChevronLeft size={24} />
+                </button>
+                <button
+                    onClick={() => scroll(300)}
+                    className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 bg-white/90 backdrop-blur-sm border border-gray-100 rounded-full items-center justify-center shadow-lg text-brand-dark opacity-0 group-hover:opacity-100 transition-opacity hover:bg-brand-orange hover:text-white"
+                >
+                    <ChevronRight size={24} />
+                </button>
 
-                        return (
-                            <div
-                                key={cat.id}
-                                onClick={() => onSelect(cat.id)}
-                                className="relative w-64 h-80 rounded-3xl overflow-hidden cursor-pointer group shadow-md hover:shadow-xl transition-all duration-500"
-                            >
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10" />
-                                <img
-                                    src={cat.image}
-                                    alt={cat.label}
-                                    className="absolute inset-0 w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
-                                />
-                                <div className="absolute bottom-6 left-6 z-20">
-                                    <span className="block text-xs font-bold text-white/80 uppercase tracking-wider mb-2 bg-white/20 backdrop-blur-sm px-2 py-1 rounded w-fit">
-                                        {count} {count > 1 ? 'lieux' : 'lieu'}
-                                    </span>
-                                    <h3 className="text-xl font-bold text-white group-hover:translate-x-1 transition-transform">{cat.label}</h3>
+                <div
+                    ref={containerRef}
+                    className="overflow-x-auto no-scrollbar pb-4 px-6 md:px-0"
+                >
+                    <div className="flex gap-4 min-w-max md:justify-start lg:justify-center">
+                        {CATEGORIES.map(cat => {
+                            const count = categoryCounts[cat.id] || 0;
+                            if (count === 0) return null;
+
+                            return (
+                                <div
+                                    key={cat.id}
+                                    onClick={() => onSelect(cat.id)}
+                                    className="relative w-64 h-80 rounded-3xl overflow-hidden cursor-pointer group/card shadow-md hover:shadow-xl transition-all duration-500"
+                                >
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10" />
+                                    <img
+                                        src={cat.image}
+                                        alt={cat.label}
+                                        className="absolute inset-0 w-full h-full object-cover transform group-hover/card:scale-110 transition-transform duration-700"
+                                    />
+                                    <div className="absolute bottom-6 left-6 z-20">
+                                        <span className="block text-xs font-bold text-white/80 uppercase tracking-wider mb-2 bg-white/20 backdrop-blur-sm px-2 py-1 rounded w-fit">
+                                            {count} {count > 1 ? 'lieux' : 'lieu'}
+                                        </span>
+                                        <h3 className="text-xl font-bold text-white group-hover/card:translate-x-1 transition-transform">{cat.label}</h3>
+                                    </div>
                                 </div>
-                            </div>
-                        );
-                    })}
+                            );
+                        })}
+                    </div>
                 </div>
             </div>
         </section>

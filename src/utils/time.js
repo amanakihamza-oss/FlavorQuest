@@ -76,6 +76,16 @@ export const getFormattedHours = (openingHours) => {
         if (!schedule || schedule.closed) {
             return { day: label, hours: 'Fermé', isToday: getCurrentDayKey() === key };
         }
-        return { day: label, hours: `${schedule.open} - ${schedule.close}`, isToday: getCurrentDayKey() === key };
+
+        let hoursStr = '';
+        if (schedule.ranges && Array.isArray(schedule.ranges) && schedule.ranges.length > 0) {
+            hoursStr = schedule.ranges.map(r => `${r.open} - ${r.close}`).join(', ');
+        } else if (schedule.open && schedule.close) {
+            hoursStr = `${schedule.open} - ${schedule.close}`;
+        } else {
+            hoursStr = 'Horaires invalides';
+        }
+
+        return { day: label, hours: hoursStr, isToday: getCurrentDayKey() === key };
     });
 };

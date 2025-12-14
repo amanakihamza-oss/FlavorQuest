@@ -123,7 +123,7 @@ const Map = ({ places }) => {
                                     <div className="relative h-24 mb-2 overflow-hidden rounded-t-lg">
                                         <img src={place.image} alt={place.name} className="w-full h-full object-cover" />
                                         <div className="absolute top-2 right-2 bg-white/90 backdrop-blur px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider text-brand-orange">
-                                            {place.category}
+                                            {place.category === 'Snack' ? 'Fast Food' : place.category}
                                         </div>
                                     </div>
                                     <h3 className="font-bold text-gray-900 text-sm mb-1">{place.name}</h3>

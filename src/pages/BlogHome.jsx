@@ -5,6 +5,7 @@ import BlogCard from '../components/BlogCard';
 import { Helmet } from 'react-helmet-async';
 import { Search, PenTool } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { BLOG_CATEGORIES } from '../utils/blogData';
 
 const BlogHome = () => {
     const { articles, getArticlesByCategory } = useBlog();
@@ -12,7 +13,7 @@ const BlogHome = () => {
     const navigate = useNavigate();
     const [activeCategory, setActiveCategory] = useState('All');
 
-    const categories = ['All', 'Guide', 'Découverte', 'Voyage'];
+    const categories = ['All', ...BLOG_CATEGORIES];
     const displayedArticles = getArticlesByCategory(activeCategory);
 
     return (

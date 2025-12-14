@@ -1,84 +1,88 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { db } from '../firebase';
+import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
 import { uploadToImgBB } from '../utils/imgbb';
 
 const BlogContext = createContext();
 
-// Mock Blog Data with SEO/GEO focus
-const INITIAL_ARTICLES = [
+// Initial Data for Seeding (if DB is empty)
+const SEED_ARTICLES = [
     {
-        id: '1',
+        slug: 'smash-burger-mania-liege',
+        title: 'Smash Burger Mania : Pourquoi Liège craque pour le "croustillant" ? 🍔',
+        excerpt: 'C\'est la tendance qui écrase tout sur son passage ! Découvrez pourquoi le Smash Burger est devenu le roi de la street food liégeoise.',
+        image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=2070&auto=format&fit=crop',
+        category: 'Tendance',
+        city: 'Liège',
+        date: '2024-03-20',
+        author: 'Julien StreetFood',
+        readTime: '5 min',
+        content: `
+            <h2>Le phénomène qui écrase tout</h2>
+            <p>Oubliez les burgers épais et juteux d'antan. La mode est au "Smash" : une boule de viande écrasée violemment sur une plaque brûlante. Résultat ? Une croûte caramélisée incomparable (la réaction de Maillard pour les intellos) et un cœur fondant.</p>
+            <h3>Les meilleures adresses à Liège</h3>
+            <p>De plus en plus d'enseignes se lancent dans l'aventure. On pense notamment à...</p>
+        `,
+        relatedPlaceIds: [],
+        status: 'approved' // Auto-approved as per user request
+    },
+    {
         slug: 'top-5-brunch-namur',
         title: 'Top 5 des meilleurs brunchs à Namur en 2024',
-        excerpt: 'Vous cherchez le spot parfait pour un dimanche matin ? Découvrez notre sélection des adresses les plus gourmandes de la capitale wallonne.',
+        excerpt: 'Vous cherchez le spot parfait pour un dimanche matin ? Découvrez notre sélection des adresses les plus gourmandes.',
         image: 'https://images.unsplash.com/photo-1533777857889-4be7c70b33f7?q=80&w=2070&auto=format&fit=crop',
         category: 'Guide',
         city: 'Namur',
         date: '2024-03-15',
         author: 'Sarah Gourmande',
         readTime: '4 min',
-        content: `
-            <h2>Le brunch, c'est sacré !</h2>
-            <p>Namur regorge de petites pépites pour prendre le petit-déjeuner tardif. Voici nos coups de cœur qui allient produits locaux et ambiance cosy.</p>
-            <h3>1. Le Comptoir Belge</h3>
-            <p>Un classique indémodable. Leurs crêpes sont à tomber et le café est torréfié sur place.</p>
-            <h3>2. L'Atelier du Goût</h3>
-            <p>Plus intimiste, c'est l'endroit rêvé pour un brunch en amoureux.</p>
-        `,
+        content: `<h2>Le brunch, c'est sacré !</h2><p>Namur regorge de petites pépites...</p>`,
         relatedPlaceIds: ['1', '4'],
         status: 'approved'
     },
     {
-        id: '2',
         slug: 'circuit-vegan-liege',
         title: 'Liège Version Green : Le Guide du Vegan',
-        excerpt: 'La Cité Ardente se met au vert ! On a testé pour vous les meilleures adresses 100% végétales de Liège.',
+        excerpt: 'La Cité Ardente se met au vert ! On a testé pour vous les meilleures adresses 100% végétales.',
         image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=2070&auto=format&fit=crop',
         category: 'Découverte',
         city: 'Liège',
         date: '2024-03-10',
         author: 'Maxime Vert',
         readTime: '6 min',
-        content: `
-            <h2>Manger sans cruauté à Liège</h2>
-            <p>Il est loin le temps où être vegan signifiait manger de la salade verte. Liège propose aujourd'hui une scène culinaire végétale vibrante.</p>
-        `,
+        content: `<h2>Manger sans cruauté à Liège</h2><p>Une scène culinaire végétale vibrante...</p>`,
         relatedPlaceIds: ['3'],
-        status: 'approved'
-    },
-    {
-        id: '3',
-        slug: 'week-end-gastronomique-ardennes',
-        title: 'Week-end gourmand : Escapade en Ardenne',
-        excerpt: 'Besoin de prendre l\'air ? Suivez notre itinéraire pour un week-end alliant nature et gastronomie au cœur des Ardennes.',
-        image: 'https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&w=2070&auto=format&fit=crop',
-        category: 'Voyage',
-        city: 'Ardennes',
-        date: '2024-02-28',
-        author: 'Julie Voyage',
-        readTime: '8 min',
-        content: `
-            <h2>Respirez, mangez, profitez</h2>
-            <p>Les Ardennes ne sont pas que des forêts, c'est aussi un terroir d'exception. Gibier, fromages, bières locales...</p>
-        `,
-        relatedPlaceIds: [],
         status: 'approved'
     }
 ];
 
 export const BlogProvider = ({ children }) => {
-    // Initialize from localStorage
-    const [articles, setArticles] = useState(() => {
-        const saved = localStorage.getItem('flavorquest_articles');
-        if (saved) {
-            return JSON.parse(saved);
-        }
-        return INITIAL_ARTICLES;
-    });
+    const [articles, setArticles] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    // Save to localStorage when articles change
+    // Sync with Firebase
     useEffect(() => {
-        localStorage.setItem('flavorquest_articles', JSON.stringify(articles));
-    }, [articles]);
+        const unsubscribe = onSnapshot(collection(db, 'articles'), (snapshot) => {
+            const fetchedArticles = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            setArticles(fetchedArticles);
+            setLoading(false);
+
+            // AUTO-SEED only if completely empty (first run logic)
+            // Note: In production, use a dedicated admin script. Here for demo convenience.
+            if (fetchedArticles.length === 0 && !localStorage.getItem('blog_seeded')) {
+                console.log("Seeding initial articles to Firebase...");
+                SEED_ARTICLES.forEach(async (article) => {
+                    await addDoc(collection(db, 'articles'), article);
+                });
+                localStorage.setItem('blog_seeded', 'true');
+            }
+        });
+
+        return () => unsubscribe();
+    }, []);
 
     // Actions
     const addArticle = async (articleData) => {
@@ -89,44 +93,55 @@ export const BlogProvider = ({ children }) => {
                 imageUrl = await uploadToImgBB(articleData.image);
             } catch (error) {
                 console.error("Error uploading blog image:", error);
-                // Fallback: keep previous or empty.
                 imageUrl = '';
             }
         }
 
         const newArticle = {
-            id: Date.now().toString(),
             date: new Date().toISOString().split('T')[0],
-            readTime: '5 min', // Default fallback
+            readTime: '5 min',
             relatedPlaceIds: [],
-            status: 'pending', // Default status for user submissions
+            status: 'pending',
             ...articleData,
             image: imageUrl || "https://images.unsplash.com/photo-1499728603263-13726abce5fd?q=80&w=2070&auto=format&fit=crop"
         };
-        setArticles(prev => [newArticle, ...prev]);
-        return newArticle;
+
+        try {
+            await addDoc(collection(db, 'articles'), newArticle);
+            return newArticle;
+        } catch (e) {
+            console.error("Error adding article: ", e);
+        }
     };
 
-    const approveArticle = (id) => {
-        setArticles(prev => prev.map(a => a.id === id ? { ...a, status: 'approved' } : a));
+    const updateArticle = async (id, updatedData) => {
+        try {
+            const articleRef = doc(db, 'articles', id);
+            await updateDoc(articleRef, updatedData);
+        } catch (e) {
+            console.error("Error updating article: ", e);
+        }
     };
 
-    const rejectArticle = (id) => {
-        setArticles(prev => prev.map(a => a.id === id ? { ...a, status: 'rejected' } : a));
+    const approveArticle = (id) => updateArticle(id, { status: 'approved' });
+    const rejectArticle = (id) => updateArticle(id, { status: 'rejected' });
+
+    const deleteArticle = async (id) => {
+        try {
+            await deleteDoc(doc(db, 'articles', id));
+        } catch (e) {
+            console.error("Error deleting article: ", e);
+        }
     };
 
-    const deleteArticle = (id) => {
-        setArticles(prev => prev.filter(a => a.id !== id));
-    };
-
-    // Getters (Filtered by 'approved' for public views)
+    // Getters
     const getArticleBySlug = (slug) => {
         return articles.find(article => article.slug === slug);
     };
 
     const getArticlesForPlace = (placeId) => {
         return articles.filter(article =>
-            article.status === 'approved' && article.relatedPlaceIds.includes(placeId)
+            article.status === 'approved' && article.relatedPlaceIds && article.relatedPlaceIds.includes(placeId)
         );
     };
 
@@ -135,13 +150,10 @@ export const BlogProvider = ({ children }) => {
         return category === 'All' ? approved : approved.filter(a => a.category === category);
     };
 
-    const updateArticle = (id, updatedData) => {
-        setArticles(prev => prev.map(a => a.id === id ? { ...a, ...updatedData } : a));
-    };
-
     return (
         <BlogContext.Provider value={{
             articles,
+            loading,
             addArticle,
             updateArticle,
             approveArticle,

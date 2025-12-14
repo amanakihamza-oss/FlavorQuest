@@ -8,6 +8,7 @@ import { Helmet } from 'react-helmet-async';
 import { PenTool, Camera, Save, ArrowLeft, Link as LinkIcon, Clock } from 'lucide-react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import { BLOG_CATEGORIES } from '../utils/blogData';
 
 const CreateArticle = () => {
     const { addArticle } = useBlog();
@@ -197,10 +198,9 @@ const CreateArticle = () => {
                                         onChange={handleChange}
                                         className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
                                     >
-                                        <option value="Découverte">Découverte</option>
-                                        <option value="Guide">Guide</option>
-                                        <option value="Voyage">Voyage</option>
-                                        <option value="Recette">Recette</option>
+                                        {BLOG_CATEGORIES.map(cat => (
+                                            <option key={cat} value={cat}>{cat}</option>
+                                        ))}
                                     </select>
                                 </div>
 

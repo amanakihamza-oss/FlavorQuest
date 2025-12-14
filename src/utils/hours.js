@@ -21,32 +21,47 @@ export const checkIsOpen = (openingHours) => {
         return { isOpen: false, status: 'Fermé', color: 'bg-red-500' };
     }
 
+    // Helper to check a specific range
+    const checkRange = (openStr, closeStr, currentT) => {
+        const [openH, openM] = openStr.split(':').map(Number);
+        const [closeH, closeM] = closeStr.split(':').map(Number);
+
+        const openTime = openH * 60 + openM;
+        let closeTime = closeH * 60 + closeM;
+
+        if (closeTime < openTime) closeTime += 24 * 60; // Handle past midnight
+
+        if (currentT >= openTime && currentT < closeTime) {
+            if (closeTime - currentT <= 60) return 'closingSoon';
+            return 'open';
+        }
+        return 'closed';
+    };
+
     const currentTime = now.getHours() * 60 + now.getMinutes();
+    let isOpen = false;
+    let status = 'Fermé';
+    let color = 'bg-red-500';
 
-    // Parse Open/Close times
-    const [openH, openM] = hoursToday.open.split(':').map(Number);
-    const [closeH, closeM] = hoursToday.close.split(':').map(Number);
-
-    const openTime = openH * 60 + openM;
-    let closeTime = closeH * 60 + closeM;
-
-    // Handle Closing past midnight (e.g., 01:00)
-    // If closeTime < openTime, assume it refers to next day (e.g. 18:00 to 02:00)
-    if (closeTime < openTime) {
-        closeTime += 24 * 60;
+    // Normalize to ranges
+    let ranges = [];
+    if (hoursToday.ranges && Array.isArray(hoursToday.ranges)) {
+        ranges = hoursToday.ranges;
+    } else if (hoursToday.open && hoursToday.close) {
+        ranges = [{ open: hoursToday.open, close: hoursToday.close }];
     }
 
-    // Logic for "late night" check (if it's 1AM and place matches yesterday's late shift)
-    // This is complex, simplified version: we only check "today's" schedule slot.
-    // Ideally, if it's 01:00 AM on Monday, we should check Sunday's closing time if it spills over.
-    // For MVP transparency: we focus on the main day usage.
-
-    if (currentTime >= openTime && currentTime < closeTime) {
-        // Warning if closing in less than 60 mins
-        if (closeTime - currentTime <= 60) {
+    // Check all ranges
+    for (const range of ranges) {
+        const rangeStatus = checkRange(range.open, range.close, currentTime);
+        if (rangeStatus === 'open') {
+            return { isOpen: true, status: 'Ouvert', color: 'bg-green-500' };
+        } else if (rangeStatus === 'closingSoon') {
+            // Prioritize "Closing Soon" over "Closed" but if another range is fully open, that might be weird? 
+            // Actually if it's closing soon for one range, it's effectively open but closing.
+            // If we have multiple ranges (e.g. lunch and dinner), and we are in lunch closing soon, we return that.
             return { isOpen: true, status: 'Ferme bientôt', color: 'bg-orange-500' };
         }
-        return { isOpen: true, status: 'Ouvert', color: 'bg-green-500' };
     }
 
     return { isOpen: false, status: 'Fermé', color: 'bg-red-500' };

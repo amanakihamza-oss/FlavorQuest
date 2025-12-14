@@ -81,7 +81,7 @@ const PlaceDetails = () => {
                 <div className="absolute bottom-0 left-0 w-full p-6 md:p-10">
                     <div className="max-w-7xl mx-auto">
                         <span className="bg-brand-orange text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-3 inline-block">
-                            {place.category}
+                            {place.category === 'Snack' ? 'Fast Food' : place.category}
                         </span>
                         <h1 className="text-3xl md:text-5xl font-bold text-white mb-2">{place.name}</h1>
                         <div className="flex items-center gap-4 text-white/90 text-sm md:text-base">

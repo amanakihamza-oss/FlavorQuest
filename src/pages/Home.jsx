@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Hero from '../components/Hero';
 import FilterBar from '../components/FilterBar';
 import PlaceCard from '../components/PlaceCard';
@@ -10,7 +10,6 @@ import Map from '../components/Map';
 import VisualCategories from '../components/VisualCategories';
 import { useBlog } from '../context/BlogContext';
 import BlogCard from '../components/BlogCard';
-import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'framer-motion';
 
 const Home = () => {
     // Basic Organization Schema for the Homepage
@@ -32,18 +31,33 @@ const Home = () => {
     const [viewMode, setViewMode] = useState('list'); // 'list' or 'map'
     const [activeTags, setActiveTags] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState(null);
-    const [isToggleVisible, setIsToggleVisible] = useState(true);
-    const { scrollY } = useScroll();
+    const [showMobileToggle, setShowMobileToggle] = useState(false);
+    const [showFilters, setShowFilters] = useState(true);
 
-    useMotionValueEvent(scrollY, "change", (latest) => {
-        const previous = scrollY.getPrevious();
-        // Hide if scrolling down AND scrolled passed 150px
-        if (latest > previous && latest > 150) {
-            setIsToggleVisible(false);
-        } else {
-            setIsToggleVisible(true);
-        }
-    });
+    const placesRef = useRef(null);
+    const blogRef = useRef(null);
+
+    // Toggle visibility based on scroll position (Between Places and Blog)
+    useEffect(() => {
+        const handleScroll = () => {
+            if (!placesRef.current || !blogRef.current) return;
+
+            const placesTop = placesRef.current.getBoundingClientRect().top;
+            const blogTop = blogRef.current.getBoundingClientRect().top;
+            const windowHeight = window.innerHeight;
+
+            // Mobile Toggle: Show when Places in view, hide when Blog enters view (bottom)
+            const toggleVisible = placesTop < windowHeight - 100 && blogTop > windowHeight - 100;
+            setShowMobileToggle(toggleVisible);
+
+            // FilterBar: Hide when Blog section reaches near top of screen (overlaps sticky area)
+            setShowFilters(blogTop > 150);
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        handleScroll(); // Check on init
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     const toggleFilter = (tagId) => {
         setActiveTags(prev =>
@@ -89,15 +103,16 @@ const Home = () => {
                 <VisualCategories onSelect={(cat) => {
                     setSelectedCategory(cat);
                     // Optional: scroll to list
-                    if (cat) document.getElementById('places-list').scrollIntoView({ behavior: 'smooth' });
+                    if (placesRef.current) placesRef.current.scrollIntoView({ behavior: 'smooth' });
                 }} />
             </div>
-            <FilterBar activeFilters={activeTags} onToggle={toggleFilter} />
+            <FilterBar activeFilters={activeTags} onToggle={toggleFilter} visible={showFilters} />
 
             <div className="max-w-7xl mx-auto px-6" id="places-list">
 
                 {/* Editorial Section: Local Gems */}
-                <section className="mt-10 relative">
+                {/* WE ATTACH REF HERE FOR START OF VISIBILITY */}
+                <section ref={placesRef} className="mt-10 relative">
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-2">
                             <div className="p-2 bg-brand-orange/10 rounded-full text-brand-orange">
@@ -123,31 +138,23 @@ const Home = () => {
                         </div>
                     </div>
 
-                    {/* Mobile Sticky Toggle (Fixed at bottom) */}
-                    <AnimatePresence>
-                        {isToggleVisible && (
-                            <motion.div
-                                initial={{ y: 100, opacity: 0 }}
-                                animate={{ y: 0, opacity: 1 }}
-                                exit={{ y: 100, opacity: 0 }}
-                                transition={{ duration: 0.3 }}
-                                className="md:hidden fixed bottom-28 left-1/2 transform -translate-x-1/2 z-40 bg-white/90 backdrop-blur-md shadow-xl p-1.5 rounded-full border border-gray-100 ring-1 ring-black/5 flex gap-1"
+                    {/* Mobile Sticky Toggle (Conditional Visibility) */}
+                    {showMobileToggle && (
+                        <div className={`md:hidden fixed bottom-8 left-1/2 transform -translate-x-1/2 z-40 bg-white/90 backdrop-blur-md shadow-xl p-1.5 rounded-full border border-gray-100 ring-1 ring-black/5 flex gap-1 mb-safe transition-all duration-500 ${showMobileToggle ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20 pointer-events-none'}`}>
+                            <button
+                                onClick={() => setViewMode('list')}
+                                className={`px-6 py-3 rounded-full transition-all flex items-center gap-2 text-sm font-bold ${viewMode === 'list' ? 'bg-brand-dark text-white shadow-lg' : 'text-gray-500'}`}
                             >
-                                <button
-                                    onClick={() => setViewMode('list')}
-                                    className={`px-6 py-3 rounded-full transition-all flex items-center gap-2 text-sm font-bold ${viewMode === 'list' ? 'bg-brand-dark text-white shadow-lg' : 'text-gray-500'}`}
-                                >
-                                    <List size={18} /> Liste
-                                </button>
-                                <button
-                                    onClick={() => setViewMode('map')}
-                                    className={`px-6 py-3 rounded-full transition-all flex items-center gap-2 text-sm font-bold ${viewMode === 'map' ? 'bg-brand-dark text-white shadow-lg' : 'text-gray-500'}`}
-                                >
-                                    <MapIcon size={18} /> Carte
-                                </button>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
+                                <List size={18} /> Liste
+                            </button>
+                            <button
+                                onClick={() => setViewMode('map')}
+                                className={`px-6 py-3 rounded-full transition-all flex items-center gap-2 text-sm font-bold ${viewMode === 'map' ? 'bg-brand-dark text-white shadow-lg' : 'text-gray-500'}`}
+                            >
+                                <MapIcon size={18} /> Carte
+                            </button>
+                        </div>
+                    )}
 
                     {viewMode === 'list' ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in">
@@ -163,7 +170,8 @@ const Home = () => {
                 </section>
 
                 {/* Latest Stories Section */}
-                <section className="mt-20">
+                {/* WE ATTACH REF HERE FOR END OF VISIBILITY */}
+                <section ref={blogRef} className="mt-20">
                     <div className="flex items-center justify-between mb-8">
                         <div className="flex items-center gap-2">
                             <div className="p-2 bg-brand-orange/10 rounded-full text-brand-orange">
