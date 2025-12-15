@@ -7,7 +7,7 @@ import EditPlaceModal from '../components/EditPlaceModal';
 import EditArticleModal from '../components/EditArticleModal';
 
 const AdminDashboard = () => {
-    const { places, approvePlace, rejectPlace, reviewPlace, deletePlace, sendFeedback, filters, addFilter, deleteFilter } = usePlaces();
+    const { places, approvePlace, rejectPlace, reviewPlace, deletePlace, sendFeedback, filters, addFilter, deleteFilter, migrateSlugs } = usePlaces();
     const { articles, approveArticle, rejectArticle, deleteArticle } = useBlog(); // Ensure we destruct actions here for ArticleList
     const [selectedPlace, setSelectedPlace] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -185,9 +185,29 @@ const AdminDashboard = () => {
             </div>
 
             {activeTab === 'config' ? (
-                <div className="animate-fade-in">
-                    <h2 className="text-xl font-bold text-brand-dark mb-4">Configuration globale</h2>
-                    <FilterManager />
+                <div className="animate-fade-in space-y-8">
+                    <div>
+                        <h2 className="text-xl font-bold text-brand-dark mb-4">Configuration globale</h2>
+                        <FilterManager />
+                    </div>
+
+                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <h3 className="font-bold text-gray-700 mb-4">Maintenance & SEO</h3>
+                        <div className="flex items-center gap-4">
+                            <button
+                                onClick={async () => {
+                                    if (window.confirm('Voulez-vous générer des slugs pour tous les lieux existants ?')) {
+                                        const count = await migrateSlugs();
+                                        alert(`${count} lieux mis à jour avec succès !`);
+                                    }
+                                }}
+                                className="px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200"
+                            >
+                                🪄 Migrer les Slugs SEO
+                            </button>
+                            <p className="text-sm text-gray-500">Génère des URLs lisibles (ex: /place/nom-du-resto) pour les anciens lieux.</p>
+                        </div>
+                    </div>
                 </div>
             ) : (
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 min-h-[400px] animate-fade-in">

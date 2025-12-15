@@ -2,6 +2,8 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { collection, addDoc, onSnapshot, query, doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { uploadToImgBB } from '../utils/imgbb';
+import { generateSlug } from '../utils/slugs';
+import { updateDoc } from 'firebase/firestore';
 
 const PlacesContext = createContext();
 
@@ -186,7 +188,8 @@ export const PlacesProvider = ({ children }) => {
             ...newPlace,
             image: imageUrl || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=2070&auto=format&fit=crop",
             submittedAt: new Date().toISOString(),
-            validationStatus: 'pending'
+            validationStatus: 'pending',
+            slug: generateSlug(newPlace.name, newPlace.city)
         };
 
         // Add to Firestore
@@ -229,6 +232,22 @@ export const PlacesProvider = ({ children }) => {
         });
     };
 
+    const migrateSlugs = async () => {
+        let count = 0;
+        for (const place of places) {
+            if (!place.slug) {
+                const newSlug = generateSlug(place.name, place.city);
+                try {
+                    await updateDoc(doc(db, 'places', place.id), { slug: newSlug });
+                    count++;
+                } catch (e) {
+                    console.error("Migration failed for", place.id, e);
+                }
+            }
+        }
+        return count;
+    };
+
     // We need to import deleteDoc, setDoc, doc
     // I will add imports in the next tool call because I can't easily edit top of file here.
     // WAIT, I should check if they are imported. `addDoc` is imported. `doc` and `setDoc` are NOT.
@@ -257,7 +276,7 @@ export const PlacesProvider = ({ children }) => {
             places: placesWithRatings, // Expose the computed places
             addPlace, updatePlace, approvePlace, rejectPlace, reviewPlace, deletePlace, sendFeedback, addReview,
             filters, addFilter, deleteFilter,
-            getUserReviewCount
+            getUserReviewCount, migrateSlugs
         }}>
             {children}
         </PlacesContext.Provider>

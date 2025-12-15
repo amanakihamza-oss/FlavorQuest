@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Star, MapPin, Clock, Phone, Globe, ChevronLeft, ShieldCheck, User } from 'lucide-react';
 import { usePlaces } from '../context/PlacesContext';
 import { getFormattedHours } from '../utils/time';
@@ -8,9 +8,20 @@ import SEO from '../components/SEO';
 import ReviewForm from '../components/ReviewForm';
 
 const PlaceDetails = () => {
-    const { id } = useParams();
+    const { slug } = useParams();
     const { places, addReview } = usePlaces();
-    const place = places.find(p => p.id === id);
+    const navigate = useNavigate();
+
+    // 1. Try finding by slug
+    // 2. Fallback: try finding by ID (legacy support)
+    const place = places.find(p => p.slug === slug) || places.find(p => p.id === slug);
+
+    useEffect(() => {
+        // If we found a place by ID but the URL uses ID, redirect to URL with Slug
+        if (place && place.slug && place.id === slug && place.slug !== slug) {
+            navigate(`/place/${place.slug}`, { replace: true });
+        }
+    }, [place, slug, navigate]);
 
     if (!place) {
         return <div className="text-center py-20">Lieu introuvable</div>;

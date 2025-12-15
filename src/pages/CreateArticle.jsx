@@ -6,6 +6,7 @@ import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { Helmet } from 'react-helmet-async';
 import { PenTool, Camera, Save, ArrowLeft, Link as LinkIcon, Clock } from 'lucide-react';
+import { compressImage } from '../utils/compressImage';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { BLOG_CATEGORIES } from '../utils/blogData';
@@ -80,11 +81,22 @@ const CreateArticle = () => {
         setFormData(prev => ({ ...prev, content: content }));
     };
 
-    const handleImageChange = (e) => {
+    const handleImageChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
-            setFormData(prev => ({ ...prev, image: file }));
-            setImagePreview(URL.createObjectURL(file));
+            try {
+                // Determine preview immediately? Or wait? 
+                // Let's reset preview to loading or just keep old one until ready.
+                // Or just display the original first?
+                // The compression is fast enough usually.
+                const compressed = await compressImage(file);
+                setFormData(prev => ({ ...prev, image: compressed }));
+                setImagePreview(URL.createObjectURL(compressed));
+            } catch (err) {
+                console.error(err);
+                setFormData(prev => ({ ...prev, image: file }));
+                setImagePreview(URL.createObjectURL(file));
+            }
         }
     };
 

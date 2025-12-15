@@ -5,7 +5,7 @@ import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 
-const PlaceCard = ({ id, name, rating, reviews, image, category, distance, status, openingHours, city, isSponsored }) => {
+const PlaceCard = ({ id, name, rating, reviews, image, category, distance, status, openingHours, city, isSponsored, slug }) => {
     const { favorites, toggleFavorite, isAuthenticated, setShowAuthModal } = useAuth();
     const { showToast } = useToast();
     const isFavorite = favorites.includes(id);
@@ -24,8 +24,10 @@ const PlaceCard = ({ id, name, rating, reviews, image, category, distance, statu
         }
     };
 
+    const linkTarget = slug ? `/place/${slug}` : `/place/${id}`;
+
     return (
-        <NavLink to={`/place/${id}`} className="block group">
+        <NavLink to={linkTarget} className="block group">
             <div className={`bg-white rounded-2xl overflow-hidden transition-all duration-300 border relative ${isSponsored ? 'border-yellow-400 shadow-md shadow-yellow-100 hover:shadow-yellow-200' : 'border-gray-100 shadow-sm hover:shadow-xl'}`}>
                 {/* Image Container */}
                 <div className="relative h-48 overflow-hidden">

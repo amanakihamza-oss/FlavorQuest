@@ -139,7 +139,8 @@ const EditPlaceModal = ({ isOpen, onClose, place }) => {
                                         <option value="Brasserie">Brasserie</option>
                                         <option value="Snack">Fast Food</option>
                                         <option value="Vegan">Healthy & Vegan</option>
-                                        <option value="Café">Café & Douceurs</option>
+                                        <option value="Café">Café</option>
+                                        <option value="Boulangerie">Boulangerie & Pâtisserie</option>
                                     </select>
                                     <p className="text-xs text-gray-400 mt-1">Détermine l'affichage sur l'accueil</p>
                                 </div>

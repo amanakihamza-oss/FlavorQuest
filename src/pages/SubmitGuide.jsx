@@ -5,6 +5,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { geocodeAddress } from '../utils/geocoding';
 import { usePlaces } from '../context/PlacesContext';
 import { useAuth } from '../context/AuthContext';
+import { compressImage } from '../utils/compressImage';
 import { Helmet } from 'react-helmet-async';
 
 const SubmitGuide = () => {
@@ -68,10 +69,20 @@ const SubmitGuide = () => {
         }
     };
 
-    const handleImageChange = (e) => {
+    const handleImageChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
-            setFormData({ ...formData, image: file });
+            // Optimistic UI: Show preview immediately (using original file for speed)
+            // But usually we want to confirm compression.
+            // Let's set the file immediately but triggering compression? 
+            // Better to await compression.
+            try {
+                const compressedFile = await compressImage(file);
+                setFormData({ ...formData, image: compressedFile });
+            } catch (err) {
+                console.error("Compression error", err);
+                setFormData({ ...formData, image: file });
+            }
         }
     };
 
@@ -164,7 +175,8 @@ const SubmitGuide = () => {
                                 <option value="Restaurant">Restaurant</option>
                                 <option value="Brasserie">Brasserie</option>
                                 <option value="Snack">Fast Food</option>
-                                <option value="Café">Café & Douceurs</option>
+                                <option value="Café">Café</option>
+                                <option value="Boulangerie">Boulangerie & Pâtisserie</option>
                                 <option value="Vegan">Healthy & Vegan</option>
                             </select>
                         </div>

@@ -26,8 +26,13 @@ const CATEGORIES = [
     },
     {
         id: 'Café',
-        label: 'Café & Douceurs',
+        label: 'Coffee Shop',
         image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?q=80&w=2157&auto=format&fit=crop',
+    },
+    {
+        id: 'Boulangerie',
+        label: 'Boulangerie & Pâtisserie',
+        image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=2072&auto=format&fit=crop',
     }
 ];
 

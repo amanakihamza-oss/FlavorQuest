@@ -139,7 +139,7 @@ const Map = ({ places }) => {
                                                 </p>
                                             )}
                                         </div>
-                                        <Link to={`/place/${place.id}`} className="text-xs bg-brand-dark text-white px-3 py-1.5 rounded-full font-bold hover:bg-black transition-colors">
+                                        <Link to={place.slug ? `/place/${place.slug}` : `/place/${place.id}`} className="text-xs bg-brand-dark text-white px-3 py-1.5 rounded-full font-bold hover:bg-black transition-colors">
                                             Voir
                                         </Link>
                                     </div>
