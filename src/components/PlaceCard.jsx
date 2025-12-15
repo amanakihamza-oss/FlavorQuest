@@ -1,11 +1,10 @@
-import React from 'react';
-import { Star, MapPin, Clock, Heart } from 'lucide-react';
+import { Star, MapPin, Wallet, Heart } from 'lucide-react';
 import { checkIsOpen } from '../utils/hours';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 
-const PlaceCard = ({ id, name, rating, reviews, image, category, distance, status, openingHours, city, isSponsored, slug }) => {
+const PlaceCard = ({ id, name, rating, reviews, image, category, distance, status, openingHours, city, isSponsored, slug, priceLevel }) => {
     const { favorites, toggleFavorite, isAuthenticated, setShowAuthModal } = useAuth();
     const { showToast } = useToast();
     const isFavorite = favorites.includes(id);
@@ -90,8 +89,8 @@ const PlaceCard = ({ id, name, rating, reviews, image, category, distance, statu
                             <span>{city || 'Namur'}</span>
                         </div>
                         <div className="flex items-center gap-1">
-                            <Clock size={14} />
-                            <span>20 min</span>
+                            <Wallet size={14} />
+                            <span>{priceLevel || '€€'}</span>
                         </div>
                     </div>
                 </div>

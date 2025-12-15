@@ -23,7 +23,8 @@ const INITIAL_GEMS = [
         lng: 4.8710,
         city: 'Namur',
         address: 'Rue de Fer 25, 5000 Namur',
-        tags: ['top-rated', 'late-night', 'kids']
+        tags: ['top-rated', 'late-night', 'kids'],
+        priceLevel: '€€'
     },
     {
         id: '2',
@@ -39,7 +40,8 @@ const INITIAL_GEMS = [
         lng: 4.8600,
         city: 'Namur',
         address: 'Place de la Station 10, 5000 Namur',
-        tags: ['kids', 'vegetarian']
+        tags: ['kids', 'vegetarian'],
+        priceLevel: '€'
     },
     {
         id: '3',
@@ -55,7 +57,8 @@ const INITIAL_GEMS = [
         lng: 4.8800,
         city: 'Jambes',
         address: 'Avenue du Bourgmestre Jean Materne 45, 5100 Jambes',
-        tags: ['vegetarian', 'vegan', 'gluten-free', 'halal', 'top-rated']
+        tags: ['vegetarian', 'vegan', 'gluten-free', 'halal', 'top-rated'],
+        priceLevel: '€€'
     },
     {
         id: '4',
@@ -71,7 +74,8 @@ const INITIAL_GEMS = [
         lng: 4.8650,
         city: 'Namur',
         address: 'Place de la Station 1, 5000 Namur',
-        tags: []
+        tags: [],
+        priceLevel: '€'
     }
 ];
 

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Hero from '../components/Hero';
 import FilterBar from '../components/FilterBar';
 import PlaceCard from '../components/PlaceCard';
@@ -10,6 +11,8 @@ import Map from '../components/Map';
 import VisualCategories from '../components/VisualCategories';
 import { useBlog } from '../context/BlogContext';
 import BlogCard from '../components/BlogCard';
+import { checkIsOpen } from '../utils/hours';
+import { Clock } from 'lucide-react';
 
 const Home = () => {
     // Basic Organization Schema for the Homepage
@@ -28,11 +31,13 @@ const Home = () => {
     const { t } = useLanguage();
     const { places } = usePlaces();
     const { articles } = useBlog();
+    const navigate = useNavigate();
     const [viewMode, setViewMode] = useState('list'); // 'list' or 'map'
     const [activeTags, setActiveTags] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [showMobileToggle, setShowMobileToggle] = useState(false);
     const [showFilters, setShowFilters] = useState(true);
+    const [onlyOpen, setOnlyOpen] = useState(false);
 
     const placesRef = useRef(null);
     const blogRef = useRef(null);
@@ -73,14 +78,20 @@ const Home = () => {
         if (selectedCategory && place.category !== selectedCategory) return false;
 
         // Tag filtering logic
-        if (activeTags.length === 0) return true;
-
-        // Check if place matches ALL active filters (strict) OR matches ANY (loose).
-        // Since we have real tags now, we just check inclusion
-        return activeTags.every(tag => {
-            // Backward compatibility or special logic if needed, but primarily:
+        // Tag filtering logic
+        const matchesTags = activeTags.length === 0 || activeTags.every(tag => {
             return place.tags && place.tags.includes(tag);
         });
+
+        if (!matchesTags) return false;
+
+        // Open Now Filter
+        if (onlyOpen) {
+            const { isOpen } = checkIsOpen(place.openingHours);
+            if (!isOpen) return false;
+        }
+
+        return true;
     });
 
     const sortedPlaces = [...approvedPlaces].sort((a, b) => {
@@ -122,25 +133,35 @@ const Home = () => {
                         </div>
 
                         {/* Desktop Toggle (Hidden on mobile) */}
-                        <div className="hidden md:flex bg-gray-100 p-1 rounded-xl items-center">
+                        <div className="flex items-center gap-4">
                             <button
-                                onClick={() => setViewMode('list')}
-                                className={`p-2 rounded-lg transition-all flex items-center gap-2 text-sm font-bold ${viewMode === 'list' ? 'bg-white shadow text-brand-dark' : 'text-gray-400 hover:text-gray-600'}`}
+                                onClick={() => setOnlyOpen(!onlyOpen)}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all font-bold text-sm border ${onlyOpen ? 'bg-green-100 text-green-700 border-green-200' : 'bg-white text-gray-500 border-gray-100 hover:border-gray-200'}`}
                             >
-                                <List size={18} /> Liste
+                                <Clock size={18} className={onlyOpen ? "text-green-600" : "text-gray-400"} />
+                                Ouvert maintenant
                             </button>
-                            <button
-                                onClick={() => setViewMode('map')}
-                                className={`p-2 rounded-lg transition-all flex items-center gap-2 text-sm font-bold ${viewMode === 'map' ? 'bg-white shadow text-brand-dark' : 'text-gray-400 hover:text-gray-600'}`}
-                            >
-                                <MapIcon size={18} /> Carte
-                            </button>
+
+                            <div className="hidden md:flex bg-gray-100 p-1 rounded-xl items-center">
+                                <button
+                                    onClick={() => setViewMode('list')}
+                                    className={`p-2 rounded-lg transition-all flex items-center gap-2 text-sm font-bold ${viewMode === 'list' ? 'bg-white shadow text-brand-dark' : 'text-gray-400 hover:text-gray-600'}`}
+                                >
+                                    <List size={18} /> Liste
+                                </button>
+                                <button
+                                    onClick={() => setViewMode('map')}
+                                    className={`p-2 rounded-lg transition-all flex items-center gap-2 text-sm font-bold ${viewMode === 'map' ? 'bg-white shadow text-brand-dark' : 'text-gray-400 hover:text-gray-600'}`}
+                                >
+                                    <MapIcon size={18} /> Carte
+                                </button>
+                            </div>
                         </div>
                     </div>
 
                     {/* Mobile Sticky Toggle (Conditional Visibility) */}
                     {showMobileToggle && (
-                        <div className={`md:hidden fixed bottom-8 left-1/2 transform -translate-x-1/2 z-40 bg-white/90 backdrop-blur-md shadow-xl p-1.5 rounded-full border border-gray-100 ring-1 ring-black/5 flex gap-1 mb-safe transition-all duration-500 ${showMobileToggle ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20 pointer-events-none'}`}>
+                        <div className={`md:hidden fixed bottom-24 left-1/2 transform -translate-x-1/2 z-40 bg-white/90 backdrop-blur-md shadow-xl p-1.5 rounded-full border border-gray-100 ring-1 ring-black/5 flex gap-1 mb-safe transition-all duration-500 ${showMobileToggle ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20 pointer-events-none'}`}>
                             <button
                                 onClick={() => setViewMode('list')}
                                 className={`px-6 py-3 rounded-full transition-all flex items-center gap-2 text-sm font-bold ${viewMode === 'list' ? 'bg-brand-dark text-white shadow-lg' : 'text-gray-500'}`}
@@ -158,9 +179,25 @@ const Home = () => {
 
                     {viewMode === 'list' ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in">
-                            {sortedPlaces.map(place => (
+                            {sortedPlaces.slice(0, 11).map(place => (
                                 <PlaceCard key={place.id} {...place} />
                             ))}
+                            {sortedPlaces.length > 11 && (
+                                <div className="group relative h-full min-h-[300px] flex flex-col bg-white rounded-3xl border border-dashed border-gray-300 hover:border-brand-orange hover:bg-orange-50 transition-all duration-300 overflow-hidden shadow-sm hover:shadow-lg">
+                                    <button
+                                        onClick={() => navigate('/search')}
+                                        className="flex-grow flex flex-col items-center justify-center p-8 text-center"
+                                    >
+                                        <div className="w-16 h-16 bg-brand-orange/10 text-brand-orange rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                            <ArrowRight size={32} />
+                                        </div>
+                                        <h3 className="text-xl font-bold text-gray-800 mb-2">Voir plus de pépites</h3>
+                                        <p className="text-gray-500">
+                                            Découvrez {sortedPlaces.length - 11} autres lieux exceptionnels dans notre catalogue.
+                                        </p>
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     ) : (
                         <div className="animate-fade-in max-w-6xl mx-auto">

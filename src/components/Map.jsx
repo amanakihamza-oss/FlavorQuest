@@ -90,6 +90,26 @@ const CustomZoomControl = () => {
     );
 };
 
+// Component to auto-fit bounds
+const FitBounds = ({ places }) => {
+    const map = useMap();
+
+    useEffect(() => {
+        if (!places || places.length === 0) return;
+
+        const markers = places
+            .filter(p => p.lat && p.lng)
+            .map(p => [p.lat, p.lng]);
+
+        if (markers.length > 0) {
+            const bounds = L.latLngBounds(markers);
+            map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
+        }
+    }, [places, map]);
+
+    return null;
+};
+
 const Map = ({ places }) => {
     // Default center (Namur)
     const defaultCenter = [50.4674, 4.8720];
@@ -110,6 +130,7 @@ const Map = ({ places }) => {
 
                 <CustomZoomControl />
                 <LocateControl />
+                <FitBounds places={places} />
 
                 {places.map(place => (
                     place.lat && place.lng && (

@@ -36,7 +36,7 @@ const Footer = () => {
                     <ul className="space-y-2 text-sm text-gray-500">
                         <li><NavLink to="/privacy" className="hover:text-brand-orange">Confidentialité</NavLink></li>
                         <li><NavLink to="/legal" className="hover:text-brand-orange">Mentions Légales</NavLink></li>
-                        <li><span className="text-gray-300">Cookies</span></li>
+                        <li><a href="mailto:flavorquest.contact@gmail.com" className="hover:text-brand-orange">Contact</a></li>
                     </ul>
                 </div>
 
@@ -44,7 +44,7 @@ const Footer = () => {
                 <div>
                     <h4 className="font-bold text-gray-900 mb-4">Suivez-nous</h4>
                     <div className="flex gap-4">
-                        <a href="#" className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-400 hover:bg-brand-orange hover:text-white transition-colors">
+                        <a href="https://www.instagram.com/flavorquest_be" target="_blank" rel="noopener noreferrer" className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-400 hover:bg-brand-orange hover:text-white transition-colors">
                             IG
                         </a>
                         <a href="#" className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-400 hover:bg-brand-orange hover:text-white transition-colors">

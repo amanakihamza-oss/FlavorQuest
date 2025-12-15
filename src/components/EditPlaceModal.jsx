@@ -33,7 +33,8 @@ const EditPlaceModal = ({ isOpen, onClose, place }) => {
         openingHours: {},
         description: '',
         image: '',
-        tags: []
+        tags: [],
+        priceLevel: '€€'
     });
 
     useEffect(() => {
@@ -48,7 +49,8 @@ const EditPlaceModal = ({ isOpen, onClose, place }) => {
                 openingHours: typeof place.openingHours === 'object' ? place.openingHours : {},
                 description: place.description || '',
                 image: place.image || '',
-                tags: place.tags || []
+                tags: place.tags || [],
+                priceLevel: place.priceLevel || '€€'
             });
         }
     }, [place]);
@@ -114,8 +116,8 @@ const EditPlaceModal = ({ isOpen, onClose, place }) => {
                     <div className="p-6 space-y-6">
                         {/* Basic Info */}
                         <div className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div className="col-span-1">
                                     <label className="block text-sm font-bold text-gray-700 mb-1">Nom du lieu</label>
                                     <input
                                         type="text"
@@ -127,7 +129,7 @@ const EditPlaceModal = ({ isOpen, onClose, place }) => {
                                 </div>
                                 <div>
                                     <label className="block text-sm font-bold text-gray-700 mb-1">
-                                        Section "Envie de quoi ?"
+                                        Catégorie
                                     </label>
                                     <select
                                         name="category"
@@ -142,7 +144,6 @@ const EditPlaceModal = ({ isOpen, onClose, place }) => {
                                         <option value="Café">Café</option>
                                         <option value="Boulangerie">Boulangerie & Pâtisserie</option>
                                     </select>
-                                    <p className="text-xs text-gray-400 mt-1">Détermine l'affichage sur l'accueil</p>
                                 </div>
                                 <div>
                                     <label className="block text-sm font-bold text-gray-700 mb-1">
@@ -158,6 +159,21 @@ const EditPlaceModal = ({ isOpen, onClose, place }) => {
                                         <option value="Fermé">Fermé</option>
                                         <option value="Ferme bientôt">Ferme bientôt</option>
                                         <option value="Congés">Congés</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">
+                                        Prix
+                                    </label>
+                                    <select
+                                        name="priceLevel"
+                                        value={formData.priceLevel || '€€'}
+                                        onChange={handleChange}
+                                        className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
+                                    >
+                                        <option value="€">€</option>
+                                        <option value="€€">€€</option>
+                                        <option value="€€€">€€€</option>
                                     </select>
                                 </div>
                             </div>

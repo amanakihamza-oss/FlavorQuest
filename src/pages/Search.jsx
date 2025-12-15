@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Search as SearchIcon, MapPin, SlidersHorizontal, ArrowRight, X, TrendingUp } from 'lucide-react';
+import { Search as SearchIcon, MapPin, SlidersHorizontal, ArrowRight, X, TrendingUp, Clock } from 'lucide-react';
 import { usePlaces } from '../context/PlacesContext';
 import PlaceCard from '../components/PlaceCard';
 import FilterBar from '../components/FilterBar';
 import { Helmet } from 'react-helmet-async';
 import { useSearchParams } from 'react-router-dom';
+import { checkIsOpen } from '../utils/hours';
 
 const Search = () => {
     const { places } = usePlaces();
@@ -14,6 +15,7 @@ const Search = () => {
     const [searchTerm, setSearchTerm] = useState(query);
     const [results, setResults] = useState([]);
     const [activeTags, setActiveTags] = useState([]);
+    const [onlyOpen, setOnlyOpen] = useState(false);
 
     const SUGGESTIONS = ["Burger", "Pizza", "Sushi", "Déjeuner", "Bruxelles", "Liège", "Namur", "Mons"];
 
@@ -49,11 +51,19 @@ const Search = () => {
                 place.tags && place.tags.includes(tag)
             );
 
-            return matchesSearch && matchesTags;
+            if (!matchesSearch || !matchesTags) return false;
+
+            // 3. Open Now Filter
+            if (onlyOpen) {
+                const { isOpen } = checkIsOpen(place.openingHours);
+                if (!isOpen) return false;
+            }
+
+            return true;
         });
 
         setResults(filtered);
-    }, [searchTerm, activeTags, places]);
+    }, [searchTerm, activeTags, places, onlyOpen]);
 
     const toggleFilter = (tagId) => {
         setActiveTags(prev =>
@@ -64,6 +74,7 @@ const Search = () => {
     const clearSearch = () => {
         setSearchTerm('');
         setActiveTags([]);
+        setOnlyOpen(false);
     };
 
     return (
@@ -124,13 +135,13 @@ const Search = () => {
             </div>
 
             <div className="max-w-7xl mx-auto px-6 py-8">
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
                     <div className="flex flex-col">
                         <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                            {searchTerm || activeTags.length > 0 ? (
+                            {searchTerm || activeTags.length > 0 || onlyOpen ? (
                                 <>
                                     Résultats
-                                    {(searchTerm || activeTags.length > 0) && (
+                                    {(searchTerm || activeTags.length > 0 || onlyOpen) && (
                                         <button onClick={clearSearch} className="text-xs text-brand-orange hover:underline font-normal ml-2">
                                             (Tout effacer)
                                         </button>
@@ -138,12 +149,20 @@ const Search = () => {
                                 </>
                             ) : 'Toutes nos pépites'}
                         </h2>
-                        {(searchTerm || activeTags.length > 0) && (
+                        {(searchTerm || activeTags.length > 0 || onlyOpen) && (
                             <p className="text-sm text-gray-500 mt-1">
                                 {results.length} lieu{results.length > 1 ? 'x' : ''} correspondant{results.length > 1 ? 's' : ''}
                             </p>
                         )}
                     </div>
+
+                    <button
+                        onClick={() => setOnlyOpen(!onlyOpen)}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all font-bold text-sm border ${onlyOpen ? 'bg-green-100 text-green-700 border-green-200' : 'bg-white text-gray-500 border-gray-100 hover:border-gray-200'}`}
+                    >
+                        <Clock size={16} className={onlyOpen ? "text-green-600" : "text-gray-400"} />
+                        Ouvert maintenant
+                    </button>
                 </div>
 
                 {results.length > 0 ? (

@@ -12,14 +12,7 @@ export const checkIsOpen = (openingHours) => {
     const DAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     const now = new Date();
     const currentDayIndex = now.getDay(); // 0 = Sunday
-    const currentDayKey = DAYS[currentDayIndex];
-
-    // Get hours for today
-    const hoursToday = openingHours[currentDayKey];
-
-    if (!hoursToday || hoursToday.closed) {
-        return { isOpen: false, status: 'Fermé', color: 'bg-red-500' };
-    }
+    const currentTime = now.getHours() * 60 + now.getMinutes();
 
     // Helper to check a specific range
     const checkRange = (openStr, closeStr, currentT) => {
@@ -29,7 +22,8 @@ export const checkIsOpen = (openingHours) => {
         const openTime = openH * 60 + openM;
         let closeTime = closeH * 60 + closeM;
 
-        if (closeTime < openTime) closeTime += 24 * 60; // Handle past midnight
+        // If close time is earlier than open time, it means it spans to the next day
+        if (closeTime < openTime) closeTime += 24 * 60;
 
         if (currentT >= openTime && currentT < closeTime) {
             if (closeTime - currentT <= 60) return 'closingSoon';
@@ -38,30 +32,41 @@ export const checkIsOpen = (openingHours) => {
         return 'closed';
     };
 
-    const currentTime = now.getHours() * 60 + now.getMinutes();
-    let isOpen = false;
-    let status = 'Fermé';
-    let color = 'bg-red-500';
+    const getStatusForDay = (dayKey, timeToCheck) => {
+        const dayHours = openingHours[dayKey];
+        if (!dayHours || dayHours.closed) return null;
 
-    // Normalize to ranges
-    let ranges = [];
-    if (hoursToday.ranges && Array.isArray(hoursToday.ranges)) {
-        ranges = hoursToday.ranges;
-    } else if (hoursToday.open && hoursToday.close) {
-        ranges = [{ open: hoursToday.open, close: hoursToday.close }];
+        let ranges = [];
+        if (dayHours.ranges && Array.isArray(dayHours.ranges)) {
+            ranges = dayHours.ranges;
+        } else if (dayHours.open && dayHours.close) {
+            ranges = [{ open: dayHours.open, close: dayHours.close }];
+        }
+
+        for (const range of ranges) {
+            const status = checkRange(range.open, range.close, timeToCheck);
+            if (status !== 'closed') return status;
+        }
+        return null;
+    };
+
+    // 1. Check Today
+    const todayStatus = getStatusForDay(DAYS[currentDayIndex], currentTime);
+    if (todayStatus) {
+        return todayStatus === 'closingSoon'
+            ? { isOpen: true, status: 'Ferme bientôt', color: 'bg-orange-500' }
+            : { isOpen: true, status: 'Ouvert', color: 'bg-green-500' };
     }
 
-    // Check all ranges
-    for (const range of ranges) {
-        const rangeStatus = checkRange(range.open, range.close, currentTime);
-        if (rangeStatus === 'open') {
-            return { isOpen: true, status: 'Ouvert', color: 'bg-green-500' };
-        } else if (rangeStatus === 'closingSoon') {
-            // Prioritize "Closing Soon" over "Closed" but if another range is fully open, that might be weird? 
-            // Actually if it's closing soon for one range, it's effectively open but closing.
-            // If we have multiple ranges (e.g. lunch and dinner), and we are in lunch closing soon, we return that.
-            return { isOpen: true, status: 'Ferme bientôt', color: 'bg-orange-500' };
-        }
+    // 2. Check Yesterday (late night spills)
+    // We check against yesterday's schedule, but with time + 24h
+    const prevDayIndex = (currentDayIndex + 6) % 7;
+    const yesterdayStatus = getStatusForDay(DAYS[prevDayIndex], currentTime + 24 * 60);
+
+    if (yesterdayStatus) {
+        return yesterdayStatus === 'closingSoon'
+            ? { isOpen: true, status: 'Ferme bientôt', color: 'bg-orange-500' }
+            : { isOpen: true, status: 'Ouvert', color: 'bg-green-500' };
     }
 
     return { isOpen: false, status: 'Fermé', color: 'bg-red-500' };

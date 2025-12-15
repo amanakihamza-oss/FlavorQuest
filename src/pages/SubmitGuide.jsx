@@ -24,7 +24,8 @@ const SubmitGuide = () => {
         openingHours: {},
         description: '',
         image: null,
-        tags: []
+        tags: [],
+        priceLevel: '€€'
     });
 
     // Tag filtering state
@@ -151,7 +152,7 @@ const SubmitGuide = () => {
                         />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
                             <label className="block text-sm font-bold text-brand-dark uppercase mb-2">Ville</label>
                             <input
@@ -178,6 +179,19 @@ const SubmitGuide = () => {
                                 <option value="Café">Café</option>
                                 <option value="Boulangerie">Boulangerie & Pâtisserie</option>
                                 <option value="Vegan">Healthy & Vegan</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-bold text-brand-dark uppercase mb-2">Prix</label>
+                            <select
+                                name="priceLevel"
+                                value={formData.priceLevel}
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange transition-all font-medium appearance-none"
+                            >
+                                <option value="€">€ (Bon marché)</option>
+                                <option value="€€">€€ (Modéré)</option>
+                                <option value="€€€">€€€ (Cher)</option>
                             </select>
                         </div>
                     </div>
