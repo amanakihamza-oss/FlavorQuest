@@ -1,9 +1,25 @@
 import React from 'react';
-import { Search, MapPin } from 'lucide-react';
+import { Search, MapPin, Dice5 as Dice } from 'lucide-react'; // Changed Dice to Dice5 for better fill or just Dice if available
+import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
+import { usePlaces } from '../context/PlacesContext';
 
 const Hero = () => {
     const { t } = useLanguage();
+    const { places } = usePlaces();
+    const navigate = useNavigate();
+
+    const handleRandomPlace = () => {
+        const approvedPlaces = places.filter(p => p.validationStatus === 'approved');
+        if (approvedPlaces.length > 0) {
+            const randomPlace = approvedPlaces[Math.floor(Math.random() * approvedPlaces.length)];
+            // Navigate to the detail page (assuming /place/:slug or /place/:id)
+            // Using ID since slug might not be everywhere, or check if slug exists
+            navigate(`/place/${randomPlace.slug || randomPlace.id}`);
+        } else {
+            alert("Aucun lieu disponible pour le moment !");
+        }
+    };
 
     return (
         <div className="relative w-full h-[60vh] md:h-[500px] flex items-center justify-center bg-gray-900 overflow-hidden">
@@ -47,9 +63,20 @@ const Hero = () => {
                     </button>
                 </form>
 
-                <p className="text-gray-200 text-sm md:text-base font-medium">
-                    {t('hero_subtitle')}
-                </p>
+                <div className="flex flex-col items-center gap-3">
+                    <p className="text-gray-200 text-sm md:text-base font-medium">
+                        {t('hero_subtitle')}
+                    </p>
+
+                    {/* Surprise Me Button */}
+                    <button
+                        onClick={handleRandomPlace}
+                        className="flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white border border-white/20 px-5 py-2 rounded-full transition-all text-sm font-bold shadow-lg group"
+                    >
+                        <Dice size={18} className="group-hover:rotate-180 transition-transform duration-500" />
+                        Pas d'inspiration ? Laissez faire le hasard !
+                    </button>
+                </div>
             </div>
         </div>
     );

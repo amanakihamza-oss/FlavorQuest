@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { usePlaces } from '../context/PlacesContext';
 import { useBlog } from '../context/BlogContext';
-import { Check, X, Clock, Eye, Trash2, AlertCircle, MoreHorizontal, ChevronDown, MessageSquare, Pen } from 'lucide-react';
+import { Check, X, Clock, Eye, Trash2, AlertCircle, MoreHorizontal, ChevronDown, MessageSquare, Pen, MapPin } from 'lucide-react';
 import FeedbackModal from '../components/FeedbackModal';
 import EditPlaceModal from '../components/EditPlaceModal';
 import EditArticleModal from '../components/EditArticleModal';
+import { geocodeAddress } from '../utils/geocoding';
 
 const AdminDashboard = () => {
-    const { places, approvePlace, rejectPlace, reviewPlace, deletePlace, sendFeedback, filters, addFilter, deleteFilter, migrateSlugs } = usePlaces();
+    const { places, approvePlace, rejectPlace, reviewPlace, deletePlace, sendFeedback, updatePlace, filters, addFilter, deleteFilter, migrateSlugs } = usePlaces();
     const { articles, approveArticle, rejectArticle, deleteArticle } = useBlog(); // Ensure we destruct actions here for ArticleList
     const [selectedPlace, setSelectedPlace] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -84,6 +85,31 @@ const AdminDashboard = () => {
     const handleEditArticle = (article) => {
         setArticleToEdit(article);
         setIsArticleEditModalOpen(true);
+    };
+
+    const handleUpdateLocation = async (placeId) => {
+        const place = places.find(p => p.id === placeId);
+        if (!place) return;
+
+        if (window.confirm(`Voulez-vous recalculer la position GPS pour "${place.name}" ?`)) {
+            try {
+                const fullAddress = `${place.address}, ${place.city}`;
+                const coordinates = await geocodeAddress(fullAddress);
+
+                if (coordinates) {
+                    await updatePlace(place.id, {
+                        lat: coordinates.lat,
+                        lng: coordinates.lng
+                    });
+                    alert(`Position mise à jour !\nLat: ${coordinates.lat}\nLng: ${coordinates.lng}`);
+                } else {
+                    alert("Impossible de trouver les coordonnées pour cette adresse.");
+                }
+            } catch (error) {
+                console.error("Geocoding error:", error);
+                alert("Une erreur est survenue lors du géocodage.");
+            }
+        }
     };
 
     const getStatusBadge = (place) => {
@@ -245,7 +271,15 @@ const AdminDashboard = () => {
                                             <td className="px-6 py-4 text-right">
                                                 <ActionDropdown
                                                     place={place}
-                                                    actions={{ approvePlace, rejectPlace, reviewPlace, deletePlace, openFeedback: () => handleOpenFeedback(place), openEdit: () => handleEditPlace(place) }}
+                                                    actions={{
+                                                        approvePlace,
+                                                        rejectPlace,
+                                                        reviewPlace,
+                                                        deletePlace,
+                                                        openFeedback: () => handleOpenFeedback(place),
+                                                        openEdit: () => handleEditPlace(place),
+                                                        updateLocation: () => handleUpdateLocation(place.id)
+                                                    }}
                                                     isLast={index >= sortedPlaces.length - 2}
                                                 />
                                             </td>
@@ -442,7 +476,7 @@ const ActionDropdown = ({ place, actions, isLast }) => {
             </button>
 
             {isOpen && (
-                <div className={`absolute right-0 w-56 rounded-xl shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50 overflow-hidden transform transition-all ${isLast ? 'bottom-full mb-2 origin-bottom-right' : 'top-full mt-2 origin-top-right'}`}>
+                <div className={`absolute right-0 w-64 rounded-xl shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50 overflow-hidden transform transition-all ${isLast ? 'bottom-full mb-2 origin-bottom-right' : 'top-full mt-2 origin-top-right'}`}>
                     <div className="py-1">
                         {status !== 'approved' && (
                             <button
@@ -461,6 +495,17 @@ const ActionDropdown = ({ place, actions, isLast }) => {
                             className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-700 flex items-center gap-2 transition-colors"
                         >
                             <Pen size={16} /> Modifier
+                        </button>
+
+                        {/* Update Location */}
+                        <button
+                            onClick={() => {
+                                actions.updateLocation();
+                                setIsOpen(false);
+                            }}
+                            className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 flex items-center gap-2 transition-colors"
+                        >
+                            <MapPin size={16} /> Mettre à jour position
                         </button>
 
                         {/* New Feedback Button */}

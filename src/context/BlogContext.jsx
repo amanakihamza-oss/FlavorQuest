@@ -134,6 +134,28 @@ export const BlogProvider = ({ children }) => {
         }
     };
 
+    const toggleArticleLike = async (id) => {
+        const storageKey = `liked_article_${id}`;
+        const isLiked = localStorage.getItem(storageKey) === 'true';
+        const articleRef = doc(db, 'articles', id);
+
+        try {
+            // Optimistic update logic would go here, but for simplicity we rely on Firestore live sync
+            // We use 'increment' from firestore to handle concurrent updates
+            const { increment } = await import('firebase/firestore');
+
+            if (isLiked) {
+                await updateDoc(articleRef, { likes: increment(-1) });
+                localStorage.removeItem(storageKey);
+            } else {
+                await updateDoc(articleRef, { likes: increment(1) });
+                localStorage.setItem(storageKey, 'true');
+            }
+        } catch (e) {
+            console.error("Error toggling like: ", e);
+        }
+    };
+
     // Getters
     const getArticleBySlug = (slug) => {
         return articles.find(article => article.slug === slug);
@@ -161,7 +183,8 @@ export const BlogProvider = ({ children }) => {
             deleteArticle,
             getArticleBySlug,
             getArticlesForPlace,
-            getArticlesByCategory
+            getArticlesByCategory,
+            toggleArticleLike
         }}>
             {children}
         </BlogContext.Provider>

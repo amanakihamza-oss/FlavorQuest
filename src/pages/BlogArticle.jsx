@@ -1,17 +1,34 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useBlog } from '../context/BlogContext';
 import { usePlaces } from '../context/PlacesContext';
 import PlaceCard from '../components/PlaceCard';
 import SEO from '../components/SEO';
-import { Clock, Calendar, User, ChevronLeft, MapPin } from 'lucide-react';
+import { Clock, Calendar, User, ChevronLeft, MapPin, Heart } from 'lucide-react';
 
 const BlogArticle = () => {
     const { slug } = useParams();
-    const { getArticleBySlug } = useBlog();
+    const { getArticleBySlug, toggleArticleLike } = useBlog();
     const { places } = usePlaces();
+    const [isLiked, setIsLiked] = useState(false);
+    const [animateLike, setAnimateLike] = useState(false);
 
     const article = getArticleBySlug(slug);
+
+    useEffect(() => {
+        if (article) {
+            const storedLike = localStorage.getItem(`liked_article_${article.id}`);
+            setIsLiked(storedLike === 'true');
+        }
+    }, [article]);
+
+    const handleLike = () => {
+        if (!article) return;
+        toggleArticleLike(article.id);
+        setIsLiked(!isLiked);
+        setAnimateLike(true);
+        setTimeout(() => setAnimateLike(false), 300);
+    };
 
     if (!article) {
         return <div className="text-center py-20">Article introuvable</div>;
@@ -90,6 +107,13 @@ const BlogArticle = () => {
                             <span className="flex items-center gap-2">
                                 <Clock size={16} /> {article.readTime}
                             </span>
+                            <button
+                                onClick={handleLike}
+                                className={`flex items-center gap-2 px-3 py-1 rounded-full transition-all duration-300 ${isLiked ? 'bg-red-500 text-white' : 'bg-white/20 hover:bg-white/30 text-white'} ${animateLike ? 'scale-125' : 'scale-100'}`}
+                            >
+                                <Heart size={16} className={isLiked ? 'fill-current' : ''} />
+                                <span>{article.likes || 0}</span>
+                            </button>
                         </div>
                     </div>
                 </div>

@@ -9,7 +9,9 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
     const [formData, setFormData] = useState({
         title: '',
         content: '',
-        image: ''
+        image: '',
+        author: '',
+        date: ''
     });
 
     useEffect(() => {
@@ -17,7 +19,9 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
             setFormData({
                 title: article.title || '',
                 content: article.content || '',
-                image: article.image || ''
+                image: article.image || '',
+                author: article.author || '',
+                date: article.date || ''
             });
         }
     }, [article]);
@@ -80,6 +84,30 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
                             onChange={handleChange}
                             className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20 font-bold"
                         />
+                    </div>
+
+                    {/* Meta: Author & Date */}
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-2">Auteur</label>
+                            <input
+                                type="text"
+                                name="author"
+                                value={formData.author}
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-2">Date de publication</label>
+                            <input
+                                type="date"
+                                name="date"
+                                value={formData.date}
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
+                            />
+                        </div>
                     </div>
 
                     {/* Image URL */}
