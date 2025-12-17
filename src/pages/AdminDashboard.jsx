@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { usePlaces } from '../context/PlacesContext';
 import { useBlog } from '../context/BlogContext';
-import { Check, X, Clock, Eye, Trash2, AlertCircle, MoreHorizontal, ChevronDown, MessageSquare, Pen, MapPin } from 'lucide-react';
+import { Check, X, Clock, Eye, Trash2, AlertCircle, MoreHorizontal, ChevronDown, MessageSquare, Pen, MapPin, Star } from 'lucide-react';
 import FeedbackModal from '../components/FeedbackModal';
 import EditPlaceModal from '../components/EditPlaceModal';
 import EditArticleModal from '../components/EditArticleModal';
@@ -109,6 +109,19 @@ const AdminDashboard = () => {
                 console.error("Geocoding error:", error);
                 alert("Une erreur est survenue lors du géocodage.");
             }
+        }
+    };
+
+    const handleToggleSponsor = async (placeId) => {
+        const place = places.find(p => p.id === placeId);
+        if (!place) return;
+
+        try {
+            await updatePlace(placeId, { isSponsored: !place.isSponsored });
+            // Optional: alert or toast. Reactivity is automatic.
+        } catch (error) {
+            console.error(error);
+            alert("Erreur lors de l'update du sponsor.");
         }
     };
 
@@ -278,7 +291,8 @@ const AdminDashboard = () => {
                                                         deletePlace,
                                                         openFeedback: () => handleOpenFeedback(place),
                                                         openEdit: () => handleEditPlace(place),
-                                                        updateLocation: () => handleUpdateLocation(place.id)
+                                                        updateLocation: () => handleUpdateLocation(place.id),
+                                                        toggleSponsor: () => handleToggleSponsor(place.id)
                                                     }}
                                                     isLast={index >= sortedPlaces.length - 2}
                                                 />
@@ -486,6 +500,18 @@ const ActionDropdown = ({ place, actions, isLast }) => {
                                 <Check size={16} /> Approuver
                             </button>
                         )}
+                        {/* Sponsor Toggle */}
+                        <button
+                            onClick={() => {
+                                actions.toggleSponsor();
+                                setIsOpen(false);
+                            }}
+                            className={`w-full text-left px-4 py-2.5 text-sm flex items-center gap-2 transition-colors ${place.isSponsored ? 'text-yellow-600 hover:bg-yellow-50 font-bold' : 'text-gray-700 hover:bg-yellow-50 hover:text-yellow-600'}`}
+                        >
+                            <Star size={16} className={place.isSponsored ? "fill-yellow-500 text-yellow-500" : ""} />
+                            {place.isSponsored ? 'Désponsoriser' : 'Sponsoriser'}
+                        </button>
+
                         {/* Edit Button - Always available */}
                         <button
                             onClick={() => {

@@ -66,6 +66,12 @@ const PlaceDetails = () => {
     const pageTitle = `${place.name} à ${place.city || 'Namur'} - Avis & Menu`;
     const pageDesc = `Découvrez ${place.name}, une pépite ${place.category} à ${place.city || 'Namur'}. Note: ${place.rating}/5 sur ${place.reviews} avis. Photos, menu et horaires.`;
 
+    const breadcrumbs = [
+        { name: 'Accueil', item: 'https://flavorquest.be' },
+        { name: place.city || 'Wallonie', item: `https://flavorquest.be/search?q=${place.city || ''}` },
+        { name: place.name, item: window.location.href.split('?')[0] }
+    ];
+
     return (
         <div className="bg-white min-h-screen pb-20">
             <SEO
@@ -74,6 +80,7 @@ const PlaceDetails = () => {
                 image={place.image}
                 schema={schema}
                 type="restaurant"
+                breadcrumbs={breadcrumbs}
             />
 
             {/* Hero Image */}

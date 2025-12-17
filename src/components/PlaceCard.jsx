@@ -33,6 +33,7 @@ const PlaceCard = ({ id, name, rating, reviews, image, category, distance, statu
                     <img
                         src={image}
                         alt={name}
+                        loading="lazy"
                         className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
                     />
                     <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-2 py-1 rounded-md text-xs font-bold text-brand-orange uppercase tracking-wider">

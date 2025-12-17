@@ -17,6 +17,15 @@ export default {
                     dark: '#1D1D1D', // Text/Background
                     gray: '#F5F5F5', // Soft background
                 }
+            },
+            animation: {
+                'fade-in': 'fadeIn 0.5s ease-out',
+            },
+            keyframes: {
+                fadeIn: {
+                    '0%': { opacity: '0', transform: 'translateY(10px)' },
+                    '100%': { opacity: '1', transform: 'translateY(0)' },
+                },
             }
         },
     },

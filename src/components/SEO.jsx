@@ -1,7 +1,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 
-const SEO = ({ title, description, image, schema, type = 'website' }) => {
+const SEO = ({ title, description, image, schema, type = 'website', keywords, breadcrumbs }) => {
     const siteTitle = 'FlavorQuest';
     const rawTitle = title ? `${title} | ${siteTitle}` : siteTitle;
 
@@ -11,7 +11,7 @@ const SEO = ({ title, description, image, schema, type = 'website' }) => {
     };
     const fullTitle = truncateTitle(rawTitle, 60);
 
-    const currentUrl = window.location.href;
+    const currentUrl = window.location.href.split('?')[0];
 
     // Use provided schema or default based on type
     const finalSchema = schema || {
@@ -23,11 +23,26 @@ const SEO = ({ title, description, image, schema, type = 'website' }) => {
         ...(image && { "image": image })
     };
 
+    const breadcrumbSchema = breadcrumbs ? {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": breadcrumbs.map((crumb, index) => ({
+            "@type": "ListItem",
+            "position": index + 1,
+            "name": crumb.name,
+            "item": crumb.item
+        }))
+    } : null;
+
     return (
-        <Helmet>
+        <Helmet htmlAttributes={{ lang: 'fr' }}>
             {/* Standard Meta Tags */}
             <title>{fullTitle}</title>
             <meta name="description" content={description} />
+            {keywords && <meta name="keywords" content={keywords} />}
+            {/* Bing Verification Placeholder */}
+            {/* <meta name="msvalidate.01" content="YOUR_BING_CODE_HERE" /> */}
+
             <link rel="canonical" href={currentUrl} />
 
             {/* Open Graph / Facebook */}
@@ -47,6 +62,11 @@ const SEO = ({ title, description, image, schema, type = 'website' }) => {
             <script type="application/ld+json">
                 {JSON.stringify(finalSchema)}
             </script>
+            {breadcrumbSchema && (
+                <script type="application/ld+json">
+                    {JSON.stringify(breadcrumbSchema)}
+                </script>
+            )}
         </Helmet>
     );
 };

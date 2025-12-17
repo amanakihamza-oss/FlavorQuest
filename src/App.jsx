@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 // Structure Components
@@ -8,23 +8,24 @@ import ScrollToTop from './components/ScrollToTop';
 import ProtectedRoute from './components/ProtectedRoute';
 import AuthModal from './components/AuthModal';
 import CookieConsent from './components/CookieConsent';
+import PageLoader from './components/PageLoader';
 
-// Pages
-import Home from './pages/Home';
-import PlaceDetails from './pages/PlaceDetails';
-import SubmitGuide from './pages/SubmitGuide';
-import AdminDashboard from './pages/AdminDashboard';
-import Login from './pages/Login';
-import BlogHome from './pages/BlogHome';
-import BlogArticle from './pages/BlogArticle';
-import CreateArticle from './pages/CreateArticle';
-import Search from './pages/Search';
-import FavoritesPage from './pages/FavoritesPage';
-import ProfilePage from './pages/ProfilePage';
-import PrivacyPage from './pages/PrivacyPage';
-import LegalPage from './pages/LegalPage';
-import ClaimPlace from './pages/ClaimPlace';
-import NotFound from './pages/NotFound';
+// Lazy Loaded Pages
+const Home = React.lazy(() => import('./pages/Home'));
+const PlaceDetails = React.lazy(() => import('./pages/PlaceDetails'));
+const SubmitGuide = React.lazy(() => import('./pages/SubmitGuide'));
+const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
+const Login = React.lazy(() => import('./pages/Login'));
+const BlogHome = React.lazy(() => import('./pages/BlogHome'));
+const BlogArticle = React.lazy(() => import('./pages/BlogArticle'));
+const CreateArticle = React.lazy(() => import('./pages/CreateArticle'));
+const Search = React.lazy(() => import('./pages/Search'));
+const FavoritesPage = React.lazy(() => import('./pages/FavoritesPage'));
+const ProfilePage = React.lazy(() => import('./pages/ProfilePage'));
+const PrivacyPage = React.lazy(() => import('./pages/PrivacyPage'));
+const LegalPage = React.lazy(() => import('./pages/LegalPage'));
+const ClaimPlace = React.lazy(() => import('./pages/ClaimPlace'));
+const NotFound = React.lazy(() => import('./pages/NotFound'));
 
 // Context Providers
 import { LanguageProvider } from './context/LanguageContext';
@@ -47,33 +48,35 @@ function App() {
                                     description="Découvrez les meilleures pépites culinaires de Wallonie."
                                 />
                                 <AuthModal />
-                                <Routes>
-                                    <Route path="/login" element={<Login />} />
-                                    <Route path="/" element={<Layout />}>
-                                        <Route index element={<Home />} />
-                                        <Route path="/place/:slug" element={<PlaceDetails />} />
-                                        <Route path="/submit" element={<SubmitGuide />} />
-                                        <Route path="/blog" element={<BlogHome />} />
-                                        <Route path="/blog/new" element={
-                                            <ProtectedRoute>
-                                                <CreateArticle />
-                                            </ProtectedRoute>
-                                        } />
-                                        <Route path="/blog/:slug" element={<BlogArticle />} />
-                                        <Route path="/search" element={<Search />} />
-                                        <Route path="/saved" element={<FavoritesPage />} />
-                                        <Route path="/profile" element={<ProfilePage />} />
-                                        <Route path="/admin" element={
-                                            <ProtectedRoute>
-                                                <AdminDashboard />
-                                            </ProtectedRoute>
-                                        } />
-                                        <Route path="/privacy" element={<PrivacyPage />} />
-                                        <Route path="/legal" element={<LegalPage />} />
-                                        <Route path="/claim/:id" element={<ClaimPlace />} />
-                                        <Route path="*" element={<NotFound />} />
-                                    </Route>
-                                </Routes>
+                                <Suspense fallback={<PageLoader />}>
+                                    <Routes>
+                                        <Route path="/login" element={<Login />} />
+                                        <Route path="/" element={<Layout />}>
+                                            <Route index element={<Home />} />
+                                            <Route path="/place/:slug" element={<PlaceDetails />} />
+                                            <Route path="/submit" element={<SubmitGuide />} />
+                                            <Route path="/blog" element={<BlogHome />} />
+                                            <Route path="/blog/new" element={
+                                                <ProtectedRoute>
+                                                    <CreateArticle />
+                                                </ProtectedRoute>
+                                            } />
+                                            <Route path="/blog/:slug" element={<BlogArticle />} />
+                                            <Route path="/search" element={<Search />} />
+                                            <Route path="/saved" element={<FavoritesPage />} />
+                                            <Route path="/profile" element={<ProfilePage />} />
+                                            <Route path="/admin" element={
+                                                <ProtectedRoute>
+                                                    <AdminDashboard />
+                                                </ProtectedRoute>
+                                            } />
+                                            <Route path="/privacy" element={<PrivacyPage />} />
+                                            <Route path="/legal" element={<LegalPage />} />
+                                            <Route path="/claim/:id" element={<ClaimPlace />} />
+                                            <Route path="*" element={<NotFound />} />
+                                        </Route>
+                                    </Routes>
+                                </Suspense>
                                 <CookieConsent />
                             </Router>
                         </BlogProvider>

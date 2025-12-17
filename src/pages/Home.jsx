@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Hero from '../components/Hero';
 import FilterBar from '../components/FilterBar';
 import PlaceCard from '../components/PlaceCard';
-import { ArrowRight, Sparkles, Map as MapIcon, List, BookOpen } from 'lucide-react';
+import { ArrowRight, Sparkles, Map as MapIcon, List, BookOpen, Clock } from 'lucide-react';
 import SEO from '../components/SEO';
 import { useLanguage } from '../context/LanguageContext';
 import { usePlaces } from '../context/PlacesContext';
@@ -12,7 +12,7 @@ import VisualCategories from '../components/VisualCategories';
 import { useBlog } from '../context/BlogContext';
 import BlogCard from '../components/BlogCard';
 import { checkIsOpen } from '../utils/hours';
-import { Clock } from 'lucide-react';
+// Clock removed (merged above)
 
 const Home = () => {
     // Basic Organization Schema for the Homepage
@@ -29,8 +29,8 @@ const Home = () => {
     };
 
     const { t } = useLanguage();
-    const { places } = usePlaces();
-    const { articles } = useBlog();
+    const { places = [] } = usePlaces();
+    const { articles = [] } = useBlog();
     const navigate = useNavigate();
     const [viewMode, setViewMode] = useState('list'); // 'list' or 'map'
     const [activeTags, setActiveTags] = useState([]);
@@ -70,36 +70,58 @@ const Home = () => {
         );
     };
 
-    const approvedPlaces = places.filter(place => {
-        // Base approval check
-        if (place.validationStatus !== 'approved') return false;
+    // Memoize the filtered and shuffled list to avoid re-shuffling on ViewMode toggle
+    const { finalPlaces, finalArticles } = React.useMemo(() => {
+        // 1. Filter Places
+        let filtered = places.filter(place => {
+            if (place.validationStatus !== 'approved') return false;
+            if (selectedCategory && place.category !== selectedCategory) return false;
 
-        // Category check (from VisualCategories)
-        if (selectedCategory && place.category !== selectedCategory) return false;
+            const matchesTags = activeTags.length === 0 || activeTags.every(tag => {
+                return place.tags && place.tags.includes(tag);
+            });
+            if (!matchesTags) return false;
 
-        // Tag filtering logic
-        // Tag filtering logic
-        const matchesTags = activeTags.length === 0 || activeTags.every(tag => {
-            return place.tags && place.tags.includes(tag);
+            if (onlyOpen) {
+                const { isOpen } = checkIsOpen(place.openingHours);
+                if (!isOpen) return false;
+            }
+            return true;
         });
 
-        if (!matchesTags) return false;
+        try {
+            // 2. Separate Sponsored vs Regular
+            const sponsored = filtered.filter(p => p.isSponsored);
+            const regular = filtered.filter(p => !p.isSponsored);
 
-        // Open Now Filter
-        if (onlyOpen) {
-            const { isOpen } = checkIsOpen(place.openingHours);
-            if (!isOpen) return false;
+            // 3. Shuffle Regular Places (Fisher-Yates)
+            for (let i = regular.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [regular[i], regular[j]] = [regular[j], regular[i]];
+            }
+
+            // 4. Shuffle Articles
+            const shuffledArticles = [...(articles || [])];
+            for (let i = shuffledArticles.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffledArticles[i], shuffledArticles[j]] = [shuffledArticles[j], shuffledArticles[i]];
+            }
+
+            return {
+                finalPlaces: [...sponsored, ...regular],
+                finalArticles: shuffledArticles
+            };
+        } catch (e) {
+            console.error("Error in shuffle logic:", e);
+            return {
+                finalPlaces: filtered,
+                finalArticles: articles || []
+            };
         }
+    }, [places, articles, selectedCategory, activeTags, onlyOpen]);
 
-        return true;
-    });
-
-    const sortedPlaces = [...approvedPlaces].sort((a, b) => {
-        // Sponsored first
-        if (a.isSponsored && !b.isSponsored) return -1;
-        if (!a.isSponsored && b.isSponsored) return 1;
-        return 0;
-    });
+    const sortedPlaces = finalPlaces;
+    const displayArticles = finalArticles;
 
     return (
         <div className="pb-24 md:pb-10">
@@ -222,7 +244,7 @@ const Home = () => {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        {articles.slice(0, 3).map(article => (
+                        {displayArticles.slice(0, 3).map(article => (
                             <BlogCard key={article.id} article={article} />
                         ))}
                     </div>
