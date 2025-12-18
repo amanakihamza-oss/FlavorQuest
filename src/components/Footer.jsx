@@ -36,7 +36,7 @@ const Footer = () => {
                     <ul className="space-y-2 text-sm text-gray-500">
                         <li><NavLink to="/privacy" className="hover:text-brand-orange">Confidentialité</NavLink></li>
                         <li><NavLink to="/legal" className="hover:text-brand-orange">Mentions Légales</NavLink></li>
-                        <li><a href="mailto:flavorquest.contact@gmail.com" className="hover:text-brand-orange">Contact</a></li>
+                        <li><NavLink to="/contact" className="hover:text-brand-orange">Contact</NavLink></li>
                     </ul>
                 </div>
 

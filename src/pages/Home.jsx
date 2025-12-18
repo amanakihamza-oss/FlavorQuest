@@ -42,26 +42,34 @@ const Home = () => {
     const placesRef = useRef(null);
     const blogRef = useRef(null);
 
-    // Toggle visibility based on scroll position (Between Places and Blog)
+    // Optimized Visibility Detection using IntersectionObserver (Prevents Scroll Jank)
     useEffect(() => {
-        const handleScroll = () => {
-            if (!placesRef.current || !blogRef.current) return;
+        if (!placesRef.current || !blogRef.current) return;
 
-            const placesTop = placesRef.current.getBoundingClientRect().top;
-            const blogTop = blogRef.current.getBoundingClientRect().top;
-            const windowHeight = window.innerHeight;
-
-            // Mobile Toggle: Show when Places in view, hide when Blog enters view (bottom)
-            const toggleVisible = placesTop < windowHeight - 100 && blogTop > windowHeight - 100;
-            setShowMobileToggle(toggleVisible);
-
-            // FilterBar: Hide when Blog section reaches near top of screen (overlaps sticky area)
-            setShowFilters(blogTop > 150);
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
         };
 
-        window.addEventListener('scroll', handleScroll);
-        handleScroll(); // Check on init
-        return () => window.removeEventListener('scroll', handleScroll);
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                // Mobile Toggle Logic: Show when Places are visible
+                if (entry.target === placesRef.current) {
+                    setShowMobileToggle(entry.isIntersecting);
+                }
+
+                // FilterBar Logic: Hide when Blog comes into view (scrolling down past list)
+                if (entry.target === blogRef.current) {
+                    setShowFilters(!entry.isIntersecting);
+                }
+            });
+        }, observerOptions);
+
+        observer.observe(placesRef.current);
+        observer.observe(blogRef.current);
+
+        return () => observer.disconnect();
     }, []);
 
     const toggleFilter = (tagId) => {

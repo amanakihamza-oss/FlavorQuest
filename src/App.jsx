@@ -24,6 +24,7 @@ const FavoritesPage = React.lazy(() => import('./pages/FavoritesPage'));
 const ProfilePage = React.lazy(() => import('./pages/ProfilePage'));
 const PrivacyPage = React.lazy(() => import('./pages/PrivacyPage'));
 const LegalPage = React.lazy(() => import('./pages/LegalPage'));
+const ContactPage = React.lazy(() => import('./pages/ContactPage'));
 const ClaimPlace = React.lazy(() => import('./pages/ClaimPlace'));
 const NotFound = React.lazy(() => import('./pages/NotFound'));
 
@@ -45,7 +46,7 @@ function App() {
                                 <ScrollToTop />
                                 <SEO
                                     title="FlavorQuest - Guide Gastronomique"
-                                    description="Découvrez les meilleures pépites culinaires de Wallonie."
+                                    description="FlavorQuest : Le guide ultime des meilleures adresses food en Wallonie. Découvrez nos sélections de burgers, brunchs, restos insolites et pépites cachées à Liège, Namur et ailleurs."
                                 />
                                 <AuthModal />
                                 <Suspense fallback={<PageLoader />}>
@@ -72,6 +73,7 @@ function App() {
                                             } />
                                             <Route path="/privacy" element={<PrivacyPage />} />
                                             <Route path="/legal" element={<LegalPage />} />
+                                            <Route path="/contact" element={<ContactPage />} />
                                             <Route path="/claim/:id" element={<ClaimPlace />} />
                                             <Route path="*" element={<NotFound />} />
                                         </Route>

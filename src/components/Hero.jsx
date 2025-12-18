@@ -1,28 +1,28 @@
-import React from 'react';
-import { Search, MapPin, Dice5 as Dice } from 'lucide-react'; // Changed Dice to Dice5 for better fill or just Dice if available
+import React, { useState } from 'react';
+import { Search, MapPin, Dice5 as Dice } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { usePlaces } from '../context/PlacesContext';
+import MagicRandomizer from './MagicRandomizer';
 
 const Hero = () => {
     const { t } = useLanguage();
     const { places } = usePlaces();
     const navigate = useNavigate();
+    const [showRandomizer, setShowRandomizer] = useState(false);
 
     const handleRandomPlace = () => {
-        const approvedPlaces = places.filter(p => p.validationStatus === 'approved');
-        if (approvedPlaces.length > 0) {
-            const randomPlace = approvedPlaces[Math.floor(Math.random() * approvedPlaces.length)];
-            // Navigate to the detail page (assuming /place/:slug or /place/:id)
-            // Using ID since slug might not be everywhere, or check if slug exists
-            navigate(`/place/${randomPlace.slug || randomPlace.id}`);
-        } else {
-            alert("Aucun lieu disponible pour le moment !");
-        }
+        setShowRandomizer(true);
     };
 
     return (
         <div className="relative w-full h-[60vh] md:h-[500px] flex items-center justify-center bg-gray-900 overflow-hidden">
+            <MagicRandomizer
+                isOpen={showRandomizer}
+                onClose={() => setShowRandomizer(false)}
+                places={places}
+            />
+
             {/* Background Overlay */}
             <div className="absolute inset-0 z-0">
                 <img
