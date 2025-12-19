@@ -11,6 +11,7 @@ import Map from '../components/Map';
 import VisualCategories from '../components/VisualCategories';
 import { useBlog } from '../context/BlogContext';
 import BlogCard from '../components/BlogCard';
+import FAQSection from '../components/FAQSection';
 import { checkIsOpen } from '../utils/hours';
 // Clock removed (merged above)
 
@@ -273,6 +274,9 @@ const Home = () => {
                         className="w-full md:w-1/3 rounded-2xl shadow-xl rotate-3 hover:rotate-0 transition-transform duration-500"
                     />
                 </section>
+
+                {/* FAQ Section with SEO Schema - Moved to Bottom */}
+                <FAQSection />
 
             </div>
         </div>

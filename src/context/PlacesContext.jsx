@@ -183,13 +183,16 @@ export const PlacesProvider = ({ children }) => {
     const updatePlace = async (id, data) => {
         try {
             let finalData = { ...data };
-            if (finalData.image instanceof File) {
+            if (finalData.image instanceof File || finalData.image instanceof Blob) {
+                console.log("Uploading image...", finalData.image);
                 const imageUrl = await uploadToImgBB(finalData.image);
+                console.log("Upload success, new URL:", imageUrl);
                 finalData.image = imageUrl;
             }
             await updateFirestorePlace(id, finalData);
         } catch (error) {
             console.error("Error updating place:", error);
+            throw error; // Re-throw so UI knows it failed
         }
     };
 
@@ -288,10 +291,20 @@ export const PlacesProvider = ({ children }) => {
         return firestoreReviews.filter(r => r.author === userName).length;
     };
 
+    const deleteReview = async (reviewId) => {
+        try {
+            await deleteDoc(doc(db, 'reviews', reviewId));
+        } catch (error) {
+            console.error("Error deleting review:", error);
+            throw error;
+        }
+    };
+
     return (
         <PlacesContext.Provider value={{
             places: placesWithRatings, // Expose the computed places
-            addPlace, updatePlace, approvePlace, rejectPlace, reviewPlace, deletePlace, sendFeedback, addReview,
+            reviews: firestoreReviews, // Expose raw reviews for Admin Dashboard
+            addPlace, updatePlace, approvePlace, rejectPlace, reviewPlace, deletePlace, sendFeedback, addReview, deleteReview,
             filters, addFilter, deleteFilter,
             getUserReviewCount, migrateSlugs
         }}>

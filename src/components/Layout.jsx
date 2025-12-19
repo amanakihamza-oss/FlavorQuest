@@ -1,7 +1,6 @@
 import React from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { Home, Search, Heart, User, Globe } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import LanguageSwitcher from './LanguageSwitcher';
@@ -69,18 +68,9 @@ const Layout = () => {
 
             {/* Main Content with Transition */}
             <main className="flex-grow">
-                <AnimatePresence mode="wait">
-                    <motion.div
-                        key={location.pathname}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        transition={{ duration: 0.2 }}
-                        className="w-full flex-grow"
-                    >
-                        <Outlet />
-                    </motion.div>
-                </AnimatePresence>
+                <div className="w-full flex-grow animate-fade-in">
+                    <Outlet />
+                </div>
             </main>
 
             <Footer />

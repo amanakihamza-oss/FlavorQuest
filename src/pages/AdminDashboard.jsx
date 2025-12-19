@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { usePlaces } from '../context/PlacesContext';
 import { useBlog } from '../context/BlogContext';
-import { Check, X, Clock, Eye, Trash2, AlertCircle, MoreHorizontal, ChevronDown, MessageSquare, Pen, MapPin, Star } from 'lucide-react';
+import { Check, X, Clock, Eye, Trash2, AlertCircle, MoreHorizontal, ChevronDown, MessageSquare, Pen, MapPin, Star, Search } from 'lucide-react';
 import FeedbackModal from '../components/FeedbackModal';
 import EditPlaceModal from '../components/EditPlaceModal';
 import EditArticleModal from '../components/EditArticleModal';
 import { geocodeAddress } from '../utils/geocoding';
 
 const AdminDashboard = () => {
-    const { places, approvePlace, rejectPlace, reviewPlace, deletePlace, sendFeedback, updatePlace, filters, addFilter, deleteFilter, migrateSlugs } = usePlaces();
+    const { places, reviews, approvePlace, rejectPlace, reviewPlace, deletePlace, sendFeedback, updatePlace, filters, addFilter, deleteFilter, migrateSlugs, deleteReview } = usePlaces();
     const { articles, approveArticle, rejectArticle, deleteArticle } = useBlog(); // Ensure we destruct actions here for ArticleList
     const [selectedPlace, setSelectedPlace] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -198,6 +198,12 @@ const AdminDashboard = () => {
                         📰 Articles
                     </button>
                     <button
+                        onClick={() => setActiveTab('reviews')}
+                        className={`px-6 py-2.5 rounded-lg font-bold text-sm transition-all ${activeTab === 'reviews' ? 'bg-white text-brand-dark shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                    >
+                        💬 Avis
+                    </button>
+                    <button
                         onClick={() => setActiveTab('config')}
                         className={`px-6 py-2.5 rounded-lg font-bold text-sm transition-all ${activeTab === 'config' ? 'bg-white text-brand-dark shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
                     >
@@ -210,19 +216,19 @@ const AdminDashboard = () => {
                     <div className="relative w-full md:w-80">
                         <input
                             type="text"
-                            placeholder={activeTab === 'places' ? "Rechercher un lieu..." : "Rechercher un article..."}
+                            placeholder={activeTab === 'places' ? "Rechercher un lieu..." : activeTab === 'articles' ? "Rechercher un article..." : "Rechercher un avis..."}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange transition-all"
                         />
                         <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                            {/* Small search icon if desired, or relying on placeholder */}
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            <Search size={16} />
                         </div>
                     </div>
                 )}
             </div>
 
+            {/* Content Area */}
             {activeTab === 'config' ? (
                 <div className="animate-fade-in space-y-8">
                     <div>
@@ -248,6 +254,13 @@ const AdminDashboard = () => {
                         </div>
                     </div>
                 </div>
+            ) : activeTab === 'reviews' ? (
+                <ReviewList
+                    reviews={reviews}
+                    places={places}
+                    deleteReview={deleteReview}
+                    searchTerm={searchTerm}
+                />
             ) : (
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 min-h-[400px] animate-fade-in">
                     <div className="overflow-x-visible">
@@ -320,7 +333,6 @@ const AdminDashboard = () => {
                 </div>
             )}
 
-
             <FeedbackModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
@@ -339,8 +351,6 @@ const AdminDashboard = () => {
                 onClose={() => setIsArticleEditModalOpen(false)}
                 article={articleToEdit}
             />
-
-
         </div>
     );
 };
@@ -576,6 +586,91 @@ const ActionDropdown = ({ place, actions, isLast }) => {
     );
 };
 
+// ... ArticleList ...
+
+
+
+
+const ReviewList = ({ reviews = [], places = [], deleteReview, searchTerm }) => {
+    // Enrich reviews with Place Name
+    const enrichedReviews = reviews.map(review => {
+        const place = places.find(p => p.id === review.placeId);
+        return { ...review, placeName: place ? place.name : 'Lieu inconnu' };
+    }).filter(review => {
+        if (!searchTerm) return true;
+        const low = searchTerm.toLowerCase();
+        return review.comment?.toLowerCase().includes(low) ||
+            review.author?.toLowerCase().includes(low) ||
+            review.placeName.toLowerCase().includes(low);
+    }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    const handleDelete = async (id) => {
+        if (window.confirm('Voulez-vous vraiment supprimer cet avis ?')) {
+            await deleteReview(id);
+        }
+    };
+
+    return (
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 min-h-[400px] animate-fade-in overflow-hidden">
+            <table className="w-full text-left border-collapse">
+                <thead className="bg-gray-50 border-b border-gray-100">
+                    <tr>
+                        <th className="px-6 py-4 font-bold text-gray-700 w-32">Date</th>
+                        <th className="px-6 py-4 font-bold text-gray-700">Lieu</th>
+                        <th className="px-6 py-4 font-bold text-gray-700">Auteur</th>
+                        <th className="px-6 py-4 font-bold text-gray-700">Note</th>
+                        <th className="px-6 py-4 font-bold text-gray-700 w-1/3">Commentaire</th>
+                        <th className="px-6 py-4 font-bold text-gray-700 text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                    {enrichedReviews.length > 0 ? enrichedReviews.map((review) => (
+                        <tr key={review.id} className="hover:bg-gray-50/50 transition-colors">
+                            <td className="px-6 py-4 text-xs text-gray-500">
+                                {new Date(review.createdAt).toLocaleDateString()}
+                            </td>
+                            <td className="px-6 py-4 font-medium text-brand-dark">
+                                {review.placeName}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-600">
+                                {review.author}
+                            </td>
+                            <td className="px-6 py-4">
+                                <div className="flex gap-1 text-brand-orange">
+                                    {[...Array(5)].map((_, i) => (
+                                        <Star
+                                            key={i}
+                                            size={12}
+                                            className={i < review.rating ? "fill-brand-orange" : "text-gray-300 fill-gray-300"}
+                                        />
+                                    ))}
+                                </div>
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-600 italic">
+                                "{review.comment}"
+                            </td>
+                            <td className="px-6 py-4 text-right">
+                                <button
+                                    onClick={() => handleDelete(review.id)}
+                                    className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
+                                    title="Supprimer l'avis"
+                                >
+                                    <Trash2 size={16} />
+                                </button>
+                            </td>
+                        </tr>
+                    )) : (
+                        <tr>
+                            <td colSpan="6" className="px-6 py-10 text-center text-gray-400 italic">
+                                Aucun avis trouvé.
+                            </td>
+                        </tr>
+                    )}
+                </tbody>
+            </table>
+        </div>
+    );
+};
 
 const ArticleList = ({ onEdit, articles, approveArticle, rejectArticle, deleteArticle }) => {
     // Articles are now passed as props to support filtering from parent

@@ -70,31 +70,40 @@ const EditPlaceModal = ({ isOpen, onClose, place }) => {
         }));
     };
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsSubmitting(true);
 
-        let finalData = { ...formData };
+        try {
+            let finalData = { ...formData };
 
-        // Check if address/city changed to trigger re-geocoding
-        // We compare with original place data to avoid unnecessary API calls
-        if (place && (formData.address !== place.address || formData.city !== place.city)) {
-            try {
-                const fullAddress = `${formData.address}, ${formData.city}`;
-                const coordinates = await geocodeAddress(fullAddress);
-                if (coordinates) {
-                    finalData.lat = coordinates.lat;
-                    finalData.lng = coordinates.lng;
-                    // Optional: toast success "Adresse géolocalisée !"
-                } else {
-                    alert("Attention : L'adresse n'a pas pu être géolocalisée automatiquement. Le point sur la carte risque de ne pas être jour.");
+            // Check if address/city changed to trigger re-geocoding
+            // We compare with original place data to avoid unnecessary API calls
+            if (place && (formData.address !== place.address || formData.city !== place.city)) {
+                try {
+                    const fullAddress = `${formData.address}, ${formData.city}`;
+                    const coordinates = await geocodeAddress(fullAddress);
+                    if (coordinates) {
+                        finalData.lat = coordinates.lat;
+                        finalData.lng = coordinates.lng;
+                    } else {
+                        alert("Attention : L'adresse n'a pas pu être géolocalisée automatiquement. Le point sur la carte risque de ne pas être jour.");
+                    }
+                } catch (error) {
+                    console.error("Geocoding update failed", error);
                 }
-            } catch (error) {
-                console.error("Geocoding update failed", error);
             }
-        }
 
-        updatePlace(place.id, finalData);
-        onClose();
+            await updatePlace(place.id, finalData);
+            onClose();
+        } catch (error) {
+            console.error("Error updating place:", error);
+            alert("Une erreur est survenue lors de l'enregistrement.");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     if (!isOpen) return null;
@@ -288,16 +297,27 @@ const EditPlaceModal = ({ isOpen, onClose, place }) => {
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-6 py-3 rounded-xl font-bold text-gray-600 hover:bg-gray-200 transition-colors"
+                            disabled={isSubmitting}
+                            className="px-6 py-3 rounded-xl font-bold text-gray-600 hover:bg-gray-200 transition-colors disabled:opacity-50"
                         >
                             Annuler
                         </button>
                         <button
                             type="submit"
-                            className="px-8 py-3 rounded-xl font-bold text-white bg-brand-dark hover:bg-black transition-colors flex items-center gap-2"
+                            disabled={isSubmitting}
+                            className="px-8 py-3 rounded-xl font-bold text-white bg-brand-dark hover:bg-black transition-colors flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                         >
-                            <Save size={20} />
-                            Enregistrer
+                            {isSubmitting ? (
+                                <>
+                                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                    Enregistrement...
+                                </>
+                            ) : (
+                                <>
+                                    <Save size={20} />
+                                    Enregistrer
+                                </>
+                            )}
                         </button>
                     </div>
                 </form>
