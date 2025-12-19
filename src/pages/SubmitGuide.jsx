@@ -75,6 +75,13 @@ const SubmitGuide = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Prevent premature submission via "Enter" key on earlier steps
+        if (currentStep < 3) {
+            handleNext();
+            return;
+        }
+
         setIsSubmitting(true);
 
         try {
@@ -244,8 +251,8 @@ const SubmitGuide = () => {
                                                 type="button"
                                                 onClick={() => setFormData({ ...formData, priceLevel: price })}
                                                 className={`flex-1 py-3 rounded-xl font-bold transition-all ${formData.priceLevel === price
-                                                        ? 'bg-brand-dark text-white shadow-lg'
-                                                        : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
+                                                    ? 'bg-brand-dark text-white shadow-lg'
+                                                    : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
                                                     }`}
                                             >
                                                 {price}

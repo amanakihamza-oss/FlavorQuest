@@ -28,28 +28,43 @@ const PlaceCard = ({ id, name, rating, reviews, image, category, distance, statu
     return (
         <NavLink to={linkTarget} className="block group">
             <div className={`bg-white rounded-2xl overflow-hidden transition-all duration-300 border relative ${isSponsored ? 'border-yellow-400 shadow-md shadow-yellow-100 hover:shadow-yellow-200' : 'border-gray-100 shadow-sm hover:shadow-xl'}`}>
-                {/* Image Container */}
-                <div className="relative h-48 overflow-hidden">
+                {/* Image Container with Skeleton Loader */}
+                <div className="relative h-48 overflow-hidden bg-gray-200 animate-pulse flex items-center justify-center group-hover:animate-none">
+                    {/* Placeholder Icon (Visible while loading) */}
+                    <img src="/favicon.svg" alt="" className="absolute w-12 h-12 opacity-20 grayscale" />
+
                     <img
                         src={image}
                         alt={name}
                         loading="lazy"
-                        className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+                        decoding="async"
+                        onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = '/logo.png'; // Fallback to safe local image
+                            e.target.style.objectFit = 'contain';
+                            e.target.style.padding = '20px';
+                            e.target.parentElement.classList.remove('animate-pulse'); // Stop pulsing on error
+                        }}
+                        onLoad={(e) => {
+                            e.target.parentElement.classList.remove('animate-pulse'); // Stop pulsing on load
+                        }}
+                        className="relative z-10 w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500 bg-transparent"
                     />
-                    <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-2 py-1 rounded-md text-xs font-bold text-brand-orange uppercase tracking-wider">
+
+                    <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-2 py-1 rounded-md text-xs font-bold text-brand-orange uppercase tracking-wider z-20">
                         {category === 'Snack' ? 'Fast Food' : category}
                     </div>
 
                     {/* Sponsored Badge */}
                     {isSponsored && (
-                        <div className="absolute top-3 right-12 bg-yellow-400 text-white px-2 py-1 rounded-md text-xs font-bold uppercase tracking-wider shadow-sm flex items-center gap-1">
+                        <div className="absolute top-3 right-12 bg-yellow-400 text-white px-2 py-1 rounded-md text-xs font-bold uppercase tracking-wider shadow-sm flex items-center gap-1 z-20">
                             <Star size={10} className="fill-white" /> Partner
                         </div>
                     )}
                     {/* Heart Button */}
                     <button
                         onClick={handleHeartClick}
-                        className="absolute top-3 right-3 p-2 rounded-full bg-white/90 backdrop-blur-sm shadow-sm hover:scale-110 transition-transform z-10"
+                        className="absolute top-3 right-3 p-2 rounded-full bg-white/90 backdrop-blur-sm shadow-sm hover:scale-110 transition-transform z-20"
                     >
                         <Heart size={18} className={isFavorite ? "fill-red-500 text-red-500" : "text-gray-400"} />
                     </button>
@@ -66,7 +81,7 @@ const PlaceCard = ({ id, name, rating, reviews, image, category, distance, statu
                         if (!displayStatus) return null;
 
                         return (
-                            <div className={`absolute bottom-3 right-3 px-2 py-1 rounded-full text-xs font-medium text-white ${displayColor}`}>
+                            <div className={`absolute bottom-3 right-3 px-2 py-1 rounded-full text-xs font-medium text-white z-20 ${displayColor}`}>
                                 {displayStatus}
                             </div>
                         );

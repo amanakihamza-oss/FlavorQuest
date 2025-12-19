@@ -4,6 +4,8 @@ import { Helmet } from 'react-helmet-async';
 const SEO = ({ title, description, image, schema, type = 'website', keywords, breadcrumbs }) => {
     const siteTitle = 'FlavorQuest';
     const rawTitle = title ? `${title} | ${siteTitle}` : siteTitle;
+    const defaultImage = 'https://flavorquest.be/logo.png';
+    const finalImage = image || defaultImage;
 
     // Title Truncation Logic
     const truncateTitle = (str, n) => {
@@ -50,13 +52,13 @@ const SEO = ({ title, description, image, schema, type = 'website', keywords, br
             <meta property="og:url" content={currentUrl} />
             <meta property="og:title" content={fullTitle} />
             <meta property="og:description" content={description} />
-            {image && <meta property="og:image" content={image} />}
+            <meta property="og:image" content={finalImage} />
 
             {/* Twitter */}
             <meta name="twitter:card" content="summary_large_image" />
             <meta name="twitter:title" content={fullTitle} />
             <meta name="twitter:description" content={description} />
-            {image && <meta name="twitter:image" content={image} />}
+            <meta name="twitter:image" content={finalImage} />
 
             {/* Dynamic JSON-LD Schema */}
             <script type="application/ld+json">

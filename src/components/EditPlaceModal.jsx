@@ -3,6 +3,7 @@ import { X, Save, Image as ImageIcon, Leaf, Clock, Baby, Award, Utensils, Wheat,
 import OpeningHoursInput from './OpeningHoursInput';
 import { geocodeAddress } from '../utils/geocoding';
 import { usePlaces } from '../context/PlacesContext';
+import { compressImage } from '../utils/compressImage';
 
 const ICON_MAP = {
     'Leaf': Leaf,
@@ -195,18 +196,45 @@ const EditPlaceModal = ({ isOpen, onClose, place }) => {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-1">Image URL</label>
-                                <div className="flex gap-4 items-center">
+                                <label className="block text-sm font-bold text-gray-700 mb-1">Photo de l'établissement</label>
+                                <div
+                                    className="border-2 border-dashed border-gray-300 rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer hover:border-brand-orange hover:bg-orange-50 transition-colors relative h-48"
+                                    onClick={() => document.getElementById('edit-place-image').click()}
+                                >
                                     <input
-                                        type="text"
-                                        name="image"
-                                        value={formData.image}
-                                        onChange={handleChange}
-                                        className="flex-grow px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
+                                        type="file"
+                                        id="edit-place-image"
+                                        className="hidden"
+                                        accept="image/*"
+                                        onChange={async (e) => {
+                                            const file = e.target.files[0];
+                                            if (file) {
+                                                try {
+                                                    const compressed = await compressImage(file);
+                                                    setFormData(prev => ({ ...prev, image: compressed }));
+                                                } catch (err) {
+                                                    console.error(err);
+                                                    setFormData(prev => ({ ...prev, image: file }));
+                                                }
+                                            }
+                                        }}
                                     />
-                                    {formData.image && (
-                                        <div className="w-16 h-16 rounded-lg overflow-hidden border border-gray-200 shrink-0">
-                                            <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
+
+                                    {formData.image ? (
+                                        <div className="absolute inset-0 w-full h-full rounded-xl overflow-hidden group">
+                                            <img
+                                                src={typeof formData.image === 'string' ? formData.image : URL.createObjectURL(formData.image)}
+                                                alt="Preview"
+                                                className="w-full h-full object-cover"
+                                            />
+                                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-white font-bold">
+                                                <ImageIcon className="mr-2" /> Changer
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="text-center text-gray-400">
+                                            <ImageIcon size={32} className="mx-auto mb-2" />
+                                            <span className="text-sm font-medium">Cliquez pour ajouter une photo</span>
                                         </div>
                                     )}
                                 </div>

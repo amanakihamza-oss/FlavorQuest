@@ -180,6 +180,19 @@ export const PlacesProvider = ({ children }) => {
         }
     };
 
+    const updatePlace = async (id, data) => {
+        try {
+            let finalData = { ...data };
+            if (finalData.image instanceof File) {
+                const imageUrl = await uploadToImgBB(finalData.image);
+                finalData.image = imageUrl;
+            }
+            await updateFirestorePlace(id, finalData);
+        } catch (error) {
+            console.error("Error updating place:", error);
+        }
+    };
+
     const addPlace = async (newPlace) => {
         let imageUrl = newPlace.image;
 
@@ -200,7 +213,7 @@ export const PlacesProvider = ({ children }) => {
         await addDoc(collection(db, 'places'), finalPlace);
     };
 
-    const updatePlace = (id, data) => updateFirestorePlace(id, data);
+
     const approvePlace = (id) => updateFirestorePlace(id, { validationStatus: 'approved' });
     const rejectPlace = (id) => updateFirestorePlace(id, { validationStatus: 'rejected' });
     const reviewPlace = (id) => updateFirestorePlace(id, { validationStatus: 'review' });
