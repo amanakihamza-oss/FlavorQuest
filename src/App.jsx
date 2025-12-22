@@ -54,6 +54,9 @@ function App() {
                                         <Route path="/login" element={<Login />} />
                                         <Route path="/" element={<Layout />}>
                                             <Route index element={<Home />} />
+                                            {/* SEO Silo Route (Priority) */}
+                                            <Route path="/:city/:category/:slug" element={<PlaceDetails />} />
+                                            {/* Legacy Route (Fallback) */}
                                             <Route path="/place/:slug" element={<PlaceDetails />} />
                                             <Route path="/submit" element={<SubmitGuide />} />
                                             <Route path="/blog" element={<BlogHome />} />

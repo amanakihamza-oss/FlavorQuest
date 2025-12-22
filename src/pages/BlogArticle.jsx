@@ -107,6 +107,67 @@ const BlogArticle = () => {
         "wordCount": article.content ? article.content.split(' ').length : 0
     };
 
+    // --- Dynamic Content Parsing (Shortcodes) ---
+    const renderContent = (content) => {
+        if (!content) return null;
+
+        // Split by [PLACES args]
+        // Example: [PLACES city=Liège category=Snack limit=3]
+        const parts = content.split(/\[PLACES\s+(.*?)\]/g);
+
+        return (
+            <div className="space-y-8">
+                {parts.map((part, index) => {
+                    // Even indices are regular text/HTML
+                    if (index % 2 === 0) {
+                        if (!part.trim()) return null;
+                        return (
+                            <div key={index} dangerouslySetInnerHTML={{ __html: part }} className="whitespace-pre-line" />
+                        );
+                    }
+
+                    // Odd indices are the captured "args" string (e.g. "city=Liège category=Snack")
+                    const args = part.split(/\s+/).reduce((acc, curr) => {
+                        const [key, value] = curr.split('=');
+                        if (key && value) acc[key] = value.replace(/['"]/g, ''); // Simple cleanup
+                        return acc;
+                    }, {});
+
+                    // Filter Places based on args
+                    const filteredPlaces = places.filter(p => {
+                        if (p.validationStatus !== 'approved') return false;
+                        if (args.city && p.city !== args.city) return false;
+                        if (args.category === 'Snack' && p.category !== 'Snack' && !p.tags?.includes('Snack')) return false; // Relaxed check for Snack
+                        if (args.category && args.category !== 'Snack' && p.category !== args.category) return false;
+                        return true;
+                    }).slice(0, args.limit ? parseInt(args.limit) : 5);
+
+                    if (filteredPlaces.length === 0) {
+                        return (
+                            <div key={index} className="p-4 bg-gray-50 rounded-xl text-center text-gray-400 italic text-sm">
+                                Aucun lieu trouvé pour ces critères ({part}).
+                            </div>
+                        );
+                    }
+
+                    return (
+                        <div key={index} className="my-8">
+                            <h3 className="text-xl font-bold text-brand-dark mb-6 flex items-center gap-2">
+                                <MapPin className="text-brand-orange" />
+                                Sélection FlavorQuest : {args.city || 'Nos coups de cœur'}
+                            </h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 not-prose">
+                                {filteredPlaces.map(place => (
+                                    <PlaceCard key={place.id} {...place} />
+                                ))}
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+        );
+    };
+
     return (
         <div className="min-h-screen bg-white pb-20">
             {/* Reading Progress Bar */}
@@ -184,13 +245,19 @@ const BlogArticle = () => {
 
             <main className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 lg:grid-cols-12 gap-12">
                 {/* Article Content */}
+
+
+                // ... (rest of render)
+
+                return (
+                // ...
                 <article className="lg:col-span-8 prose prose-lg prose-orange max-w-none text-gray-800">
                     <p className="lead text-xl text-gray-600 font-medium mb-8 border-l-4 border-brand-orange pl-6 italic">
                         {article.excerpt}
                     </p>
 
-                    {/* Render HTML content safely */}
-                    <div dangerouslySetInnerHTML={{ __html: article.content }} className="whitespace-pre-line" />
+                    {/* Render Smart Content */}
+                    {renderContent(article.content)}
                 </article>
 
                 {/* Sidebar: Related Places */}

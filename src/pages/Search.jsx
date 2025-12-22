@@ -139,11 +139,25 @@ const Search = () => {
         setShowSuggestions(false);
     }
 
+    // Dynamic SEO Metadata
+    const getPageTitle = () => {
+        if (selectedCity && searchTerm) return `${searchTerm} à ${selectedCity} - FlavorQuest`;
+        if (selectedCity) return `Meilleures adresses à ${selectedCity} - FlavorQuest`;
+        if (searchTerm) return `Résultats pour "${searchTerm}" - FlavorQuest`;
+        return "Recherche Expert - Les meilleures adresses en Wallonie";
+    };
+
+    const getPageDescription = () => {
+        if (selectedCity) return `Découvrez notre sélection de restaurants, snacks et pépites culinaires à ${selectedCity}.`;
+        return "Cherchez et trouvez les meilleures adresses de Wallonie avec nos filtres avancés.";
+    };
+
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
             <Helmet>
-                <title>Recherche Expert - FlavorQuest</title>
-                <meta name="description" content="Cherchez et trouvez les meilleures adresses de Wallonie avec nos filtres avancés." />
+                <title>{getPageTitle()}</title>
+                <meta name="description" content={getPageDescription()} />
+                {/* Canonical could be dynamic too, but simpler is better for now */}
             </Helmet>
 
             {/* Header & Advanced Search Controls */}

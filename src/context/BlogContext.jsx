@@ -53,6 +53,29 @@ const SEED_ARTICLES = [
         content: `<h2>Manger sans cruauté à Liège</h2><p>Une scène culinaire végétale vibrante...</p>`,
         relatedPlaceIds: ['3'],
         status: 'approved'
+    },
+    {
+        slug: 'guide-snack-liege-2024',
+        title: 'Les Meilleurs Snacks de Liège : Le Guide Ultime 🍔',
+        excerpt: 'Une petite faim à Liège ? Découvrez notre sélection des snacks incontournables, de la gaufre légendaire aux friteries authentiques.',
+        image: 'https://images.unsplash.com/photo-1561758033-d89a9ad46330?q=80&w=2070&auto=format&fit=crop',
+        category: 'Guide',
+        city: 'Liège',
+        date: '2024-03-25',
+        author: 'FlavorQuest Team',
+        readTime: '3 min',
+        content: `
+            <h2>La Cité Ardente et ses pépites salées</h2>
+            <p>Liège n'est pas seulement la capitale de la gaufre. C'est aussi un repaire incroyable pour les amateurs de street food gouteuse et généreuse.</p>
+            <p>Nous avons parcouru les rues pour vous dénicher les adresses qui valent vraiment le détour.</p>
+
+            [PLACES city=Liège category=Snack limit=6]
+
+            <h3>Pourquoi ces adresses ?</h3>
+            <p>Chacun de ces lieux a été validé par notre communauté pour son rapport qualité-prix et son ambiance authentique.</p>
+        `,
+        relatedPlaceIds: [],
+        status: 'approved'
     }
 ];
 

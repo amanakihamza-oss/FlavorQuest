@@ -3,6 +3,7 @@ import { checkIsOpen } from '../utils/hours';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { getPlaceUrl } from '../utils/url';
 
 const PlaceCard = ({ id, name, rating, reviews, image, category, distance, status, openingHours, city, isSponsored, slug, priceLevel }) => {
     const { favorites, toggleFavorite, isAuthenticated, setShowAuthModal } = useAuth();
@@ -23,11 +24,11 @@ const PlaceCard = ({ id, name, rating, reviews, image, category, distance, statu
         }
     };
 
-    const linkTarget = slug ? `/place/${slug}` : `/place/${id}`;
+    const linkTarget = getPlaceUrl({ id, slug, city, category });
 
     return (
         <NavLink to={linkTarget} className="block group">
-            <div className={`bg-white rounded-2xl overflow-hidden transition-all duration-300 border relative ${isSponsored ? 'border-yellow-400 shadow-md shadow-yellow-100 hover:shadow-yellow-200' : 'border-gray-100 shadow-sm hover:shadow-xl'}`}>
+            <div className={`bg-white rounded-2xl overflow-hidden transition-all duration-300 border relative transform hover:-translate-y-1 hover:shadow-2xl ${isSponsored ? 'border-yellow-400 shadow-md shadow-yellow-100' : 'border-gray-100 shadow-sm'}`}>
                 {/* Image Container with Skeleton Loader */}
                 <div className="relative h-48 overflow-hidden bg-gray-200 animate-pulse flex items-center justify-center group-hover:animate-none">
                     {/* Placeholder Icon (Visible while loading) */}

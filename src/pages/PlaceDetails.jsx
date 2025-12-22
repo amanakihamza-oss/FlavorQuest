@@ -1,27 +1,36 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { Star, MapPin, Clock, Phone, Globe, ChevronLeft, ShieldCheck, User } from 'lucide-react';
 import { usePlaces } from '../context/PlacesContext';
 import { getFormattedHours } from '../utils/time';
+import { getPlaceUrl } from '../utils/url';
 import { checkIsOpen } from '../utils/hours';
 import SEO from '../components/SEO';
 import ReviewForm from '../components/ReviewForm';
 
 const PlaceDetails = () => {
-    const { slug } = useParams();
+    const { slug, city, category } = useParams();
     const { places, addReview } = usePlaces();
     const navigate = useNavigate();
+    const location = useLocation();
 
-    // 1. Try finding by slug
-    // 2. Fallback: try finding by ID (legacy support)
+    // 1. Try finding by slug (param from URL)
+    // 2. Fallback: try finding by ID (legacy support for old bookmarks)
     const place = places.find(p => p.slug === slug) || places.find(p => p.id === slug);
 
     useEffect(() => {
-        // If we found a place by ID but the URL uses ID, redirect to URL with Slug
-        if (place && place.slug && place.id === slug && place.slug !== slug) {
-            navigate(`/place/${place.slug}`, { replace: true });
+        if (place) {
+            // Check if current URL matches the "Canonical" Silo URL
+            const canonicalUrl = getPlaceUrl(place);
+            const currentPath = location.pathname;
+
+            // If we are on a legacy route or mismatch, redirect to Canonical
+            // Avoid infinite loops by checking exact match
+            if (currentPath !== canonicalUrl && !currentPath.includes('/admin')) {
+                navigate(canonicalUrl, { replace: true });
+            }
         }
-    }, [place, slug, navigate]);
+    }, [place, location.pathname, navigate]);
 
     if (!place) {
         return <div className="text-center py-20">Lieu introuvable</div>;

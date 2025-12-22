@@ -599,7 +599,7 @@ const ReviewList = ({ reviews = [], places = [], deleteReview, searchTerm }) => 
     }).filter(review => {
         if (!searchTerm) return true;
         const low = searchTerm.toLowerCase();
-        return review.comment?.toLowerCase().includes(low) ||
+        return (review.text || review.comment || "").toLowerCase().includes(low) ||
             review.author?.toLowerCase().includes(low) ||
             review.placeName.toLowerCase().includes(low);
     }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -647,7 +647,7 @@ const ReviewList = ({ reviews = [], places = [], deleteReview, searchTerm }) => 
                                 </div>
                             </td>
                             <td className="px-6 py-4 text-sm text-gray-600 italic">
-                                "{review.comment}"
+                                "{review.text || review.comment}"
                             </td>
                             <td className="px-6 py-4 text-right">
                                 <button

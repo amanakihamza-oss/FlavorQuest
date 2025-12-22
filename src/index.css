@@ -7,8 +7,37 @@
     scroll-behavior: smooth;
   }
 
+  /* Custom Premium Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #FF7E36;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #e56d29;
+  }
+
+  /* Global Selection Color */
+  ::selection {
+    @apply bg-brand-orange/20 text-brand-dark;
+  }
+
+  /* Focus Ring Reset */
+  :focus-visible {
+    @apply outline-none ring-2 ring-brand-orange ring-offset-2;
+  }
+
   body {
-    @apply bg-brand-gray text-brand-dark font-sans;
+    @apply bg-brand-gray text-brand-dark font-sans antialiased;
   }
 }
 
@@ -20,5 +49,9 @@
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+
+  .glass-panel {
+    @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-xl;
   }
 }

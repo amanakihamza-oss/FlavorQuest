@@ -16,17 +16,28 @@ import { checkIsOpen } from '../utils/hours';
 // Clock removed (merged above)
 
 const Home = () => {
-    // Basic Organization Schema for the Homepage
+    // Enhanced Organization & WebSite Schema
     const schema = {
         "@context": "https://schema.org",
-        "@type": "WebSite",
-        "name": "FlavorQuest",
-        "url": "https://flavorquest.be",
-        "potentialAction": {
-            "@type": "SearchAction",
-            "target": "https://flavorquest.be/search?q={search_term_string}",
-            "query-input": "required name=search_term_string"
-        }
+        "@graph": [
+            {
+                "@type": "WebSite",
+                "name": "FlavorQuest",
+                "url": "https://flavorquest.be",
+                "potentialAction": {
+                    "@type": "SearchAction",
+                    "target": "https://flavorquest.be/search?q={search_term_string}",
+                    "query-input": "required name=search_term_string"
+                }
+            },
+            {
+                "@type": "Organization",
+                "name": "FlavorQuest",
+                "url": "https://flavorquest.be",
+                "logo": "https://flavorquest.be/logo.png",
+                "description": "Le guide ultime des meilleures adresses food en Wallonie."
+            }
+        ]
     };
 
     const { t } = useLanguage();

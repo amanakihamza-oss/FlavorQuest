@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Camera, MapPin, Tag, Plus, ArrowLeft, Lock, Send, ChevronRight, Check } from 'lucide-react';
+import { Camera, MapPin, Tag, Plus, ArrowLeft, Lock, Send, ChevronRight, Check, PartyPopper } from 'lucide-react';
 import OpeningHoursInput from '../components/OpeningHoursInput';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { geocodeAddress } from '../utils/geocoding';
@@ -15,6 +15,7 @@ const SubmitGuide = () => {
 
     const [currentStep, setCurrentStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
 
     // Form state
     const [formData, setFormData] = useState({
@@ -73,6 +74,13 @@ const SubmitGuide = () => {
         window.scrollTo(0, 0);
     };
 
+    // Prevent enter key from submitting the form unexpectedly
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+            e.preventDefault();
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -104,7 +112,7 @@ const SubmitGuide = () => {
             };
 
             await addPlace(newPlace);
-            navigate('/');
+            setShowSuccess(true); // Show success modal instead of navigating
         } catch (error) {
             console.error("Erreur lors de l'envoi :", error);
             alert("Une erreur est survenue.");
@@ -154,6 +162,26 @@ const SubmitGuide = () => {
         );
     }
 
+    if (showSuccess) {
+        return (
+            <div className="min-h-screen bg-brand-dark flex flex-col items-center justify-center p-6 text-center animate-fade-in">
+                <div className="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center mb-8 shadow-2xl animate-bounce">
+                    <PartyPopper size={48} className="text-white" />
+                </div>
+                <h1 className="text-4xl font-bold text-white mb-4">Merci, Explorateur !</h1>
+                <p className="text-white/80 max-w-md mb-8 text-lg">
+                    Votre proposition a bien été reçue. Elle sera examinée par notre équipe très prochainement.
+                </p>
+                <button
+                    onClick={() => navigate('/')}
+                    className="bg-white text-brand-dark px-10 py-4 rounded-full font-bold hover:bg-brand-orange hover:text-white transition-all shadow-lg text-lg"
+                >
+                    Retour à l'accueil
+                </button>
+            </div>
+        );
+    }
+
     const steps = [
         { num: 1, title: "L'Essentiel" },
         { num: 2, title: "Détails" },
@@ -194,7 +222,7 @@ const SubmitGuide = () => {
                         ))}
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                    <form onSubmit={handleSubmit} onKeyDown={handleKeyDown} className="space-y-6">
 
                         {/* STEP 1 */}
                         {currentStep === 1 && (
@@ -389,35 +417,40 @@ const SubmitGuide = () => {
                             </div>
                         )}
 
-                        {/* Navigation Buttons */}
-                        <div className="flex gap-4 pt-6 border-t border-gray-100 mt-8">
-                            {currentStep > 1 && (
-                                <button
-                                    type="button"
-                                    onClick={handleBack}
-                                    className="px-6 py-3 bg-gray-100 text-gray-600 font-bold rounded-xl hover:bg-gray-200 transition-colors"
-                                >
-                                    Retour
-                                </button>
-                            )}
+                        {/* Spacer for mobile sticky footer */}
+                        <div className="h-20 md:hidden"></div>
 
-                            {currentStep < 3 ? (
-                                <button
-                                    type="button"
-                                    onClick={handleNext}
-                                    className="flex-1 bg-brand-dark text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-black transition-colors"
-                                >
-                                    Suivant <ChevronRight size={20} />
-                                </button>
-                            ) : (
-                                <button
-                                    type="submit"
-                                    disabled={isSubmitting}
-                                    className="flex-1 bg-brand-orange text-white py-3 rounded-xl font-bold text-lg flex items-center justify-center gap-2 hover:bg-orange-600 transition-all shadow-lg shadow-orange-200 disabled:opacity-70 disabled:cursor-wait"
-                                >
-                                    {isSubmitting ? 'Envoi en cours...' : 'Envoyer ma pépite !'} <Send size={20} />
-                                </button>
-                            )}
+                        {/* Navigation Buttons */}
+                        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 z-40 md:static md:bg-transparent md:border-none md:p-0">
+                            <div className="flex gap-4 max-w-2xl mx-auto">
+                                {currentStep > 1 && (
+                                    <button
+                                        type="button"
+                                        onClick={handleBack}
+                                        className="px-6 py-3 bg-gray-100 text-gray-600 font-bold rounded-xl hover:bg-gray-200 transition-colors"
+                                    >
+                                        Retour
+                                    </button>
+                                )}
+
+                                {currentStep < 3 ? (
+                                    <button
+                                        type="button"
+                                        onClick={handleNext}
+                                        className="flex-1 bg-brand-dark text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-black transition-colors"
+                                    >
+                                        Suivant <ChevronRight size={20} />
+                                    </button>
+                                ) : (
+                                    <button
+                                        type="submit"
+                                        disabled={isSubmitting}
+                                        className="flex-1 bg-brand-orange text-white py-3 rounded-xl font-bold text-lg flex items-center justify-center gap-2 hover:bg-orange-600 transition-all shadow-lg shadow-orange-200 disabled:opacity-70 disabled:cursor-wait"
+                                    >
+                                        {isSubmitting ? 'Envoi en cours...' : 'Envoyer ma pépite !'} <Send size={20} />
+                                    </button>
+                                )}
+                            </div>
                         </div>
                     </form>
                 </div>

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { usePlaces } from '../context/PlacesContext';
 import MagicRandomizer from './MagicRandomizer';
+import HomeSearchBar from './HomeSearchBar';
 
 const Hero = () => {
     const { t } = useLanguage();
@@ -35,46 +36,27 @@ const Hero = () => {
 
             {/* Content */}
             <div className="relative z-10 w-full max-w-2xl px-6 flex flex-col items-center text-center space-y-6">
-                <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight drop-shadow-md">
+                <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] mb-2">
                     {t('hero_title_1')} <br />
-                    <span className="text-brand-orange">{t('hero_title_2')}</span>
+                    <span className="text-brand-orange drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">{t('hero_title_2')}</span>
                 </h1>
 
-                {/* Search Bar */}
-                <form onSubmit={(e) => {
-                    e.preventDefault();
-                    if (e.target.search.value.trim()) {
-                        window.location.href = `/search?q=${encodeURIComponent(e.target.search.value.trim())}`;
-                    }
-                }} className="w-full relative flex items-center bg-white rounded-full shadow-xl overflow-hidden p-1.5 focus-within:ring-2 focus-within:ring-brand-orange transition-all duration-300 transform hover:scale-[1.01]">
-                    <div className="pl-4 text-gray-400">
-                        <Search size={22} />
-                    </div>
-                    <input
-                        name="search"
-                        type="text"
-                        placeholder={t('hero_search_placeholder')}
-                        className="flex-grow px-3 py-3 text-brand-dark outline-none placeholder-gray-400 font-medium bg-transparent"
-                    />
-                    <button type="submit" className="hidden"></button> {/* Hidden submit for Enter key */}
-                    <button type="button" onClick={() => window.location.href = '/search'} className="flex items-center gap-2 bg-brand-gray text-brand-dark px-4 py-3 rounded-full hover:bg-gray-200 transition-colors border-l border-gray-200 text-sm font-semibold">
-                        <MapPin size={18} className="text-brand-orange" />
-                        <span className="hidden sm:inline">{t('hero_nearby')}</span>
-                    </button>
-                </form>
+                <HomeSearchBar />
 
-                <div className="flex flex-col items-center gap-3">
-                    <p className="text-gray-200 text-sm md:text-base font-medium">
+                <div className="flex flex-col items-center gap-4 mt-8">
+                    <p className="text-gray-100 text-sm md:text-lg font-medium drop-shadow-md">
                         {t('hero_subtitle')}
                     </p>
 
                     {/* Surprise Me Button */}
                     <button
                         onClick={handleRandomPlace}
-                        className="flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white border border-white/20 px-5 py-2 rounded-full transition-all text-sm font-bold shadow-lg group"
+                        className="flex items-center gap-3 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 px-6 py-3 rounded-full transition-all text-sm font-bold text-white shadow-lg hover:shadow-orange-500/20 group hover:-translate-y-0.5"
                     >
-                        <Dice size={18} className="group-hover:rotate-180 transition-transform duration-500" />
-                        Pas d'inspiration ? Laissez faire le hasard !
+                        <div className="bg-white/20 p-1.5 rounded-full group-hover:rotate-180 transition-transform duration-700">
+                            <Dice size={18} className="text-white" />
+                        </div>
+                        <span>Pas d'inspiration ? Laissez faire le hasard !</span>
                     </button>
                 </div>
             </div>

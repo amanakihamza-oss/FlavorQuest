@@ -19,6 +19,34 @@ const db = getFirestore(app);
 
 const BASE_URL = 'https://flavorquest.be';
 
+// Helper for consistent slug generation (matches src/utils/slugs.js)
+const generateSlug = (name, city = '') => {
+    const text = city ? `${name}-${city}` : name;
+    return text
+        .toString()
+        .toLowerCase()
+        .normalize('NFD') // Decompose accented characters
+        .replace(/[\u0300-\u036f]/g, '') // Remove accent diacritics
+        .replace(/\s+/g, '-') // Replace spaces with -
+        .replace(/[^\w\-]+/g, '') // Remove all non-word chars
+        .replace(/\-\-+/g, '-') // Replace multiple - with single -
+        .replace(/^-+/, '') // Trim - from start
+        .replace(/-+$/, ''); // Trim - from end
+};
+
+const slugifySimple = (text) => {
+    return text
+        .toString()
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/[^\w\-]+/g, '')
+        .replace(/\-\-+/g, '-')
+        .replace(/^-+/, '')
+        .replace(/-+$/, '');
+};
+
 async function generate() {
     console.log('Fetching data for sitemap...');
     const urls = [
@@ -26,18 +54,28 @@ async function generate() {
         `${BASE_URL}/search`,
         `${BASE_URL}/blog`,
         `${BASE_URL}/submit`,
-        `${BASE_URL}/login`
+        `${BASE_URL}/login`,
+        `${BASE_URL}/contact`,
+        `${BASE_URL}/privacy`,
+        `${BASE_URL}/legal`
     ];
 
     try {
         // Places
         const placesRef = collection(db, 'places');
-        const placesSnap = await getDocs(placesRef);
+        const querySnapshot = await getDocs(placesRef);
         let placeCount = 0;
-        placesSnap.forEach(doc => {
+
+        querySnapshot.forEach(doc => {
             const data = doc.data();
             if (data.validationStatus === 'approved') {
-                const loc = data.slug ? `${BASE_URL}/place/${data.slug}` : `${BASE_URL}/place/${doc.id}`;
+                // Generate SEO-friendly URL: /city/category/slug
+                // Fallback to legacy structure if critical data missing, but prioritize SEO structure
+                const citySlug = data.city ? slugifySimple(data.city) : 'inconnu';
+                const categorySlug = data.category ? slugifySimple(data.category) : 'divers';
+                const placeSlug = data.slug || generateSlug(data.name, data.city);
+
+                const loc = `${BASE_URL}/${citySlug}/${categorySlug}/${placeSlug}`;
                 urls.push(loc);
                 placeCount++;
             }
