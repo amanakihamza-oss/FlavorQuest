@@ -17,7 +17,7 @@ const Hero = () => {
     };
 
     return (
-        <div className="relative w-full h-[60vh] md:h-[500px] flex items-center justify-center bg-gray-900 overflow-hidden">
+        <div className="relative w-full min-h-[60vh] md:h-[500px] flex items-center justify-center bg-gray-900 overflow-hidden py-12 md:py-0">
             <MagicRandomizer
                 isOpen={showRandomizer}
                 onClose={() => setShowRandomizer(false)}
@@ -35,8 +35,8 @@ const Hero = () => {
             </div>
 
             {/* Content */}
-            <div className="relative z-10 w-full max-w-2xl px-6 flex flex-col items-center text-center space-y-6">
-                <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] mb-2">
+            <div className="relative z-10 w-full max-w-2xl px-4 md:px-6 flex flex-col items-center text-center space-y-6">
+                <h1 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] mb-2">
                     {t('hero_title_1')} <br />
                     <span className="text-brand-orange drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">{t('hero_title_2')}</span>
                 </h1>

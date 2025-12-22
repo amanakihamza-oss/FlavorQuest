@@ -112,8 +112,16 @@ ${urls.map(url => `  <url>
             fs.mkdirSync('./public');
         }
 
-        fs.writeFileSync(path.resolve('./public/sitemap.xml'), xml);
-        console.log(`✅ Sitemap generated at public/sitemap.xml with ${urls.length} URLs.`);
+        const publicPath = path.resolve('./public/sitemap.xml');
+        fs.writeFileSync(publicPath, xml);
+        console.log(`✅ Sitemap generated at ${publicPath}`);
+
+        const distDir = path.resolve('./dist');
+        if (fs.existsSync(distDir)) {
+            const distPath = path.join(distDir, 'sitemap.xml');
+            fs.writeFileSync(distPath, xml);
+            console.log(`✅ Sitemap also generated at ${distPath} for immediate deployment.`);
+        }
     } catch (error) {
         console.error("Error generating sitemap:", error);
     }

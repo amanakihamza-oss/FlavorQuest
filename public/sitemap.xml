@@ -2,109 +2,253 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://flavorquest.be</loc>
-    <lastmod>2025-12-16</lastmod>
+    <lastmod>2025-12-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://flavorquest.be/search</loc>
-    <lastmod>2025-12-16</lastmod>
+    <lastmod>2025-12-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://flavorquest.be/blog</loc>
-    <lastmod>2025-12-16</lastmod>
+    <lastmod>2025-12-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://flavorquest.be/submit</loc>
-    <lastmod>2025-12-16</lastmod>
+    <lastmod>2025-12-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://flavorquest.be/login</loc>
-    <lastmod>2025-12-16</lastmod>
+    <lastmod>2025-12-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://flavorquest.be/place/huggys-bar-liege</loc>
-    <lastmod>2025-12-16</lastmod>
+    <loc>https://flavorquest.be/contact</loc>
+    <lastmod>2025-12-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://flavorquest.be/place/brasserie-de-la-cour-charleroi</loc>
-    <lastmod>2025-12-16</lastmod>
+    <loc>https://flavorquest.be/privacy</loc>
+    <lastmod>2025-12-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://flavorquest.be/place/lepi-dore-rocourt</loc>
-    <lastmod>2025-12-16</lastmod>
+    <loc>https://flavorquest.be/legal</loc>
+    <lastmod>2025-12-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://flavorquest.be/place/une-gaufrette-saperlipopette-liege</loc>
-    <lastmod>2025-12-16</lastmod>
+    <loc>https://flavorquest.be/namur/brasserie/brasserie-francois-namur</loc>
+    <lastmod>2025-12-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://flavorquest.be/place/sakbe-fleron</loc>
-    <lastmod>2025-12-16</lastmod>
+    <loc>https://flavorquest.be/liege/restaurant/huggys-bar-liege</loc>
+    <lastmod>2025-12-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://flavorquest.be/place/ninja-ramen-liege</loc>
-    <lastmod>2025-12-16</lastmod>
+    <loc>https://flavorquest.be/charleroi/brasserie/brasserie-de-la-cour-charleroi</loc>
+    <lastmod>2025-12-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://flavorquest.be/place/aux-alentours-verviers</loc>
-    <lastmod>2025-12-16</lastmod>
+    <loc>https://flavorquest.be/liege/snack/fazfood-saint-gilles-liege</loc>
+    <lastmod>2025-12-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://flavorquest.be/place/ocheese-burger-liege</loc>
-    <lastmod>2025-12-16</lastmod>
+    <loc>https://flavorquest.be/rocourt/cafe/lepi-dore-rocourt</loc>
+    <lastmod>2025-12-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://flavorquest.be/place/black-white-burger-liege</loc>
-    <lastmod>2025-12-16</lastmod>
+    <loc>https://flavorquest.be/liege/cafe/une-gaufrette-saperlipopette-liege</loc>
+    <lastmod>2025-12-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://flavorquest.be/place/broccafe-namur</loc>
-    <lastmod>2025-12-16</lastmod>
+    <loc>https://flavorquest.be/fleron/restaurant/sakbe-fleron</loc>
+    <lastmod>2025-12-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://flavorquest.be/liege/vegan/como-en-casa-liege</loc>
+    <lastmod>2025-12-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://flavorquest.be/liege/boulangerie/la-patisserie-vegan-liege</loc>
+    <lastmod>2025-12-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://flavorquest.be/liege/restaurant/mio-posto-liege</loc>
+    <lastmod>2025-12-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://flavorquest.be/liege/restaurant/ninja-ramen-liege</loc>
+    <lastmod>2025-12-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://flavorquest.be/verviers/vegan/aux-alentours-verviers</loc>
+    <lastmod>2025-12-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://flavorquest.be/liege/brasserie/le-cabinet-liege</loc>
+    <lastmod>2025-12-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://flavorquest.be/liege/snack/ocheese-burger-liege</loc>
+    <lastmod>2025-12-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://flavorquest.be/liege/snack/black-white-burger-liege</loc>
+    <lastmod>2025-12-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://flavorquest.be/liege/restaurant/cafe-lequet-liege</loc>
+    <lastmod>2025-12-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://flavorquest.be/seraing/restaurant/pizzeria-amarena-seraing</loc>
+    <lastmod>2025-12-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://flavorquest.be/namur/boulangerie/carrement-bon-namur</loc>
+    <lastmod>2025-12-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://flavorquest.be/namur/cafe/broccafe-namur</loc>
+    <lastmod>2025-12-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://flavorquest.be/liege/cafe/le-pot-au-lait-liege</loc>
+    <lastmod>2025-12-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://flavorquest.be/waterloo/boulangerie/ducobu-waterloo</loc>
+    <lastmod>2025-12-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://flavorquest.be/liege/brasserie/le-dernier-ragot-liege</loc>
+    <lastmod>2025-12-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://flavorquest.be/liege/restaurant/sarang-liege</loc>
+    <lastmod>2025-12-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://flavorquest.be/blog/le-grand-duel-gaufre-de-liege-vs-gaufre-de-bruxelles-pourquoi-ne-pas-se-tromper</loc>
+    <lastmod>2025-12-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://flavorquest.be/blog/smash-burger-mania-liege</loc>
-    <lastmod>2025-12-16</lastmod>
+    <lastmod>2025-12-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://flavorquest.be/blog/la-comfort-food-le-seul-remede-valide-contre-hiver-wallon</loc>
+    <lastmod>2025-12-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://flavorquest.be/blog/le-boulet-liegeoise-pourquoi-bien-plus-simple-boulette</loc>
+    <lastmod>2025-12-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://flavorquest.be/blog/escapade-gourmande-24h-durbuy-sans-tomber-dans-les-pieges-touristes</loc>
+    <lastmod>2025-12-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://flavorquest.be/blog/liege-petit-prix-3-adresses-pour-se-caler-le-ventre-moins-de-10</loc>
-    <lastmod>2025-12-16</lastmod>
+    <lastmod>2025-12-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://flavorquest.be/blog/dimanche-en-wallonie-le-guide-de-survie-pour-les-gourmands-quand-tout-semble-ferme</loc>
-    <lastmod>2025-12-16</lastmod>
+    <lastmod>2025-12-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://flavorquest.be/blog/sortir-avec-son-chien-le-guide-ultime-adresses-pet-friendly-wallonie</loc>
+    <lastmod>2025-12-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://flavorquest.be/blog/24h-chrono-liege-marathon-culinaire-pour-estomacs-solides-et-gourmands</loc>
+    <lastmod>2025-12-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://flavorquest.be/blog/namur-2025-les-3-nouvelles-adresses-qui-reinventent-l-elegance-culinaire</loc>
+    <lastmod>2025-12-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://flavorquest.be/blog/l-art-du-trompe-l-oeil-rend-fou-la-wallonie</loc>
+    <lastmod>2025-12-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>

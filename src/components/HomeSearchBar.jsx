@@ -122,10 +122,10 @@ const HomeSearchBar = () => {
             <form onSubmit={handleSearch} className="flex flex-col md:flex-row items-stretch md:items-center bg-white rounded-[2rem] shadow-2xl p-1.5 transition-all duration-300 focus-within:ring-4 focus-within:ring-brand-orange/20 border border-gray-100/50">
 
                 {/* Search Input */}
-                <div className="md:w-[55%] flex-grow relative flex items-center px-5 py-3 md:px-6 md:py-3 border-b md:border-b-0 border-gray-100">
+                <div className="md:w-[55%] flex-grow relative flex items-center px-4 py-2 md:px-6 md:py-3 border-b md:border-b-0 border-gray-100">
                     <Search className="text-gray-400 shrink-0 mr-3 md:mr-4 w-5 h-5 md:w-6 md:h-6" />
                     <div className="w-full flex flex-col justify-center min-w-0">
-                        <label className="block text-[11px] uppercase font-extrabold text-gray-500 tracking-widest mb-1 truncate">Quoi ?</label>
+                        <label className="block text-[10px] md:text-[11px] uppercase font-extrabold text-gray-500 tracking-widest mb-0.5 truncate">Quoi ?</label>
                         <input
                             type="text"
                             value={searchTerm}
@@ -139,7 +139,7 @@ const HomeSearchBar = () => {
                                 setShowCitySuggestions(false);
                             }}
                             placeholder="Ex: Burger, Pizza..."
-                            className="w-full outline-none text-brand-dark font-bold placeholder-gray-400 bg-transparent text-base md:text-lg leading-relaxed h-7 text-ellipsis"
+                            className="w-full outline-none text-brand-dark font-bold placeholder-gray-400 bg-transparent text-sm md:text-base lg:text-lg leading-relaxed h-6 md:h-7 text-ellipsis"
                             autoComplete="off"
                         />
                     </div>
@@ -151,12 +151,12 @@ const HomeSearchBar = () => {
                 </div>
 
                 {/* City Custom Input + Autocomplete */}
-                <div ref={cityDropdownRef} className="w-full md:w-[45%] flex items-center px-5 py-3 md:px-6 md:py-3 relative md:border-l border-gray-100">
-                    <div className="p-2 bg-orange-50 rounded-full mr-3 text-brand-orange shrink-0">
-                        <MapPin size={20} />
+                <div ref={cityDropdownRef} className="w-full md:w-[45%] flex items-center px-4 py-2 md:px-6 md:py-3 relative md:border-l border-gray-100">
+                    <div className="p-1.5 md:p-2 bg-orange-50 rounded-full mr-3 text-brand-orange shrink-0">
+                        <MapPin size={18} className="md:w-5 md:h-5" />
                     </div>
                     <div className="w-full flex flex-col justify-center min-w-0">
-                        <label className="block text-[11px] uppercase font-extrabold text-gray-500 tracking-widest mb-1 truncate">Où ?</label>
+                        <label className="block text-[10px] md:text-[11px] uppercase font-extrabold text-gray-500 tracking-widest mb-0.5 truncate">Où ?</label>
                         <input
                             type="text"
                             value={selectedCity}
@@ -170,7 +170,7 @@ const HomeSearchBar = () => {
                                 setShowSuggestions(false);
                             }}
                             placeholder="Partout"
-                            className="w-full outline-none font-bold text-gray-900 bg-transparent text-base md:text-lg leading-relaxed h-7 placeholder-gray-400 text-ellipsis"
+                            className="w-full outline-none font-bold text-gray-900 bg-transparent text-sm md:text-base lg:text-lg leading-relaxed h-6 md:h-7 placeholder-gray-400 text-ellipsis"
                             autoComplete="off"
                         />
                     </div>
