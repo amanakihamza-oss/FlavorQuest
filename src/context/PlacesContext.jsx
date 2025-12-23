@@ -199,8 +199,8 @@ export const PlacesProvider = ({ children }) => {
     const addPlace = async (newPlace) => {
         let imageUrl = newPlace.image;
 
-        if (newPlace.image instanceof File) {
-            // Upload to ImgBB
+        if (newPlace.image instanceof Blob) {
+            // Upload to ImgBB (Handles File or compressed Blob)
             imageUrl = await uploadToImgBB(newPlace.image);
         }
 
