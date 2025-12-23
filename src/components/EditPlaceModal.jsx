@@ -35,7 +35,8 @@ const EditPlaceModal = ({ isOpen, onClose, place }) => {
         description: '',
         image: '',
         tags: [],
-        priceLevel: '€€'
+        priceLevel: '€€',
+        phone: ''
     });
 
     useEffect(() => {
@@ -51,7 +52,8 @@ const EditPlaceModal = ({ isOpen, onClose, place }) => {
                 description: place.description || '',
                 image: place.image || '',
                 tags: place.tags || [],
-                priceLevel: place.priceLevel || '€€'
+                priceLevel: place.priceLevel || '€€',
+                phone: place.phone || ''
             });
         }
     }, [place]);
@@ -258,6 +260,17 @@ const EditPlaceModal = ({ isOpen, onClose, place }) => {
                                     onChange={handleChange}
                                     className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
                                     placeholder="https://..."
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">Téléphone</label>
+                                <input
+                                    type="tel"
+                                    name="phone"
+                                    value={formData.phone}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
+                                    placeholder="+32 123 45 67 89"
                                 />
                             </div>
                         </div>

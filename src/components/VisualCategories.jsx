@@ -12,7 +12,7 @@ const CATEGORIES = [
     {
         id: 'Brasserie',
         label: 'Brasserie',
-        image: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=1974&auto=format&fit=crop',
+        image: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=1974&auto=format&fit=crop',
     },
     {
         id: 'Snack',
@@ -25,9 +25,14 @@ const CATEGORIES = [
         image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=1740&auto=format&fit=crop',
     },
     {
-        id: 'Café',
+        id: 'CoffeeShop',
         label: 'Coffee Shop',
         image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?q=80&w=2157&auto=format&fit=crop',
+    },
+    {
+        id: 'Bar',
+        label: 'Bar & Nocturne',
+        image: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=1974&auto=format&fit=crop',
     },
     {
         id: 'Boulangerie',

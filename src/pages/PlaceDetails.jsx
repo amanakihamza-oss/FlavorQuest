@@ -170,25 +170,7 @@ const PlaceDetails = () => {
                                 </div>
                             ))}
 
-                            {/* Static Mock Review for fallback */}
-                            <div className="bg-gray-50 p-6 rounded-2xl">
-                                <div className="flex justify-between items-start mb-2">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-500">
-                                            <User size={20} />
-                                        </div>
-                                        <div>
-                                            <p className="font-bold text-brand-dark">Julie M.</p>
-                                            <p className="text-xs text-gray-400">Il y a 2 mois</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                        <Star size={14} className="fill-brand-yellow text-brand-yellow" />
-                                        <span className="font-bold text-sm text-yellow-700">5</span>
-                                    </div>
-                                </div>
-                                <p className="text-gray-600 text-sm">Superbe découverte ! L'ambiance est top et le service impeccable. Je recommande vivement.</p>
-                            </div>
+
                         </div>
                     </section>
                 </div>
@@ -202,7 +184,13 @@ const PlaceDetails = () => {
                         </div>
                         <div className="flex items-center gap-3 text-gray-700">
                             <Phone className="text-brand-orange" />
-                            <span>+32 81 22 33 44</span>
+                            {place.phone ? (
+                                <a href={`tel:${place.phone}`} className="hover:text-brand-orange transition-colors">
+                                    {place.phone}
+                                </a>
+                            ) : (
+                                <span className="text-gray-400 italic">Non renseigné</span>
+                            )}
                         </div>
                         <div className="flex items-center gap-3 text-gray-700">
                             <Globe className="text-brand-orange" />

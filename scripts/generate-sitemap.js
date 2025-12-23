@@ -96,15 +96,46 @@ async function generate() {
         });
         console.log(`Added ${articleCount} articles.`);
 
+        // Define priorities and frequencies
+        const getUrlConfig = (url) => {
+            const path = url.replace(BASE_URL, '');
+
+            // Strategic Landing Pages
+            if (path === '' || path === '/' || path === '/blog') {
+                return { priority: '1.0', changefreq: 'daily' };
+            }
+
+            // Blog Articles (Strategic Content)
+            if (path.startsWith('/blog/')) {
+                return { priority: '0.9', changefreq: 'weekly' };
+            }
+
+            // Place Details
+            if (path.split('/').length > 2 && !path.startsWith('/blog')) {
+                return { priority: '0.8', changefreq: 'weekly' };
+            }
+
+            // Standard Functional Pages
+            if (['/search', '/submit'].includes(path)) {
+                return { priority: '0.8', changefreq: 'weekly' };
+            }
+
+            // Static / Legal Pages
+            return { priority: '0.5', changefreq: 'monthly' };
+        };
+
         // Generate XML
         const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.map(url => `  <url>
+${urls.map(url => {
+            const config = getUrlConfig(url);
+            return `  <url>
     <loc>${url}</loc>
     <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>`).join('\n')}
+    <changefreq>${config.changefreq}</changefreq>
+    <priority>${config.priority}</priority>
+  </url>`;
+        }).join('\n')}
 </urlset>`;
 
         // Ensure public dir exists

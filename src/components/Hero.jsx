@@ -29,6 +29,8 @@ const Hero = () => {
                 <img
                     src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=60&w=1200&auto=format&fit=crop"
                     alt="Delicious Food"
+                    fetchPriority="high"
+                    loading="eager"
                     className="w-full h-full object-cover opacity-60"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />

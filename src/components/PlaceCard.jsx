@@ -28,7 +28,7 @@ const PlaceCard = ({ id, name, rating, reviews, image, category, distance, statu
 
     return (
         <NavLink to={linkTarget} className="block group">
-            <div className={`bg-white rounded-2xl overflow-hidden transition-all duration-300 border relative transform hover:-translate-y-1 hover:shadow-2xl ${isSponsored ? 'border-yellow-400 shadow-md shadow-yellow-100' : 'border-gray-100 shadow-sm'}`}>
+            <div className={`bg-white rounded-2xl overflow-hidden transition-transform duration-300 border relative transform-gpu hover:-translate-y-1 hover:shadow-2xl will-change-transform ${isSponsored ? 'border-yellow-400 shadow-md shadow-yellow-100' : 'border-gray-100 shadow-sm'}`}>
                 {/* Image Container with Skeleton Loader */}
                 <div className="relative h-48 overflow-hidden bg-gray-200 animate-pulse flex items-center justify-center group-hover:animate-none">
                     {/* Placeholder Icon (Visible while loading) */}
@@ -49,7 +49,7 @@ const PlaceCard = ({ id, name, rating, reviews, image, category, distance, statu
                         onLoad={(e) => {
                             e.target.parentElement.classList.remove('animate-pulse'); // Stop pulsing on load
                         }}
-                        className="relative z-10 w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500 bg-transparent"
+                        className="relative z-10 w-full h-full object-cover transform-gpu group-hover:scale-110 transition-transform duration-500 bg-transparent will-change-transform"
                     />
 
                     <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-2 py-1 rounded-md text-xs font-bold text-brand-orange uppercase tracking-wider z-20">

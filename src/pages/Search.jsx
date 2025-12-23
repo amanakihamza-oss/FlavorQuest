@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Search as SearchIcon, MapPin, SlidersHorizontal, ArrowRight, X, TrendingUp, Clock } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Search as SearchIcon, MapPin, SlidersHorizontal, ArrowRight, X, TrendingUp, Clock, ChevronDown, Award } from 'lucide-react';
+import { motion, AnimatePresence, useScroll, useMotionValueEvent, useMotionValue, animate } from 'framer-motion';
 import { usePlaces } from '../context/PlacesContext';
 import PlaceCard from '../components/PlaceCard';
 import FilterBar from '../components/FilterBar';
@@ -20,27 +20,127 @@ const Search = () => {
     const [onlyOpen, setOnlyOpen] = useState(false);
 
     // New Feature States
-    const [selectedCity, setSelectedCity] = useState('');
+    const [selectedCity, setSelectedCity] = useState(searchParams.get('city') || '');
     const [sortBy, setSortBy] = useState('rating'); // 'rating', 'newest', 'relevance'
     const [suggestions, setSuggestions] = useState([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
+    const [showCityDropdown, setShowCityDropdown] = useState(false);
+    const [showSortDropdown, setShowSortDropdown] = useState(false);
 
     const SUGGESTIONS = ["Burger", "Pizza", "Sushi", "Déjeuner", "Bruxelles", "Liège", "Namur", "Mons"];
 
     // Derived Data
     const uniqueCities = [...new Set(places.map(p => p.city).filter(Boolean))].sort();
 
+    // Memoize filtered cities for stable indexing
+    const filteredCities = uniqueCities.filter(c =>
+        c.toLowerCase().includes(selectedCity.toLowerCase())
+    );
+
+    const [activeCityIndex, setActiveCityIndex] = useState(-1);
+
+    // Reset index when search changes
+    useEffect(() => {
+        setActiveCityIndex(-1);
+    }, [selectedCity]);
+
+
+    const [activeSortIndex, setActiveSortIndex] = useState(-1);
+
+    const SORT_OPTIONS = [
+        { value: 'relevance', label: 'Pertinence', icon: SlidersHorizontal },
+        { value: 'rating', label: 'Les mieux notés', icon: Award },
+        { value: 'newest', label: 'Les plus récents', icon: Clock }
+    ];
+
+    const handleSortKeyDown = (e) => {
+        if (!showSortDropdown) {
+            if (e.key === 'ArrowDown' || e.key === 'Enter') {
+                e.preventDefault();
+                setShowSortDropdown(true);
+            }
+            return;
+        }
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            setActiveSortIndex(prev => (prev < SORT_OPTIONS.length - 1 ? prev + 1 : prev));
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            setActiveSortIndex(prev => (prev > 0 ? prev - 1 : prev));
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (activeSortIndex >= 0) {
+                setSortBy(SORT_OPTIONS[activeSortIndex].value);
+                setShowSortDropdown(false);
+            }
+        } else if (e.key === 'Escape') {
+            setShowSortDropdown(false);
+        }
+    };
+
+    const handleCityKeyDown = (e) => {
+        if (!showCityDropdown) {
+            if (e.key === 'ArrowDown' || e.key === 'Enter') {
+                setShowCityDropdown(true);
+            }
+            return;
+        }
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            setActiveCityIndex(prev => (prev < filteredCities.length - 1 ? prev + 1 : prev));
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            setActiveCityIndex(prev => (prev > 0 ? prev - 1 : prev));
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (activeCityIndex >= 0 && filteredCities[activeCityIndex]) {
+                setSelectedCity(filteredCities[activeCityIndex]);
+                setShowCityDropdown(false);
+            }
+        } else if (e.key === 'Escape') {
+            setShowCityDropdown(false);
+        }
+    };
+
+    // Derived logic for display including "Partout" would be better but keeping simple for now.
+    // Let's actually make the dropdown options a single array for easier management next time.
+    // For now, I will stick to the existing visual structure but add the handler.
+
+    useEffect(() => {
+        const cityParam = searchParams.get('city');
+        if (cityParam && cityParam !== selectedCity) {
+            setSelectedCity(cityParam);
+        } else if (!cityParam && selectedCity) {
+            // Optional: clear city if removed from URL, though usually UI drives URL.
+            // Let's keep it simple: if URL has city, enforce it.
+            setSelectedCity('');
+        }
+    }, [searchParams]);
+
     // Update URL when search term changes
     useEffect(() => {
         const timeout = setTimeout(() => {
+            const params = { ...Object.fromEntries(searchParams) };
+
             if (searchTerm) {
-                setSearchParams({ q: searchTerm });
+                params.q = searchTerm;
             } else {
-                setSearchParams({});
+                delete params.q;
             }
+
+            // Sync City to URL (bi-directional)
+            if (selectedCity) {
+                params.city = selectedCity;
+            } else {
+                delete params.city;
+            }
+
+            setSearchParams(params);
         }, 500);
         return () => clearTimeout(timeout);
-    }, [searchTerm, setSearchParams]);
+    }, [searchTerm, selectedCity, setSearchParams]);
 
     // Autocomplete Logic
     useEffect(() => {
@@ -152,16 +252,50 @@ const Search = () => {
         return "Cherchez et trouvez les meilleures adresses de Wallonie avec nos filtres avancés.";
     };
 
+    // Close city dropdown on click outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (!event.target.closest('.city-selector-container')) {
+                setShowCityDropdown(false);
+            }
+            if (!event.target.closest('.sort-selector-container')) {
+                setShowSortDropdown(false);
+            }
+        };
+        document.addEventListener('click', handleClickOutside);
+        return () => document.removeEventListener('click', handleClickOutside);
+    }, []);
+
+    // Scroll Detection for Smart Header (Performance Optimized)
+    const { scrollY } = useScroll();
+    const headerY = useMotionValue(0);
+
+    useMotionValueEvent(scrollY, "change", (latest) => {
+        const previous = scrollY.getPrevious();
+        const diff = latest - previous;
+
+        // Hide if scrolling down AND past 100px
+        if (diff > 10 && latest > 100) {
+            animate(headerY, -200, { duration: 0.4, ease: [0.33, 1, 0.68, 1] }); // Cubic bezier for smooth feel
+        }
+        // Show if scrolling up OR at the very top
+        else if (diff < -5 || latest < 100) {
+            animate(headerY, 0, { duration: 0.4, ease: [0.33, 1, 0.68, 1] });
+        }
+    });
+
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
             <Helmet>
                 <title>{getPageTitle()}</title>
                 <meta name="description" content={getPageDescription()} />
-                {/* Canonical could be dynamic too, but simpler is better for now */}
             </Helmet>
 
-            {/* Header & Advanced Search Controls */}
-            <div className="bg-white sticky top-0 md:top-[64px] z-30 border-b border-gray-100 shadow-sm pt-4 pb-0 px-6">
+            {/* Smart Header & Advanced Search Controls */}
+            <motion.div
+                className="bg-white sticky top-0 md:top-[64px] z-30 border-b border-gray-100 shadow-sm pt-4 pb-0 px-6"
+                style={{ y: headerY }} // Direct hardware accelerated transform
+            >
                 <div className="max-w-4xl mx-auto space-y-4">
 
                     {/* Main Search Bar with Autocomplete */}
@@ -177,7 +311,7 @@ const Search = () => {
                                 setShowSuggestions(true);
                             }}
                             onFocus={() => setShowSuggestions(true)}
-                            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)} // Delay to allow click
+                            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                             className="block w-full pl-10 pr-10 py-3 bg-gray-100 border-none rounded-xl text-base font-medium text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:bg-white transition-all shadow-inner"
                             placeholder="Rechercher un lieu, un plat, une ambiance..."
                         />
@@ -214,33 +348,114 @@ const Search = () => {
 
                     {/* Secondary Controls: City & Sort */}
                     <div className="flex flex-col md:flex-row gap-4 pb-2">
-                        <select
-                            value={selectedCity}
-                            onChange={(e) => setSelectedCity(e.target.value)}
-                            className="bg-white border border-gray-200 text-gray-700 text-sm rounded-xl focus:ring-brand-orange focus:border-brand-orange block w-full p-2.5 outline-none font-bold"
-                        >
-                            <option value="">Toutes les villes</option>
-                            {uniqueCities.map(city => (
-                                <option key={city} value={city}>{city}</option>
-                            ))}
-                        </select>
+                        {/* Custom City Selector (Home Style) */}
+                        <div className="relative w-full group city-selector-container">
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                    <MapPin size={18} />
+                                </div>
+                                <input
+                                    type="text"
+                                    value={selectedCity}
+                                    onChange={(e) => {
+                                        setSelectedCity(e.target.value);
+                                        setShowCityDropdown(true);
+                                    }}
+                                    onKeyDown={handleCityKeyDown}
+                                    onFocus={() => setShowCityDropdown(true)}
+                                    className="bg-white border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-brand-orange focus:border-brand-orange block w-full pl-10 p-2.5 outline-none font-bold placeholder-gray-500"
+                                    placeholder="Toutes les villes"
+                                />
+                                {selectedCity && (
+                                    <button
+                                        onClick={() => setSelectedCity('')}
+                                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                                    >
+                                        <X size={16} />
+                                    </button>
+                                )}
+                            </div>
 
-                        <select
-                            value={sortBy}
-                            onChange={(e) => setSortBy(e.target.value)}
-                            className="bg-white border border-gray-200 text-gray-700 text-sm rounded-xl focus:ring-brand-orange focus:border-brand-orange block w-full p-2.5 outline-none font-bold"
-                        >
-                            <option value="relevance">Trier par Pertinence</option>
-                            <option value="rating">Les mieux notés ⭐️</option>
-                            <option value="newest">Les plus récents 🆕</option>
-                        </select>
+                            {/* City Dropdown */}
+                            {showCityDropdown && (
+                                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden animate-fade-in z-50 max-h-60 overflow-y-auto">
+                                    <button
+                                        onClick={() => {
+                                            setSelectedCity("");
+                                            setShowCityDropdown(false);
+                                        }}
+                                        className={`w-full text-left px-4 py-2.5 hover:bg-orange-50 font-bold text-sm transition-colors flex items-center justify-between ${selectedCity === "" ? 'bg-orange-50 text-brand-orange' : 'text-gray-700'}`}
+                                    >
+                                        <span>Partout</span>
+                                        {selectedCity === "" && <div className="w-2 h-2 bg-brand-orange rounded-full"></div>}
+                                    </button>
+                                    {filteredCities.map((city, idx) => (
+                                        <button
+                                            key={city}
+                                            onClick={() => {
+                                                setSelectedCity(city);
+                                                setShowCityDropdown(false);
+                                            }}
+                                            className={`w-full text-left px-4 py-2.5 hover:bg-orange-50 font-bold text-sm transition-colors flex items-center justify-between border-t border-gray-50 ${selectedCity === city || idx === activeCityIndex ? 'bg-orange-50 text-brand-orange' : 'text-gray-700'}`}
+                                        >
+                                            <span>{city}</span>
+                                            {selectedCity === city && <div className="w-2 h-2 bg-brand-orange rounded-full"></div>}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Custom Sort Selector */}
+                        <div className="relative w-full md:w-auto min-w-[220px] group sort-selector-container">
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                    {sortBy === 'rating' && <Award size={18} />}
+                                    {sortBy === 'newest' && <Clock size={18} />}
+                                    {sortBy === 'relevance' && <SlidersHorizontal size={18} />}
+                                </div>
+                                <button
+                                    onClick={() => setShowSortDropdown(!showSortDropdown)}
+                                    onKeyDown={handleSortKeyDown}
+                                    className="w-full bg-white border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-brand-orange/20 block pl-10 pr-4 py-2.5 outline-none font-bold flex items-center justify-between transition-colors hover:border-gray-300"
+                                >
+                                    <span className="truncate">
+                                        {sortBy === 'relevance' && 'Pertinence'}
+                                        {sortBy === 'rating' && 'Les mieux notés'}
+                                        {sortBy === 'newest' && 'Les plus récents'}
+                                    </span>
+                                    <ChevronDown size={16} className={`text-gray-400 shrink-0 ml-2 transition-transform ${showSortDropdown ? 'rotate-180' : ''}`} />
+                                </button>
+                            </div>
+
+                            {showSortDropdown && (
+                                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden animate-fade-in z-50">
+                                    {SORT_OPTIONS.map((option, idx) => (
+                                        <button
+                                            key={option.value}
+                                            onClick={() => {
+                                                setSortBy(option.value);
+                                                setShowSortDropdown(false);
+                                            }}
+                                            className={`w-full text-left px-4 py-2.5 hover:bg-orange-50 font-bold text-sm transition-colors flex items-center justify-between border-t border-gray-50 first:border-none ${sortBy === option.value || idx === activeSortIndex ? 'bg-orange-50 text-brand-orange' : 'text-gray-700'}`}
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <option.icon size={16} className={sortBy === option.value ? "text-brand-orange" : "text-gray-400"} />
+                                                <span>{option.label}</span>
+                                            </div>
+                                            {sortBy === option.value && <div className="w-2 h-2 bg-brand-orange rounded-full"></div>}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
 
                         <button
                             onClick={() => setOnlyOpen(!onlyOpen)}
                             className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl transition-all font-bold text-sm border whitespace-nowrap ${onlyOpen ? 'bg-green-100 text-green-700 border-green-200' : 'bg-white text-gray-500 border-gray-200 hover:border-brand-orange'}`}
                         >
                             <Clock size={16} className={onlyOpen ? "text-green-600" : "text-gray-400"} />
-                            <span className="hidden md:inline">Ouvert</span>
+                            <span>Ouvert maintenant</span>
                         </button>
                     </div>
 
@@ -249,7 +464,7 @@ const Search = () => {
                         <FilterBar activeFilters={activeTags} onToggle={toggleFilter} visible={true} compact={true} />
                     </div>
                 </div>
-            </div>
+            </motion.div>
 
             <div className="max-w-7xl mx-auto px-6 py-8">
                 <div className="flex items-center justify-between mb-6">

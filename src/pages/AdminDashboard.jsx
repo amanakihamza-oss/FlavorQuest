@@ -20,12 +20,12 @@ const AdminDashboard = () => {
     const [searchTerm, setSearchTerm] = useState('');
 
     // --- Statistics Logic (Real & Faithful) ---
-    const stats = {
+    const stats = React.useMemo(() => ({
         placesPending: places.filter(p => p.validationStatus === 'pending').length,
         placesTotal: places.length,
         articlesPending: (articles || []).filter(a => a.status === 'pending').length,
         reviewsTotal: places.reduce((acc, p) => acc + (p.userReviews ? p.userReviews.length : 0), 0) // Counting ONLY real user reviews
-    };
+    }), [places, articles]);
 
     // --- Filtering Logic ---
     const filterBySearch = (item, type) => {
@@ -45,24 +45,24 @@ const AdminDashboard = () => {
     // Sort: Pending first
     const STATUS_ORDER = { 'pending': 0, 'review': 1, 'rejected': 2, 'approved': 3 };
 
-    const sortedPlaces = [...places]
+    const sortedPlaces = React.useMemo(() => [...places]
         .filter(p => filterBySearch(p, 'place'))
         .sort((a, b) => {
             const statusA = STATUS_ORDER[a.validationStatus] ?? 99;
             const statusB = STATUS_ORDER[b.validationStatus] ?? 99;
             if (statusA !== statusB) return statusA - statusB;
             return new Date(b.submittedAt || 0) - new Date(a.submittedAt || 0);
-        });
+        }), [places, searchTerm]);
 
     // Derived articles with search
     const safeArticles = Array.isArray(articles) ? articles : [];
-    const sortedArticles = [...safeArticles]
+    const sortedArticles = React.useMemo(() => [...safeArticles]
         .filter(a => filterBySearch(a, 'article'))
         .sort((a, b) => {
             const statusA = STATUS_ORDER[a.status] ?? 99;
             const statusB = STATUS_ORDER[b.status] ?? 99;
             return statusA - statusB;
-        });
+        }), [safeArticles, searchTerm]);
 
     const handleOpenFeedback = (place) => {
         setSelectedPlace(place);

@@ -24,6 +24,7 @@ const SubmitGuide = () => {
         address: '',
         city: '',
         website: '',
+        phone: '',
         openingHours: {},
         description: '',
         image: null,
@@ -52,20 +53,30 @@ const SubmitGuide = () => {
 
     const validateStep = (step) => {
         if (step === 1) {
-            return formData.name && formData.city && formData.category && formData.priceLevel;
+            if (!formData.name) return "Le nom de l'établissement est requis.";
+            if (!formData.city) return "La ville est requise.";
+            return true;
         }
         if (step === 2) {
-            return formData.address && formData.description && formData.description.length > 20;
+            if (!formData.address) return "L'adresse est requise.";
+            if (!formData.description) return "La description est requise.";
+            if (formData.description.length <= 20) return "La description doit faire au moins 20 caractères.";
+            return true;
+        }
+        if (step === 3) {
+            if (!formData.image) return "Une photo est requise pour donner envie !";
+            return true;
         }
         return true;
     };
 
     const handleNext = () => {
-        if (validateStep(currentStep)) {
+        const validation = validateStep(currentStep);
+        if (validation === true) {
             setCurrentStep(prev => prev + 1);
             window.scrollTo(0, 0);
         } else {
-            alert("Veuillez remplir tous les champs obligatoires avant de continuer.");
+            alert(validation);
         }
     };
 
@@ -76,17 +87,34 @@ const SubmitGuide = () => {
 
     // Prevent enter key from submitting the form unexpectedly
     const handleKeyDown = (e) => {
-        if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+        if (e.key === 'Enter') {
+            // Allow Enter in textarea
+            if (e.target.tagName === 'TEXTAREA') return;
+
+            // Block default form submission
             e.preventDefault();
+
+            // Optional: If you want Enter to go to next step instead:
+            // handleNext();
         }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Prevent premature submission via "Enter" key on earlier steps
+        // 1. Strictly block premature submission if not on final step
         if (currentStep < 3) {
+            // Optionally auto-advance if validation passes, or just block.
+            // Let's safe-guard: if user hits enter and it bypasses onKeyDown somehow
+            console.warn("Attempted submit before final step. Advancing instead.");
             handleNext();
+            return;
+        }
+
+        // 2. Validate Final Step (Step 3)
+        const finalValidation = validateStep(3);
+        if (finalValidation !== true) {
+            alert(finalValidation);
             return;
         }
 
@@ -94,8 +122,10 @@ const SubmitGuide = () => {
 
         try {
             // Geocode
+            console.log("Geocoding address...");
             const fullAddress = `${formData.address}, ${formData.city}`;
             const coordinates = await geocodeAddress(fullAddress);
+            console.log("Coordinates:", coordinates);
 
             // Create object
             const newPlace = {
@@ -112,10 +142,11 @@ const SubmitGuide = () => {
             };
 
             await addPlace(newPlace);
-            setShowSuccess(true); // Show success modal instead of navigating
+            console.log("Place added successfully");
+            setShowSuccess(true);
         } catch (error) {
             console.error("Erreur lors de l'envoi :", error);
-            alert("Une erreur est survenue.");
+            alert("Une erreur est survenue lors de l'envoi. Veuillez réessayer.");
         } finally {
             setIsSubmitting(false);
         }
@@ -222,7 +253,7 @@ const SubmitGuide = () => {
                         ))}
                     </div>
 
-                    <form onSubmit={handleSubmit} onKeyDown={handleKeyDown} className="space-y-6">
+                    <div className="space-y-6">
 
                         {/* STEP 1 */}
                         {currentStep === 1 && (
@@ -232,7 +263,6 @@ const SubmitGuide = () => {
                                     <input
                                         type="text"
                                         name="name"
-                                        required
                                         value={formData.name}
                                         onChange={handleChange}
                                         className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange transition-all font-medium"
@@ -246,7 +276,6 @@ const SubmitGuide = () => {
                                         <input
                                             type="text"
                                             name="city"
-                                            required
                                             value={formData.city}
                                             onChange={handleChange}
                                             className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange transition-all font-medium"
@@ -264,7 +293,8 @@ const SubmitGuide = () => {
                                             <option value="Restaurant">Restaurant</option>
                                             <option value="Brasserie">Brasserie</option>
                                             <option value="Snack">Fast Food / Snack</option>
-                                            <option value="Café">Café / Bar</option>
+                                            <option value="CoffeeShop">Coffee Shop / Salon de thé</option>
+                                            <option value="Bar">Bar / Pub / Cocktail</option>
                                             <option value="Boulangerie">Boulangerie</option>
                                             <option value="Vegan">Healthy / Vegan</option>
                                         </select>
@@ -301,7 +331,6 @@ const SubmitGuide = () => {
                                         <input
                                             type="text"
                                             name="address"
-                                            required
                                             value={formData.address}
                                             onChange={handleChange}
                                             className="w-full pl-12 pr-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange transition-all font-medium"
@@ -318,7 +347,6 @@ const SubmitGuide = () => {
                                         value={formData.description}
                                         onChange={handleChange}
                                         rows="4"
-                                        required
                                         className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange transition-all font-medium resize-none"
                                         placeholder="Qu'est-ce qui rend cet endroit spécial ? L'ambiance, un plat en particulier..."
                                     ></textarea>
@@ -331,7 +359,7 @@ const SubmitGuide = () => {
                                         <input
                                             value={tagInput}
                                             onChange={(e) => setTagInput(e.target.value)}
-                                            onKeyPress={(e) => e.key === 'Enter' && handleAddTag(e)}
+                                            onKeyDown={(e) => e.key === 'Enter' && handleAddTag(e)}
                                             className="flex-1 px-4 py-2 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:border-brand-orange"
                                             placeholder="Ex: Terrasse, Végétarien..."
                                         />
@@ -353,6 +381,18 @@ const SubmitGuide = () => {
                                         ))}
                                         {formData.tags.length === 0 && <p className="text-gray-400 text-sm italic">Aucun tag ajouté</p>}
                                     </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-bold text-brand-dark uppercase mb-2">Téléphone (Optionnel)</label>
+                                    <input
+                                        type="tel"
+                                        name="phone"
+                                        value={formData.phone}
+                                        onChange={handleChange}
+                                        className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange transition-all font-medium"
+                                        placeholder="+32 4..."
+                                    />
                                 </div>
 
                                 <div>
@@ -443,7 +483,8 @@ const SubmitGuide = () => {
                                     </button>
                                 ) : (
                                     <button
-                                        type="submit"
+                                        type="button"
+                                        onClick={handleSubmit}
                                         disabled={isSubmitting}
                                         className="flex-1 bg-brand-orange text-white py-3 rounded-xl font-bold text-lg flex items-center justify-center gap-2 hover:bg-orange-600 transition-all shadow-lg shadow-orange-200 disabled:opacity-70 disabled:cursor-wait"
                                     >
@@ -452,7 +493,7 @@ const SubmitGuide = () => {
                                 )}
                             </div>
                         </div>
-                    </form>
+                    </div>
                 </div>
             </main>
         </div>

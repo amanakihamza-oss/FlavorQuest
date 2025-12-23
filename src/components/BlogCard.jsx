@@ -5,14 +5,14 @@ import { Clock, MapPin, ArrowRight } from 'lucide-react';
 const BlogCard = ({ article }) => {
     return (
         <Link to={`/blog/${article.slug}`} className="group block h-full">
-            <div className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-gray-100 flex flex-col h-full transform hover:-translate-y-1">
+            <div className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-transform duration-500 border border-gray-100 flex flex-col h-full transform-gpu hover:-translate-y-1 will-change-transform">
                 {/* Image Container with Zoom Effect */}
                 <div className="relative h-64 overflow-hidden">
                     <img
                         src={article.image}
                         alt={article.title}
                         loading="lazy"
-                        className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
+                        className="w-full h-full object-cover transform-gpu group-hover:scale-105 transition-transform duration-700 will-change-transform"
                     />
                     <div className="absolute top-4 left-4">
                         {article.city && (
