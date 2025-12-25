@@ -78,13 +78,13 @@ const PlaceDetails = () => {
         }
     };
 
-    const pageTitle = `${place.name} à ${place.city || 'Namur'} - Avis & Menu`;
+    const pageTitle = `${place.name} - ${place.category} ${place.city || 'Namur'}`;
     const pageDesc = `Découvrez ${place.name}, une pépite ${place.category} à ${place.city || 'Namur'}. Note: ${place.rating}/5 sur ${place.reviews} avis. Photos, menu et horaires.`;
 
     const breadcrumbs = [
         { name: 'Accueil', item: 'https://flavorquest.be' },
         { name: place.city || 'Wallonie', item: `https://flavorquest.be/search?q=${place.city || ''}` },
-        { name: place.name, item: window.location.href.split('?')[0] }
+        { name: place.name, item: `https://flavorquest.be${location.pathname}` }
     ];
 
     return (

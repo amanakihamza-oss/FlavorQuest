@@ -3,7 +3,8 @@ import { Helmet } from 'react-helmet-async';
 
 const SEO = ({ title, description, image, schema, type = 'website', keywords, breadcrumbs }) => {
     const siteTitle = 'FlavorQuest';
-    const rawTitle = title ? `${title} | ${siteTitle}` : siteTitle;
+    // If title already contains "FlavorQuest", don't append it again
+    const rawTitle = title ? (title.includes(siteTitle) ? title : `${title} | ${siteTitle}`) : siteTitle;
     const defaultImage = 'https://flavorquest.be/logo.png';
     const finalImage = image || defaultImage;
 
@@ -13,7 +14,8 @@ const SEO = ({ title, description, image, schema, type = 'website', keywords, br
     };
     const fullTitle = truncateTitle(rawTitle, 60);
 
-    const currentUrl = window.location.href.split('?')[0];
+    // Safe URL generation
+    const currentUrl = typeof window !== 'undefined' ? window.location.href.split('?')[0] : 'https://flavorquest.be';
 
     // Use provided schema or default based on type
     const finalSchema = schema || {
