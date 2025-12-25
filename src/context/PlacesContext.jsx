@@ -89,6 +89,7 @@ export const PlacesProvider = ({ children }) => {
 
     const [places, setPlaces] = useState([]);
     const [firestoreReviews, setFirestoreReviews] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     // Listen to Places from Firestore
     useEffect(() => {
@@ -100,6 +101,7 @@ export const PlacesProvider = ({ children }) => {
             // For demo purposes, if strictly empty, maybe we merge mocks? 
             // Let's just use real data to ensure specific "User submits -> Admin sees" workflow works robustly.
             setPlaces(placesData.length > 0 ? placesData : INITIAL_GEMS);
+            setIsLoading(false);
         });
         return () => unsubscribe();
     }, []);
@@ -306,7 +308,7 @@ export const PlacesProvider = ({ children }) => {
             reviews: firestoreReviews, // Expose raw reviews for Admin Dashboard
             addPlace, updatePlace, approvePlace, rejectPlace, reviewPlace, deletePlace, sendFeedback, addReview, deleteReview,
             filters, addFilter, deleteFilter,
-            getUserReviewCount, migrateSlugs
+            getUserReviewCount, migrateSlugs, isLoading
         }}>
             {children}
         </PlacesContext.Provider>

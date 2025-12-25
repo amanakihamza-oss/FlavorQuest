@@ -71,9 +71,19 @@ const Home = () => {
                     setShowMobileToggle(entry.isIntersecting);
                 }
 
-                // FilterBar Logic: Hide when Blog comes into view (scrolling down past list)
+                // FilterBar Logic: Hide when Blog comes into view OR is above us (scrolled past)
                 if (entry.target === blogRef.current) {
-                    setShowFilters(!entry.isIntersecting);
+                    const isBelowBlog = entry.boundingClientRect.top < 0; // Blog is above viewport
+                    const isVisible = entry.isIntersecting;
+
+                    // Hide if visible or if we are passed it (fetching Footer/FAQ)
+                    // Only show if we are ABOVE it (and it's not visible, likely strictly above)
+                    if (isVisible || isBelowBlog) {
+                        setShowFilters(false);
+                    } else {
+                        // Blog is below viewport (we are above it)
+                        setShowFilters(true);
+                    }
                 }
             });
         }, observerOptions);

@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { X, Save, Image as ImageIcon } from 'lucide-react';
+import { X, Save, Image as ImageIcon, Link as LinkIcon } from 'lucide-react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { useBlog } from '../context/BlogContext';
+import { usePlaces } from '../context/PlacesContext';
 
 const EditArticleModal = ({ isOpen, onClose, article }) => {
     const { updateArticle } = useBlog();
+    const { places } = usePlaces();
     const [formData, setFormData] = useState({
         title: '',
         content: '',
         image: '',
         author: '',
-        date: ''
+        date: '',
+        relatedPlaceIds: []
     });
 
     useEffect(() => {
@@ -21,7 +24,9 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
                 content: article.content || '',
                 image: article.image || '',
                 author: article.author || '',
-                date: article.date || ''
+                date: article.date || '',
+                hasDropCap: article.hasDropCap || false,
+                relatedPlaceIds: article.relatedPlaceIds || []
             });
         }
     }, [article]);
@@ -108,6 +113,64 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
                                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
                             />
                         </div>
+                    </div>
+
+                    {/* Linked Places */}
+                    <div>
+                        <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                            <LinkIcon size={16} /> Associer un restaurant
+                        </label>
+                        <select
+                            onChange={(e) => {
+                                const placeId = e.target.value;
+                                if (placeId && !formData.relatedPlaceIds.includes(placeId)) {
+                                    setFormData(prev => ({ ...prev, relatedPlaceIds: [...prev.relatedPlaceIds, placeId] }));
+                                }
+                            }}
+                            value=""
+                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20 mb-3"
+                        >
+                            <option value="">-- Sélectionner un lieu --</option>
+                            {places.filter(p => p.validationStatus === 'approved').map(place => (
+                                <option key={place.id} value={place.id}>{place.name} ({place.city})</option>
+                            ))}
+                        </select>
+
+                        <div className="flex flex-wrap gap-2">
+                            {formData.relatedPlaceIds?.map(id => {
+                                const place = places.find(p => p.id === id);
+                                return place ? (
+                                    <div key={id} className="bg-brand-orange/10 text-brand-orange px-3 py-1 rounded-full text-xs font-bold flex items-center gap-2">
+                                        {place.name}
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormData(prev => ({
+                                                ...prev,
+                                                relatedPlaceIds: prev.relatedPlaceIds.filter(pid => pid !== id)
+                                            }))}
+                                            className="hover:text-red-500"
+                                        >
+                                            &times;
+                                        </button>
+                                    </div>
+                                ) : null;
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Options */}
+                    <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl border border-gray-100">
+                        <input
+                            type="checkbox"
+                            id="hasDropCap"
+                            name="hasDropCap"
+                            checked={formData.hasDropCap || false}
+                            onChange={(e) => setFormData(prev => ({ ...prev, hasDropCap: e.target.checked }))}
+                            className="w-5 h-5 text-brand-orange border-gray-300 rounded focus:ring-brand-orange cursor-pointer"
+                        />
+                        <label htmlFor="hasDropCap" className="text-sm font-bold text-gray-700 cursor-pointer user-select-none">
+                            Activer le style "Lettrine" (Grande première lettre)
+                        </label>
                     </div>
 
                     {/* Image URL */}

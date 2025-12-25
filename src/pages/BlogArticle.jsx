@@ -5,7 +5,7 @@ import { useBlog } from '../context/BlogContext';
 import { usePlaces } from '../context/PlacesContext';
 import PlaceCard from '../components/PlaceCard';
 import SEO from '../components/SEO';
-import { Clock, Calendar, User, ChevronLeft, MapPin, Heart, Share2, Facebook, Twitter } from 'lucide-react';
+import { Clock, Calendar, ChevronLeft, MapPin, Heart, Share2, Facebook, Twitter, ArrowRight } from 'lucide-react';
 
 const BlogArticle = () => {
     const { slug } = useParams();
@@ -16,11 +16,7 @@ const BlogArticle = () => {
 
     // Reading Progress
     const { scrollYProgress } = useScroll();
-    const scaleX = useSpring(scrollYProgress, {
-        stiffness: 100,
-        damping: 30,
-        restDelta: 0.001
-    });
+    const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
 
     const article = getArticleBySlug(slug);
 
@@ -31,12 +27,24 @@ const BlogArticle = () => {
         }
     }, [article]);
 
-    const handleLike = () => {
+    const handleLike = async () => {
         if (!article) return;
-        toggleArticleLike(article.id);
+
+        // Optimistic UI update immediately
         setIsLiked(!isLiked);
-        setAnimateLike(true);
-        setTimeout(() => setAnimateLike(false), 300);
+        setAnimateLike(!isLiked); // Animate only on like
+
+        // Secure update with context
+        const finalState = await toggleArticleLike(article.id);
+
+        // Ensure UI is in sync with truth (in case of race conditions)
+        if (finalState !== undefined) {
+            setIsLiked(finalState);
+        }
+
+        if (!isLiked) { // If we just liked it
+            setTimeout(() => setAnimateLike(false), 300);
+        }
     };
 
     const handleShare = async () => {
@@ -51,9 +59,8 @@ const BlogArticle = () => {
                 console.log('Error sharing:', err);
             }
         } else {
-            // Fallback: Copy to clipboard
             navigator.clipboard.writeText(window.location.href);
-            alert('Lien copié dans le presse-papier !');
+            alert("Lien copié !");
         }
     };
 
@@ -81,82 +88,60 @@ const BlogArticle = () => {
     // Enhanced SEO Schema
     const schema = {
         "@context": "https://schema.org",
-        "@type": "BlogPosting", // More specific than Article
+        "@type": "BlogPosting",
         "headline": article.title,
         "image": article.image,
-        "author": {
-            "@type": "Person",
-            "name": article.author,
-            "url": `https://flavorquest.be/profile/${article.author}` // Hypothesized profile URL
-        },
+        "author": { "@type": "Person", "name": article.author },
         "publisher": {
             "@type": "Organization",
             "name": "FlavorQuest",
-            "logo": {
-                "@type": "ImageObject",
-                "url": "https://flavorquest.be/logo.png"
-            }
+            "logo": { "@type": "ImageObject", "url": "https://flavorquest.be/logo.png" }
         },
         "datePublished": article.date,
-        "dateModified": article.date, // Updates should track this
         "description": article.excerpt,
-        "mainEntityOfPage": {
-            "@type": "WebPage",
-            "@id": `https://flavorquest.be/blog/${slug}`
-        },
-        "wordCount": article.content ? article.content.split(' ').length : 0
+        "mainEntityOfPage": { "@type": "WebPage", "@id": `https://flavorquest.be/blog/${slug}` }
     };
 
     // --- Dynamic Content Parsing (Shortcodes) ---
     const renderContent = (content) => {
         if (!content) return null;
-
-        // Split by [PLACES args]
-        // Example: [PLACES city=Liège category=Snack limit=3]
         const parts = content.split(/\[PLACES\s+(.*?)\]/g);
 
         return (
-            <div className="space-y-8">
+            <div className="space-y-8 text-gray-800 leading-relaxed">
                 {parts.map((part, index) => {
-                    // Even indices are regular text/HTML
                     if (index % 2 === 0) {
                         if (!part.trim()) return null;
                         return (
-                            <div key={index} dangerouslySetInnerHTML={{ __html: part }} className="whitespace-pre-line" />
+                            <div key={index} dangerouslySetInnerHTML={{ __html: part }} />
                         );
                     }
 
-                    // Odd indices are the captured "args" string (e.g. "city=Liège category=Snack")
                     const args = part.split(/\s+/).reduce((acc, curr) => {
                         const [key, value] = curr.split('=');
-                        if (key && value) acc[key] = value.replace(/['"]/g, ''); // Simple cleanup
+                        if (key && value) acc[key] = value.replace(/['"]/g, '');
                         return acc;
                     }, {});
 
-                    // Filter Places based on args
                     const filteredPlaces = places.filter(p => {
                         if (p.validationStatus !== 'approved') return false;
                         if (args.city && p.city !== args.city) return false;
-                        if (args.category === 'Snack' && p.category !== 'Snack' && !p.tags?.includes('Snack')) return false; // Relaxed check for Snack
+                        if (args.category === 'Snack' && p.category !== 'Snack' && !p.tags?.includes('Snack')) return false;
                         if (args.category && args.category !== 'Snack' && p.category !== args.category) return false;
                         return true;
                     }).slice(0, args.limit ? parseInt(args.limit) : 5);
 
-                    if (filteredPlaces.length === 0) {
-                        return (
-                            <div key={index} className="p-4 bg-gray-50 rounded-xl text-center text-gray-400 italic text-sm">
-                                Aucun lieu trouvé pour ces critères ({part}).
-                            </div>
-                        );
-                    }
+                    if (filteredPlaces.length === 0) return null;
 
                     return (
-                        <div key={index} className="my-8">
-                            <h3 className="text-xl font-bold text-brand-dark mb-6 flex items-center gap-2">
-                                <MapPin className="text-brand-orange" />
-                                Sélection FlavorQuest : {args.city || 'Nos coups de cœur'}
+                        <div key={index} className="my-10 bg-gray-50 rounded-2xl p-8 border border-gray-100 shadow-sm not-prose">
+                            <h3 className="text-lg font-bold text-brand-dark mb-6 flex items-center gap-2">
+                                <div className="p-1.5 bg-brand-orange text-white rounded-md">
+                                    <MapPin size={18} />
+                                </div>
+                                Sélection : {args.city || 'Nos coups de cœur'}
                             </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 not-prose">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {filteredPlaces.map(place => (
                                     <PlaceCard key={place.id} {...place} />
                                 ))}
@@ -169,177 +154,183 @@ const BlogArticle = () => {
     };
 
     return (
-        <div className="min-h-screen bg-white pb-20">
-            {/* Reading Progress Bar */}
+        <div className="min-h-screen bg-white pb-20 font-sans text-brand-dark selection:bg-brand-orange/20">
+            {/* Reading Progress */}
             <motion.div
-                className="fixed top-0 left-0 right-0 h-1.5 bg-brand-orange z-50 origin-left"
+                className="fixed top-0 left-0 right-0 h-1 bg-brand-orange z-50 origin-left"
                 style={{ scaleX }}
             />
 
-            <SEO
-                title={article.title}
-                description={article.excerpt}
-                image={article.image}
-                schema={schema}
-                type="article"
-                breadcrumbs={breadcrumbs}
-            />
+            <SEO title={article.title} description={article.excerpt} image={article.image} schema={schema} type="article" breadcrumbs={breadcrumbs} />
 
-            {/* Immersive Header */}
-            <div className="relative h-[50vh] min-h-[400px]">
+            {/* V2 Header: Image Only (Reduced Height + Gradient) */}
+            <div className="relative w-full h-[40vh] md:h-[400px] bg-gray-100 group">
                 <img src={article.image} alt={article.title} className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/30"></div>
+                <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/30 to-transparent"></div>
 
-                <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-between p-6 md:p-10 max-w-4xl mx-auto">
-                    <Link to="/blog" className="self-start text-white/80 hover:text-white flex items-center gap-2 transition-colors mb-4 bg-black/20 backdrop-blur px-3 py-1.5 rounded-full">
-                        <ChevronLeft size={20} /> Retour
-                    </Link>
+                <Link to="/blog" className="absolute top-6 left-6 text-white hover:text-white flex items-center gap-2 transition-colors bg-black/40 backdrop-blur-md px-4 py-2 rounded-full text-sm font-medium hover:bg-black/60 opacity-90 hover:opacity-100">
+                    <ChevronLeft size={18} /> Retour
+                </Link>
+            </div>
 
-                    <div className="space-y-4 animate-fade-in-up">
-                        <div className="flex flex-wrap gap-2">
-                            <span className="bg-brand-orange text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
-                                {article.category}
+            {/* NEW LOCATION: Header Info - Overlap Card */}
+            <div className="max-w-5xl mx-auto px-6 relative z-10 -mt-32">
+                <div className="bg-white rounded-3xl p-8 md:p-12 shadow-xl border border-gray-100 text-center">
+                    <div className="flex items-center justify-center gap-3 mb-6">
+                        <span className="bg-orange-50 text-brand-orange px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                            {article.category}
+                        </span>
+                        {article.city && (
+                            <span className="text-gray-400 text-xs font-bold uppercase tracking-wider flex items-center gap-1">
+                                • {article.city}
                             </span>
-                            {article.city && (
-                                <span className="bg-white/20 backdrop-blur text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1">
-                                    <MapPin size={12} /> {article.city}
-                                </span>
-                            )}
-                        </div>
+                        )}
+                    </div>
 
-                        <h1 className="text-3xl md:text-5xl font-bold text-white leading-tight">
-                            {article.title}
-                        </h1>
+                    <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-8 font-serif">
+                        {article.title}
+                    </h1>
 
-                        <div className="flex items-center flex-wrap gap-6 text-white/80 text-sm font-medium border-t border-white/20 pt-4 mt-4">
-                            <span className="flex items-center gap-2">
-                                <User size={16} /> {article.author}
-                            </span>
-                            <span className="flex items-center gap-2">
-                                <Calendar size={16} /> {new Date(article.date).toLocaleDateString()}
-                            </span>
-                            <span className="flex items-center gap-2">
-                                <Clock size={16} /> {article.readTime}
-                            </span>
-
-                            <div className="flex items-center gap-3 ml-auto">
-                                <button
-                                    onClick={handleLike}
-                                    className={`flex items-center gap-2 px-3 py-1 rounded-full transition-all duration-300 ${isLiked ? 'bg-red-500 text-white' : 'bg-white/20 hover:bg-white/30 text-white'} ${animateLike ? 'scale-125' : 'scale-100'}`}
-                                >
-                                    <Heart size={16} className={isLiked ? 'fill-current' : ''} />
-                                    <span>{article.likes || 0}</span>
-                                </button>
-                                <button
-                                    onClick={handleShare}
-                                    className="p-2 bg-white/20 hover:bg-white/30 rounded-full text-white transition-colors"
-                                    title="Partager"
-                                >
-                                    <Share2 size={18} />
-                                </button>
+                    <div className="flex items-center justify-center gap-6 text-gray-500 text-sm">
+                        <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-full bg-gray-200 overflow-hidden">
+                                <div className="w-full h-full bg-gradient-to-br from-brand-orange to-brand-yellow flex items-center justify-center text-white font-bold text-xs">
+                                    {article.author.charAt(0)}
+                                </div>
                             </div>
+                            <span className="font-medium text-gray-900">{article.author}</span>
                         </div>
+                        <span>•</span>
+                        <span className="flex items-center gap-1"><Calendar size={14} /> {new Date(article.date).toLocaleDateString()}</span>
+                        <span>•</span>
+                        <span className="flex items-center gap-1"><Clock size={14} /> {article.readTime}</span>
                     </div>
                 </div>
             </div>
 
             <main className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 lg:grid-cols-12 gap-12">
-                {/* Article Content */}
 
+                {/* Floating Sidebar Actions (Desktop) */}
+                <aside className="hidden lg:block lg:col-span-1 h-full pt-4">
+                    <div className="sticky top-40 flex flex-col gap-6 items-center">
+                        <button
+                            onClick={handleLike}
+                            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-sm hover:scale-110 border border-gray-100 ${isLiked ? 'bg-red-50 text-red-500 border-red-100' : 'bg-white text-gray-400 hover:text-red-500'}`}
+                            title="J'aime"
+                        >
+                            <Heart size={20} className={isLiked ? 'fill-current' : ''} />
+                            {animateLike && <span className="absolute -top-8 text-sm font-bold text-red-500 animate-slide-up">+1</span>}
+                        </button>
+                        <span className="text-xs font-bold text-gray-400 -mt-4">{article.likes || 0}</span>
 
-                // ... (rest of render)
+                        <div className="w-8 h-px bg-gray-200"></div>
 
-                return (
-                // ...
-                <article className="lg:col-span-8 prose prose-lg prose-orange max-w-none text-gray-800">
-                    <p className="lead text-xl text-gray-600 font-medium mb-8 border-l-4 border-brand-orange pl-6 italic">
-                        {article.excerpt}
-                    </p>
+                        <button
+                            onClick={handleShare}
+                            className="w-10 h-10 rounded-full bg-white border border-gray-100 text-gray-400 flex items-center justify-center transition-all shadow-sm hover:scale-110 hover:text-brand-dark hover:border-gray-300"
+                            title="Partager"
+                        >
+                            <Share2 size={18} />
+                        </button>
 
-                    {/* Render Smart Content */}
-                    {renderContent(article.content)}
+                        {/* Facebook Share Button */}
+                        <a
+                            href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-10 h-10 rounded-full bg-blue-50 text-[#1877F2] border border-blue-100 flex items-center justify-center transition-all shadow-sm hover:scale-110 hover:bg-[#1877F2] hover:text-white"
+                            title="Partager sur Facebook"
+                        >
+                            <Facebook size={18} />
+                        </a>
+                    </div>
+                </aside>
+
+                {/* Main Content Area */}
+                <article className="lg:col-span-7">
+
+                    {/* Content */}
+                    <div className={`prose prose-lg prose-slate max-w-none prose-headings:font-bold prose-headings:text-gray-900 prose-p:text-gray-600 prose-img:rounded-2xl prose-img:shadow-sm prose-lead:text-xl prose-lead:font-normal prose-lead:text-gray-500 ${article.hasDropCap ? 'prose-p:first-of-type:first-letter:float-left prose-p:first-of-type:first-letter:text-7xl prose-p:first-of-type:first-letter:pr-4 prose-p:first-of-type:first-letter:font-bold prose-p:first-of-type:first-letter:text-brand-orange prose-p:first-of-type:first-letter:leading-none' : ''}`}>
+                        {/* Excerpt as Lead Paragraph with Drop Cap applied via classes above */}
+                        <p className="lead border-l-4 border-brand-orange pl-6 italic mb-10 text-gray-700">
+                            {article.excerpt}
+                        </p>
+
+                        {renderContent(article.content)}
+                    </div>
+
+                    {/* Mobile Action Bar (Sticky Bottom) */}
+                    <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-4 bg-white/90 backdrop-blur-md px-6 py-3 rounded-full shadow-xl border border-gray-100 ring-1 ring-black/5">
+                        <button
+                            onClick={handleLike}
+                            className={`flex items-center gap-2 px-3 py-1 rounded-full font-bold transition-all ${isLiked ? 'text-red-500 bg-red-50' : 'text-gray-600'}`}
+                        >
+                            <Heart size={20} className={isLiked ? 'fill-current' : ''} />
+                            {article.likes || 0}
+                        </button>
+                        <div className="w-px h-4 bg-gray-300"></div>
+                        <button onClick={handleShare} className="text-gray-600">
+                            <Share2 size={20} />
+                        </button>
+                    </div>
+
+                    {/* Author Bio Simple */}
+                    <div className="mt-16 pt-10 border-t border-gray-100 flex items-center gap-4">
+                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-brand-orange to-brand-yellow flex items-center justify-center text-white text-xl font-bold shadow-sm">
+                            {article.author.charAt(0)}
+                        </div>
+                        <div>
+                            <p className="text-sm text-gray-400 uppercase font-bold tracking-wider mb-1">Écrit par</p>
+                            <h3 className="font-bold text-lg text-gray-900">{article.author}</h3>
+                        </div>
+                    </div>
                 </article>
 
-                {/* Sidebar: Related Places */}
-                <aside className="lg:col-span-4 space-y-8">
-                    {/* Share Box */}
-                    <div className="bg-orange-50 rounded-3xl p-6 md:p-8">
-                        <h3 className="text-lg font-bold text-brand-dark mb-4">Partager cet article</h3>
-                        <div className="flex gap-4">
-                            <button onClick={handleShare} className="flex-1 bg-white border border-gray-100 py-2 rounded-xl flex items-center justify-center text-gray-600 hover:text-brand-orange hover:shadow-sm transition-all">
-                                <Share2 size={20} />
-                            </button>
-                            <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`} target="_blank" rel="noopener noreferrer" className="flex-1 bg-[#1877F2]/10 border border-[#1877F2]/20 py-2 rounded-xl flex items-center justify-center text-[#1877F2] hover:bg-[#1877F2] hover:text-white transition-all">
-                                <Facebook size={20} />
-                            </a>
-                            <a href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(article.title)}`} target="_blank" rel="noopener noreferrer" className="flex-1 bg-[#1DA1F2]/10 border border-[#1DA1F2]/20 py-2 rounded-xl flex items-center justify-center text-[#1DA1F2] hover:bg-[#1DA1F2] hover:text-white transition-all">
-                                <Twitter size={20} />
-                            </a>
-                        </div>
-                    </div>
-
-                    {relatedPlaces.length > 0 && (
-                        <div className="bg-gray-50 rounded-3xl p-6 md:p-8 sticky top-24">
-                            <h3 className="text-xl font-bold text-brand-dark mb-6 flex items-center gap-2">
-                                <MapPin className="text-brand-orange" />
-                                Lieux cités
-                            </h3>
-                            <div className="space-y-6">
-                                {relatedPlaces.map(place => (
-                                    <div key={place.id} className="scale-95 hover:scale-100 transition-transform">
-                                        <PlaceCard {...place} />
-                                    </div>
-                                ))}
+                {/* Sidebar Right (Related) */}
+                <aside className="lg:col-span-4 space-y-10 lg:pl-12 lg:border-l lg:border-gray-100">
+                    <div className="sticky top-32 space-y-12">
+                        {relatedPlaces.length > 0 && (
+                            <div>
+                                <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2 text-sm uppercase tracking-wider">
+                                    <MapPin size={16} className="text-brand-orange" />
+                                    Lieux cités
+                                </h3>
+                                <div className="space-y-4">
+                                    {relatedPlaces.map(place => (
+                                        <div key={place.id} className="hover:bg-gray-50 p-2 -m-2 rounded-xl transition-colors">
+                                            <PlaceCard {...place} compact />
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        )}
+
+                        {moreArticles.length > 0 && (
+                            <div>
+                                <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2 text-sm uppercase tracking-wider">
+                                    <ArrowRight size={16} className="text-brand-orange" />
+                                    À lire aussi
+                                </h3>
+                                <div className="space-y-6">
+                                    {moreArticles.map(art => (
+                                        <Link key={art.id} to={`/blog/${art.slug}`} className="group flex gap-4 items-start">
+                                            <div className="w-24 h-20 rounded-lg overflow-hidden shrink-0 bg-gray-100">
+                                                <img src={art.image} alt={art.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-bold text-gray-800 text-sm leading-snug group-hover:text-brand-orange transition-colors line-clamp-2 mb-1">
+                                                    {art.title}
+                                                </h4>
+                                                <span className="text-xs text-gray-400 capitalize">{art.category}</span>
+                                            </div>
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </aside>
             </main>
-
-            {/* Read Also Section */}
-            {moreArticles.length > 0 && (
-                <section className="bg-gray-50 py-16">
-                    <div className="max-w-7xl mx-auto px-6">
-                        <h2 className="text-2xl font-bold text-gray-900 mb-8 flex items-center gap-2">
-                            <span className="w-1 h-8 bg-brand-orange rounded-full"></span>
-                            À lire aussi dans "{article.category}"
-                        </h2>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                            {/* We import BlogCard dynamically or duplicate simple card logic? 
-                                Ideally use BlogCard component. I need to make sure BlogCard is imported.
-                                Since I am replacing the whole file content block, I can't easily check imports.
-                                Assuming I need to check imports first. 
-                                Actually, I am replacing the COMPONENT code, but the imports are at the top.
-                                I am replacing from `const BlogArticle` down to `export default`.
-                                I need to import BlogCard.
-                            */}
-                            {moreArticles.map(art => (
-                                <Link key={art.id} to={`/blog/${art.slug}`} className="group block bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
-                                    <div className="h-48 overflow-hidden relative">
-                                        <img src={art.image} alt={art.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                                        <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-brand-dark">
-                                            {art.category}
-                                        </div>
-                                    </div>
-                                    <div className="p-6">
-                                        <div className="flex items-center gap-2 text-xs text-gray-400 mb-3">
-                                            <Calendar size={12} /> {new Date(art.date).toLocaleDateString()}
-                                            <span>•</span>
-                                            <Clock size={12} /> {art.readTime}
-                                        </div>
-                                        <h3 className="font-bold text-gray-800 text-lg mb-2 group-hover:text-brand-orange transition-colors line-clamp-2">
-                                            {art.title}
-                                        </h3>
-                                        <p className="text-gray-500 text-sm line-clamp-2">
-                                            {art.excerpt}
-                                        </p>
-                                    </div>
-                                </Link>
-                            ))}
-                        </div>
-                    </div>
-                </section>
-            )}
         </div>
     );
 };

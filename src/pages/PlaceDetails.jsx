@@ -8,9 +8,11 @@ import { checkIsOpen } from '../utils/hours';
 import SEO from '../components/SEO';
 import ReviewForm from '../components/ReviewForm';
 
+import PageLoader from '../components/PageLoader';
+
 const PlaceDetails = () => {
     const { slug, city, category } = useParams();
-    const { places, addReview } = usePlaces();
+    const { places, addReview, isLoading } = usePlaces();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -31,6 +33,10 @@ const PlaceDetails = () => {
             }
         }
     }, [place, location.pathname, navigate]);
+
+    if (isLoading) {
+        return <PageLoader />;
+    }
 
     if (!place) {
         return <div className="text-center py-20">Lieu introuvable</div>;

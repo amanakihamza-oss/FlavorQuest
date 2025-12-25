@@ -30,7 +30,8 @@ const CreateArticle = () => {
         altText: '',
         author: user?.displayName || 'Explorateur Anonyme',
         readTime: '',
-        relatedPlaceIds: []
+        relatedPlaceIds: [],
+        hasDropCap: false
     });
 
     const [imagePreview, setImagePreview] = useState(null);
@@ -255,6 +256,21 @@ const CreateArticle = () => {
                                             ) : null;
                                         })}
                                     </div>
+                                </div>
+
+                                {/* Options */}
+                                <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                                    <input
+                                        type="checkbox"
+                                        id="hasDropCap"
+                                        name="hasDropCap"
+                                        checked={formData.hasDropCap || false}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, hasDropCap: e.target.checked }))}
+                                        className="w-5 h-5 text-brand-orange border-gray-300 rounded focus:ring-brand-orange cursor-pointer"
+                                    />
+                                    <label htmlFor="hasDropCap" className="text-sm font-bold text-gray-700 cursor-pointer user-select-none">
+                                        Activer le style "Lettrine" (Grande première lettre)
+                                    </label>
                                 </div>
                             </div>
 

@@ -159,24 +159,35 @@ export const BlogProvider = ({ children }) => {
 
     const toggleArticleLike = async (id) => {
         const storageKey = `liked_article_${id}`;
-        const isLiked = localStorage.getItem(storageKey) === 'true';
+        // Sync update to localStorage immediately to prevent race conditions
+        const currentlyLiked = localStorage.getItem(storageKey) === 'true';
+        const newLikedState = !currentlyLiked;
+
+        if (newLikedState) {
+            localStorage.setItem(storageKey, 'true');
+        } else {
+            localStorage.removeItem(storageKey);
+        }
+
         const articleRef = doc(db, 'articles', id);
 
         try {
-            // Optimistic update logic would go here, but for simplicity we rely on Firestore live sync
-            // We use 'increment' from firestore to handle concurrent updates
+            // Async Firestore update
             const { increment } = await import('firebase/firestore');
 
-            if (isLiked) {
+            if (currentlyLiked) {
                 await updateDoc(articleRef, { likes: increment(-1) });
-                localStorage.removeItem(storageKey);
             } else {
                 await updateDoc(articleRef, { likes: increment(1) });
-                localStorage.setItem(storageKey, 'true');
             }
         } catch (e) {
             console.error("Error toggling like: ", e);
+            // Revert localStorage if DB update fails (optional strategy, but keeps data safe)
+            if (newLikedState) localStorage.removeItem(storageKey);
+            else localStorage.setItem(storageKey, 'true');
         }
+
+        return newLikedState;
     };
 
     // Getters
