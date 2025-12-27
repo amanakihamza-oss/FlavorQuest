@@ -95,9 +95,12 @@ const prerender = async () => {
         console.log('✨ Prerendering complete!');
 
     } catch (e) {
-        console.error('Critical Prerender Error:', e);
+        console.error('⚠️ Prerendering Failed (This is expected on Vercel without system deps). Skipping...');
+        console.error(e.message);
+        // Do not fail the build
+        process.exit(0);
     } finally {
-        server.close();
+        if (server) server.close();
         process.exit(0);
     }
 };
