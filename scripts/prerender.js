@@ -72,7 +72,8 @@ const prerender = async () => {
                 // We use a safe wait that doesn't crash if selector is missing, but ensures dynamic content is there
                 // Strategy: Wait for H1 (present on all content pages) OR wait data-rh (Helmet)
                 try {
-                    await page.waitForSelector('h1', { timeout: 10000 });
+                    // Wait for H1 (present on all content pages) - Timeout extended for Firebase Cold Start
+                    await page.waitForSelector('h1', { timeout: 30000 });
                 } catch (e) {
                     console.log('⚠️ Timeout waiting for h1, checking if loading is stuck...');
                 }
@@ -80,8 +81,11 @@ const prerender = async () => {
                 // Explicitly wait for "Chargement..." to disappear if it exists
                 await page.waitForFunction(
                     () => !document.body.innerText.includes('Chargement...'),
-                    { timeout: 5000 }
+                    { timeout: 30000 }
                 ).catch(() => { });
+
+                // Small extra buffer for images/rendering
+                await new Promise(r => setTimeout(r, 1000));
 
                 const html = await page.content();
 
