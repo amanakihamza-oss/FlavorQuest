@@ -98,7 +98,7 @@ export const PlacesProvider = ({ children }) => {
         const unsubscribePlaces = onSnapshot(qPlaces, (snapshot) => {
             const placesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             setPlaces(placesData.length > 0 ? placesData : INITIAL_GEMS);
-            // setLoading(false); // Moved to the end of all listeners
+            setLoading(false); // Data is loaded
         });
 
         // Real-time Reviews listener
@@ -113,7 +113,7 @@ export const PlacesProvider = ({ children }) => {
             setClaims(claimsData);
         });
 
-        setLoading(false); // Set loading to false after all initial subscriptions are set up
+        // Removed synchronous setLoading(false)
         return () => {
             unsubscribePlaces();
             unsubscribeReviews();

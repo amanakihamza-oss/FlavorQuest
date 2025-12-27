@@ -300,7 +300,18 @@ const AdminDashboard = () => {
                                         <tr key={place.id} className="hover:bg-gray-50/50 transition-colors group">
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-3">
-                                                    <img src={place.image} alt="" className="w-12 h-12 rounded-lg object-cover shadow-sm bg-gray-100" />
+                                                    <img
+                                                        src={place.image}
+                                                        alt=""
+                                                        className="w-12 h-12 rounded-lg object-cover shadow-sm bg-gray-100"
+                                                        onError={(e) => {
+                                                            e.target.onerror = null;
+                                                            e.target.src = "/assets/logo-flavor-quest.png"; // Fallback
+                                                            e.target.parentElement.classList.add('bg-gray-100', 'p-2'); // Add padding for logo
+                                                            e.target.classList.remove('object-cover');
+                                                            e.target.classList.add('object-contain');
+                                                        }}
+                                                    />
                                                     <div>
                                                         <p className="font-bold text-brand-dark text-base">{place.name}</p>
                                                         <p className="text-xs text-gray-400 mt-0.5 max-w-[200px] truncate">{place.city} • {place.description || "Pas de description"}</p>
