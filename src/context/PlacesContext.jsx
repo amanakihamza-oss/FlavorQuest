@@ -113,8 +113,13 @@ export const PlacesProvider = ({ children }) => {
             setClaims(claimsData);
         });
 
-        // Removed synchronous setLoading(false)
+        // Failsafe: Force loading to false after 4s if Firebase hangs (e.g., Build Environment)
+        const safetyTimeout = setTimeout(() => {
+            setLoading(false);
+        }, 4000); // 4 seconds max wait for initial connection
+
         return () => {
+            clearTimeout(safetyTimeout);
             unsubscribePlaces();
             unsubscribeReviews();
             unsubscribeClaims();

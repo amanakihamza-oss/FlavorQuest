@@ -39,8 +39,8 @@ const prerender = async () => {
         res.sendFile(path.join(DIST_DIR, 'index.html'));
     });
 
-    const server = app.listen(3000, () => {
-        console.log('🚀 Local server started for prerendering on port 3000');
+    const server = app.listen(0, () => {
+        console.log(`🚀 Local server started for prerendering on port ${server.address().port}`);
     });
 
     try {
@@ -55,16 +55,18 @@ const prerender = async () => {
         const urls = getUrlsFromSitemap();
         console.log(`📋 Found ${urls.length} pages to prerender.`);
 
+        const port = server.address().port; // Get dynamic port
+
         for (const url of urls) {
             try {
                 // Convert absolute URL to local
-                const localUrl = url.replace('https://flavorquest.be', 'http://localhost:3000');
+                const localUrl = url.replace('https://flavorquest.be', `http://localhost:${port}`);
                 const relativePath = url.replace('https://flavorquest.be', '');
 
                 console.log(`Rendering: ${relativePath || '/'}...`);
 
                 await page.goto(localUrl, {
-                    waitUntil: 'networkidle0', // Wait until network is idle
+                    waitUntil: 'domcontentloaded', // Rely on explicit waits below instead of network idle
                     timeout: 60000
                 });
 
