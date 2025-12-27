@@ -65,12 +65,12 @@ async function generate() {
         const placesRef = collection(db, 'places');
         const querySnapshot = await getDocs(placesRef);
         let placeCount = 0;
+        const allPlaces = []; // Collect data for Static Injection
 
         querySnapshot.forEach(doc => {
             const data = doc.data();
             if (data.validationStatus === 'approved') {
-                // Generate SEO-friendly URL: /city/category/slug
-                // Fallback to legacy structure if critical data missing, but prioritize SEO structure
+                // Generate SEO-friendly URL
                 const citySlug = data.city ? slugifySimple(data.city) : 'inconnu';
                 const categorySlug = data.category ? slugifySimple(data.category) : 'divers';
                 const placeSlug = data.slug || generateSlug(data.name, data.city);
@@ -78,9 +78,34 @@ async function generate() {
                 const loc = `${BASE_URL}/${citySlug}/${categorySlug}/${placeSlug}`;
                 urls.push(loc);
                 placeCount++;
+
+                // Add to static data collection (include ID)
+                allPlaces.push({ id: doc.id, ...data });
             }
         });
         console.log(`Added ${placeCount} places.`);
+
+        // --- STATIC DATA INJECTION ---
+        // Save places.json for instant hydration during Prerender/Client load
+        const dataDir = path.resolve('./public/data');
+        if (!fs.existsSync(dataDir)) {
+            fs.mkdirSync(dataDir, { recursive: true });
+        }
+
+        const jsonPath = path.join(dataDir, 'places.json');
+        fs.writeFileSync(jsonPath, JSON.stringify(allPlaces));
+        console.log(`✅ Static Data Injected: ${jsonPath} (${allPlaces.length} items)`);
+
+        // Also copy to dist if it exists (for immediate serving during this build)
+        const distDataDir = path.resolve('./dist/data');
+        if (fs.existsSync('./dist')) {
+            if (!fs.existsSync(distDataDir)) {
+                fs.mkdirSync(distDataDir, { recursive: true });
+            }
+            fs.writeFileSync(path.join(distDataDir, 'places.json'), JSON.stringify(allPlaces));
+            console.log(`✅ Static Data also copied to dist/data/places.json`);
+        }
+        // -----------------------------
 
         // Articles
         const articlesRef = collection(db, 'articles');

@@ -94,6 +94,22 @@ export const PlacesProvider = ({ children }) => {
 
     // Listen to Places, Reviews, and Claims from Firestore
     useEffect(() => {
+        // 1. Static Data Rehydration (Instant Load for Prerender/SEO)
+        const loadStaticData = async () => {
+            try {
+                const response = await fetch('/data/places.json');
+                if (response.ok) {
+                    const staticPlaces = await response.json();
+                    setPlaces(prev => prev.length === 0 ? staticPlaces : prev);
+                    setLoading(false); // Immediate unlock
+                }
+            } catch (e) {
+                console.warn("Static data load failed, waiting for Firestore...", e);
+            }
+        };
+        loadStaticData();
+
+        // 2. Real-time Firestore Sync (Progressive Enhancement)
         const qPlaces = query(collection(db, 'places'));
         const unsubscribePlaces = onSnapshot(qPlaces, (snapshot) => {
             const placesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
