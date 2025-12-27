@@ -41,12 +41,13 @@ const LocateControl = () => {
     };
 
     return (
-        <div className="leaflet-bottom leaflet-right !mb-4 mr-4 pointer-events-auto z-[1000]">
-            <div className="bg-white rounded-lg shadow-md hover:bg-gray-50 border border-gray-100 overflow-hidden">
+        <div className="absolute bottom-4 right-4 z-[9999]">
+            <div className="bg-white rounded-lg shadow-md hover:bg-gray-50 border border-gray-100 overflow-hidden pointer-events-auto">
                 <button
                     onClick={handleLocate}
                     className="p-2 text-brand-dark transition-colors flex items-center justify-center w-10 h-10"
                     title="Autour de moi"
+                    type="button"
                 >
                     <Crosshair size={20} />
                 </button>
@@ -69,12 +70,13 @@ const CustomZoomControl = () => {
     const map = useMap();
 
     return (
-        <div className="leaflet-bottom leaflet-right !mb-20 mr-4 flex flex-col gap-2 pointer-events-auto z-[1000]">
-            <div className="flex flex-col bg-white rounded-lg shadow-md overflow-hidden border border-gray-100">
+        <div className="absolute bottom-20 right-4 flex flex-col gap-2 z-[9999]">
+            <div className="flex flex-col bg-white rounded-lg shadow-md overflow-hidden border border-gray-100 pointer-events-auto">
                 <button
                     onClick={() => map.zoomIn()}
                     className="p-2 hover:bg-gray-50 text-brand-dark border-b border-gray-100 transition-colors w-10 h-10 flex items-center justify-center"
                     title="Zoom avant"
+                    type="button"
                 >
                     <span className="text-xl font-bold">+</span>
                 </button>
@@ -82,6 +84,7 @@ const CustomZoomControl = () => {
                     onClick={() => map.zoomOut()}
                     className="p-2 hover:bg-gray-50 text-brand-dark transition-colors w-10 h-10 flex items-center justify-center"
                     title="Zoom arrière"
+                    type="button"
                 >
                     <span className="text-xl font-bold">-</span>
                 </button>

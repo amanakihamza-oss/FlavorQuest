@@ -70,8 +70,18 @@ const prerender = async () => {
 
                 // Wait for a key element to ensure React rendered (e.g., SEO title or Root)
                 // We use a safe wait that doesn't crash if selector is missing, but ensures dynamic content is there
-                // Waiting for title to NOT be default is a good check
-                await page.waitForFunction(() => document.title !== "FlavorQuest - Guide des Pépites Culinaires", { timeout: 5000 }).catch(() => { });
+                // Strategy: Wait for H1 (present on all content pages) OR wait data-rh (Helmet)
+                try {
+                    await page.waitForSelector('h1', { timeout: 10000 });
+                } catch (e) {
+                    console.log('⚠️ Timeout waiting for h1, checking if loading is stuck...');
+                }
+
+                // Explicitly wait for "Chargement..." to disappear if it exists
+                await page.waitForFunction(
+                    () => !document.body.innerText.includes('Chargement...'),
+                    { timeout: 5000 }
+                ).catch(() => { });
 
                 const html = await page.content();
 
