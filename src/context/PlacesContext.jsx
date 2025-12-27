@@ -88,32 +88,37 @@ export const PlacesProvider = ({ children }) => {
     // For this transition, we will listen to 'places' collection.
 
     const [places, setPlaces] = useState([]);
-    const [firestoreReviews, setFirestoreReviews] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [reviews, setReviews] = useState([]);
+    const [claims, setClaims] = useState([]); // New Requests State
+    const [loading, setLoading] = useState(true);
 
-    // Listen to Places from Firestore
+    // Listen to Places, Reviews, and Claims from Firestore
     useEffect(() => {
-        const q = query(collection(db, 'places'));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
+        const qPlaces = query(collection(db, 'places'));
+        const unsubscribePlaces = onSnapshot(qPlaces, (snapshot) => {
             const placesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            // If Firestore is empty, we could fallback to mock, but let's prefer real data.
-            // If user has zero places, it will be empty. 
-            // For demo purposes, if strictly empty, maybe we merge mocks? 
-            // Let's just use real data to ensure specific "User submits -> Admin sees" workflow works robustly.
             setPlaces(placesData.length > 0 ? placesData : INITIAL_GEMS);
-            setIsLoading(false);
+            // setLoading(false); // Moved to the end of all listeners
         });
-        return () => unsubscribe();
-    }, []);
 
-    // Listen to Reviews
-    useEffect(() => {
-        const q = query(collection(db, 'reviews'));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
+        // Real-time Reviews listener
+        const unsubscribeReviews = onSnapshot(collection(db, 'reviews'), (snapshot) => {
             const reviewsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            setFirestoreReviews(reviewsData);
+            setReviews(reviewsData);
         });
-        return () => unsubscribe();
+
+        // Real-time Claims listener
+        const unsubscribeClaims = onSnapshot(collection(db, 'claim_requests'), (snapshot) => {
+            const claimsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setClaims(claimsData);
+        });
+
+        setLoading(false); // Set loading to false after all initial subscriptions are set up
+        return () => {
+            unsubscribePlaces();
+            unsubscribeReviews();
+            unsubscribeClaims();
+        };
     }, []);
 
     const INITIAL_FILTERS = [
@@ -143,7 +148,7 @@ export const PlacesProvider = ({ children }) => {
 
     // Merge Logic (remains mostly same, but ensures places have data)
     const placesWithRatings = places.map(place => {
-        const realReviews = firestoreReviews.filter(r => r.placeId === place.id);
+        const realReviews = reviews.filter(r => r.placeId === place.id);
         if (realReviews.length === 0) return place;
 
         const initialReviewsCount = place.reviews || 0;
@@ -290,7 +295,7 @@ export const PlacesProvider = ({ children }) => {
 
     const getUserReviewCount = (userName) => {
         if (!userName) return 0;
-        return firestoreReviews.filter(r => r.author === userName).length;
+        return reviews.filter(r => r.author === userName).length;
     };
 
     const deleteReview = async (reviewId) => {
@@ -302,13 +307,39 @@ export const PlacesProvider = ({ children }) => {
         }
     };
 
+    const approveClaim = async (claimId) => {
+        try {
+            await updateDoc(doc(db, 'claim_requests', claimId), { status: 'approved' });
+        } catch (error) {
+            console.error("Error approving claim:", error);
+        }
+    };
+
+    const rejectClaim = async (claimId) => {
+        try {
+            await updateDoc(doc(db, 'claim_requests', claimId), { status: 'rejected' });
+        } catch (error) {
+            console.error("Error rejecting claim:", error);
+        }
+    };
+
+    const deleteClaim = async (claimId) => {
+        try {
+            await deleteDoc(doc(db, 'claim_requests', claimId));
+        } catch (error) {
+            console.error("Error deleting claim:", error);
+        }
+    };
+
     return (
         <PlacesContext.Provider value={{
             places: placesWithRatings, // Expose the computed places
-            reviews: firestoreReviews, // Expose raw reviews for Admin Dashboard
+            reviews, // Expose raw reviews for Admin Dashboard
+            claims, // Expose claims
             addPlace, updatePlace, approvePlace, rejectPlace, reviewPlace, deletePlace, sendFeedback, addReview, deleteReview,
             filters, addFilter, deleteFilter,
-            getUserReviewCount, migrateSlugs, isLoading
+            approveClaim, rejectClaim, deleteClaim,
+            getUserReviewCount, migrateSlugs, isLoading: loading
         }}>
             {children}
         </PlacesContext.Provider>

@@ -104,6 +104,13 @@ const PlaceDetails = () => {
                     src={place.image}
                     alt={`Plat ${place.category} chez ${place.name} à ${place.city || 'Namur'}`}
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = '/logo.png';
+                        e.target.style.objectFit = 'contain';
+                        e.target.style.padding = '40px';
+                        e.target.style.backgroundColor = '#f8f9fa';
+                    }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
 

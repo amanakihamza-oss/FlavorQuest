@@ -36,7 +36,9 @@ const EditPlaceModal = ({ isOpen, onClose, place }) => {
         image: '',
         tags: [],
         priceLevel: '€€',
-        phone: ''
+        phone: '',
+        lat: '',
+        lng: ''
     });
 
     useEffect(() => {
@@ -53,7 +55,9 @@ const EditPlaceModal = ({ isOpen, onClose, place }) => {
                 image: place.image || '',
                 tags: place.tags || [],
                 priceLevel: place.priceLevel || '€€',
-                phone: place.phone || ''
+                phone: place.phone || '',
+                lat: place.lat || '',
+                lng: place.lng || ''
             });
         }
     }, [place]);
@@ -248,6 +252,56 @@ const EditPlaceModal = ({ isOpen, onClose, place }) => {
                                             <span className="text-sm font-medium">Cliquez pour ajouter une photo</span>
                                         </div>
                                     )}
+                                </div>
+                            </div>
+
+                            {/* Location Info */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                <div className="lg:col-span-2">
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">Adresse</label>
+                                    <input
+                                        type="text"
+                                        name="address"
+                                        value={formData.address}
+                                        onChange={handleChange}
+                                        className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
+                                        placeholder="Rue de Fer 26"
+                                    />
+                                </div>
+                                <div className="lg:col-span-2">
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">Ville</label>
+                                    <input
+                                        type="text"
+                                        name="city"
+                                        value={formData.city}
+                                        onChange={handleChange}
+                                        className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
+                                        placeholder="Namur"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">Latitude</label>
+                                    <input
+                                        type="number"
+                                        step="any"
+                                        name="lat"
+                                        value={formData.lat}
+                                        onChange={handleChange}
+                                        className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20 text-gray-500"
+                                        placeholder="50.4674"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">Longitude</label>
+                                    <input
+                                        type="number"
+                                        step="any"
+                                        name="lng"
+                                        value={formData.lng}
+                                        onChange={handleChange}
+                                        className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20 text-gray-500"
+                                        placeholder="4.8720"
+                                    />
                                 </div>
                             </div>
 

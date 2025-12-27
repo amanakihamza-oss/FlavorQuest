@@ -29,7 +29,7 @@ const Hero = () => {
                 <img
                     src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=60&w=1200&auto=format&fit=crop"
                     alt="Delicious Food"
-                    fetchPriority="high"
+                    fetchpriority="high"
                     loading="eager"
                     className="w-full h-full object-cover opacity-60"
                 />

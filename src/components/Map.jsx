@@ -139,29 +139,38 @@ const Map = ({ places }) => {
                             position={[place.lat, place.lng]}
                             icon={createCustomIcon(place.name)}
                         >
-                            <Popup className="custom-popup">
-                                <div className="min-w-[200px]">
-                                    <div className="relative h-24 mb-2 overflow-hidden rounded-t-lg">
-                                        <img src={place.image} alt={place.name} className="w-full h-full object-cover" />
-                                        <div className="absolute top-2 right-2 bg-white/90 backdrop-blur px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider text-brand-orange">
+                            <Popup className="custom-popup" closeButton={false}>
+                                <div className="w-[260px] p-0 font-sans">
+                                    <Link to={place.slug ? `/place/${place.slug}` : `/place/${place.id}`} className="block relative h-36 group overflow-hidden">
+                                        <img
+                                            src={place.image}
+                                            alt={place.name}
+                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                        />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-60"></div>
+                                        <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider text-brand-orange shadow-sm">
                                             {place.category === 'Snack' ? 'Fast Food' : place.category}
                                         </div>
-                                    </div>
-                                    <h3 className="font-bold text-gray-900 text-sm mb-1">{place.name}</h3>
-                                    <div className="flex justify-between items-center mt-2">
-                                        <div className="flex flex-col gap-0.5 text-xs text-gray-500">
-                                            <div className="flex items-center gap-1">
-                                                <MapPin size={10} />
-                                                <span className="font-bold">{place.city || 'Namur'}</span>
+                                    </Link>
+
+                                    <div className="p-4 bg-white">
+                                        <div className="flex justify-between items-start mb-1">
+                                            <h3 className="font-exrabold text-brand-dark text-lg leading-tight line-clamp-1">{place.name}</h3>
+                                            <div className="flex items-center gap-1 text-xs font-bold text-yellow-600 bg-yellow-50 px-1.5 py-0.5 rounded-md">
+                                                <span>★</span> {place.rating || '4.5'}
                                             </div>
-                                            {place.address && (
-                                                <p className="pl-3.5 text-gray-400 line-clamp-1" title={place.address}>
-                                                    {place.address}
-                                                </p>
-                                            )}
                                         </div>
-                                        <Link to={place.slug ? `/place/${place.slug}` : `/place/${place.id}`} className="text-xs bg-brand-dark text-white px-3 py-1.5 rounded-full font-bold hover:bg-black transition-colors">
-                                            Voir
+
+                                        <div className="flex items-center gap-1.5 text-gray-500 text-xs mb-4">
+                                            <MapPin size={12} className="shrink-0 text-brand-orange" />
+                                            <span className="line-clamp-1">{place.address || place.city || 'Namur'}</span>
+                                        </div>
+
+                                        <Link
+                                            to={place.slug ? `/place/${place.slug}` : `/place/${place.id}`}
+                                            className="block w-full text-center py-2.5 rounded-xl bg-brand-dark text-white font-bold text-sm transition-all hover:bg-brand-orange hover:shadow-lg hover:shadow-orange-500/20 active:scale-95"
+                                        >
+                                            Voir la fiche
                                         </Link>
                                     </div>
                                 </div>
