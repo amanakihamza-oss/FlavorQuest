@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search as SearchIcon, MapPin, SlidersHorizontal, ArrowRight, X, TrendingUp, Clock, ChevronDown, Award } from 'lucide-react';
-import { motion, AnimatePresence, useScroll, useMotionValueEvent, useMotionValue, animate } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { usePlaces } from '../context/PlacesContext';
 import PlaceCard from '../components/PlaceCard';
 import FilterBar from '../components/FilterBar';
@@ -266,23 +266,10 @@ const Search = () => {
         return () => document.removeEventListener('click', handleClickOutside);
     }, []);
 
-    // Scroll Detection for Smart Header (Performance Optimized)
-    const { scrollY } = useScroll();
-    const headerY = useMotionValue(0);
-
-    useMotionValueEvent(scrollY, "change", (latest) => {
-        const previous = scrollY.getPrevious();
-        const diff = latest - previous;
-
-        // Hide if scrolling down AND past 100px
-        if (diff > 10 && latest > 100) {
-            animate(headerY, -200, { duration: 0.4, ease: [0.33, 1, 0.68, 1] }); // Cubic bezier for smooth feel
-        }
-        // Show if scrolling up OR at the very top
-        else if (diff < -5 || latest < 100) {
-            animate(headerY, 0, { duration: 0.4, ease: [0.33, 1, 0.68, 1] });
-        }
-    });
+    // Scroll Detection Removed - Sticky Header is now static
+    // const { scrollY } = useScroll();
+    // const headerY = useMotionValue(0);
+    // useMotionValueEvent(scrollY, "change", (latest) => { ... });
 
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
@@ -293,8 +280,7 @@ const Search = () => {
 
             {/* Smart Header & Advanced Search Controls */}
             <motion.div
-                className="bg-white sticky top-0 md:top-[64px] z-30 border-b border-gray-100 shadow-sm pt-4 pb-0 px-6"
-                style={{ y: headerY }} // Direct hardware accelerated transform
+                className="bg-white border-b border-gray-100 shadow-sm pt-4 pb-0 px-6"
             >
                 <div className="max-w-4xl mx-auto space-y-4">
 

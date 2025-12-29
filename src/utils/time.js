@@ -89,3 +89,43 @@ export const getFormattedHours = (openingHours) => {
         return { day: label, hours: hoursStr, isToday: getCurrentDayKey() === key };
     });
 };
+
+export const getSchemaOpeningHours = (openingHours) => {
+    if (!openingHours || typeof openingHours !== 'object') return [];
+
+    const DAY_MAP = {
+        monday: 'Monday',
+        tuesday: 'Tuesday',
+        wednesday: 'Wednesday',
+        thursday: 'Thursday',
+        friday: 'Friday',
+        saturday: 'Saturday',
+        sunday: 'Sunday'
+    };
+
+    const specs = [];
+
+    Object.entries(openingHours).forEach(([key, schedule]) => {
+        if (schedule && !schedule.closed && DAY_MAP[key]) {
+            if (schedule.ranges) {
+                schedule.ranges.forEach(range => {
+                    specs.push({
+                        "@type": "OpeningHoursSpecification",
+                        "dayOfWeek": DAY_MAP[key],
+                        "opens": range.open,
+                        "closes": range.close
+                    });
+                });
+            } else if (schedule.open && schedule.close) {
+                specs.push({
+                    "@type": "OpeningHoursSpecification",
+                    "dayOfWeek": DAY_MAP[key],
+                    "opens": schedule.open,
+                    "closes": schedule.close
+                });
+            }
+        }
+    });
+
+    return specs;
+};

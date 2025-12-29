@@ -5,6 +5,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import LanguageSwitcher from './LanguageSwitcher';
 import Footer from './Footer';
+import BackToTopButton from './BackToTopButton';
 
 const Layout = () => {
     const { t } = useLanguage();
@@ -74,6 +75,8 @@ const Layout = () => {
             </main>
 
             <Footer />
+
+            <BackToTopButton />
 
             {/* Mobile Bottom Navigation */}
             <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 px-6 py-3 flex justify-between items-center safe-area-bottom">

@@ -14,6 +14,7 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
         image: '',
         author: '',
         date: '',
+        tags: [],
         relatedPlaceIds: []
     });
 
@@ -25,6 +26,7 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
                 image: article.image || '',
                 author: article.author || '',
                 date: article.date || '',
+                tags: article.tags || [],
                 hasDropCap: article.hasDropCap || false,
                 relatedPlaceIds: article.relatedPlaceIds || []
             });
@@ -34,6 +36,12 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleTagsChange = (e) => {
+        const tagsString = e.target.value;
+        const tagsArray = tagsString.split(',').map(t => t.trim()).filter(t => t.length > 0);
+        setFormData(prev => ({ ...prev, tags: tagsArray }));
     };
 
     const handleContentChange = (content) => {
@@ -113,6 +121,18 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
                                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
                             />
                         </div>
+                    </div>
+
+                    {/* SEO Keywords */}
+                    <div>
+                        <label className="block text-sm font-bold text-gray-700 mb-2">Mots-clés SEO (séparés par des virgules)</label>
+                        <input
+                            type="text"
+                            placeholder="Ex: Burger, Guide, Namur, Pas cher"
+                            value={formData.tags ? formData.tags.join(', ') : ''}
+                            onChange={handleTagsChange}
+                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
+                        />
                     </div>
 
                     {/* Linked Places */}

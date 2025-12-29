@@ -111,15 +111,35 @@ async function generate() {
         const articlesRef = collection(db, 'articles');
         const articlesSnap = await getDocs(articlesRef);
         let articleCount = 0;
+        const allArticles = []; // Collect data for Static Injection
+
         articlesSnap.forEach(doc => {
             const data = doc.data();
             if (data.status === 'approved') {
                 const loc = data.slug ? `${BASE_URL}/blog/${data.slug}` : `${BASE_URL}/blog/${doc.id}`;
                 urls.push(loc);
                 articleCount++;
+
+                // Add to static data collection (include ID)
+                allArticles.push({ id: doc.id, ...data });
             }
         });
         console.log(`Added ${articleCount} articles.`);
+
+        // --- STATIC DATA INJECTION (ARTICLES) ---
+        const articlesJsonPath = path.join(dataDir, 'articles.json');
+        fs.writeFileSync(articlesJsonPath, JSON.stringify(allArticles));
+        console.log(`✅ Static Data Injected: ${articlesJsonPath} (${allArticles.length} items)`);
+
+        if (fs.existsSync('./dist')) {
+            const distDataDir = path.resolve('./dist/data');
+            if (!fs.existsSync(distDataDir)) {
+                fs.mkdirSync(distDataDir, { recursive: true });
+            }
+            fs.writeFileSync(path.join(distDataDir, 'articles.json'), JSON.stringify(allArticles));
+            console.log(`✅ Static Data also copied to dist/data/articles.json`);
+        }
+        // ----------------------------------------
 
         // Define priorities and frequencies
         const getUrlConfig = (url) => {

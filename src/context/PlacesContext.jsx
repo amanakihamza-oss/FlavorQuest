@@ -91,6 +91,7 @@ export const PlacesProvider = ({ children }) => {
     const [reviews, setReviews] = useState([]);
     const [claims, setClaims] = useState([]); // New Requests State
     const [loading, setLoading] = useState(true);
+    const [isLive, setIsLive] = useState(false); // True only if Firestore snapshot has fired
 
     // Listen to Places, Reviews, and Claims from Firestore
     useEffect(() => {
@@ -101,7 +102,7 @@ export const PlacesProvider = ({ children }) => {
                 if (response.ok) {
                     const staticPlaces = await response.json();
                     setPlaces(prev => prev.length === 0 ? staticPlaces : prev);
-                    setLoading(false); // Immediate unlock
+                    setLoading(false); // Immediate unlock (displays content)
                 }
             } catch (e) {
                 console.warn("Static data load failed, waiting for Firestore...", e);
@@ -110,11 +111,13 @@ export const PlacesProvider = ({ children }) => {
         loadStaticData();
 
         // 2. Real-time Firestore Sync (Progressive Enhancement)
+        // Tracks if we have established a live connection with Firestore
         const qPlaces = query(collection(db, 'places'));
         const unsubscribePlaces = onSnapshot(qPlaces, (snapshot) => {
             const placesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             setPlaces(placesData.length > 0 ? placesData : INITIAL_GEMS);
             setLoading(false); // Data is loaded
+            setIsLive(true); // MARK AS LIVE: We are now synced with the real DB
         });
 
         // Real-time Reviews listener
@@ -132,6 +135,8 @@ export const PlacesProvider = ({ children }) => {
         // Failsafe: Force loading to false after 4s if Firebase hangs (e.g., Build Environment)
         const safetyTimeout = setTimeout(() => {
             setLoading(false);
+            // Note: We do NOT set isLive(true) here, because we aren't truly live.
+            // This prevents "Lieu introuvable" for new places if Firestore is just slow.
         }, 4000); // 4 seconds max wait for initial connection
 
         return () => {
@@ -360,7 +365,7 @@ export const PlacesProvider = ({ children }) => {
             addPlace, updatePlace, approvePlace, rejectPlace, reviewPlace, deletePlace, sendFeedback, addReview, deleteReview,
             filters, addFilter, deleteFilter,
             approveClaim, rejectClaim, deleteClaim,
-            getUserReviewCount, migrateSlugs, isLoading: loading
+            getUserReviewCount, migrateSlugs, isLoading: loading, isLive
         }}>
             {children}
         </PlacesContext.Provider>

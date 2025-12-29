@@ -27,7 +27,7 @@ const CATEGORIES = [
     {
         id: 'CoffeeShop',
         label: 'Coffee Shop',
-        image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?q=80&w=2157&auto=format&fit=crop',
+        image: 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=2071&auto=format&fit=crop', // Real Coffee Shop image
     },
     {
         id: 'Bar',

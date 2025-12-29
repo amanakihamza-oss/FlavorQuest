@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
-import { Star, MapPin, Clock, Phone, Globe, ChevronLeft, ShieldCheck, User } from 'lucide-react';
+import { Star, MapPin, Clock, Phone, Globe, ChevronLeft, ShieldCheck, User, Tag } from 'lucide-react';
 import { usePlaces } from '../context/PlacesContext';
-import { getFormattedHours } from '../utils/time';
+import { getFormattedHours, getSchemaOpeningHours } from '../utils/time';
 import { getPlaceUrl } from '../utils/url';
 import { checkIsOpen } from '../utils/hours';
 import SEO from '../components/SEO';
@@ -12,7 +12,7 @@ import PageLoader from '../components/PageLoader';
 
 const PlaceDetails = () => {
     const { slug, city, category } = useParams();
-    const { places, addReview, isLoading } = usePlaces();
+    const { places, addReview, isLoading, isLive } = usePlaces();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -38,7 +38,14 @@ const PlaceDetails = () => {
         return <PageLoader />;
     }
 
+    // Logic Fix: If place is missing, but we haven't synced with Real-time DB yet,
+    // don't show 404. It might be a brand new place. Wait for `isLive` to be true.
     if (!place) {
+        if (!isLive) {
+            // Still waiting for Firestore to confirm if it really exists or not
+            return <PageLoader />;
+        }
+        // Confirmed missing in both Static AND Live data
         return <div className="text-center py-20">Lieu introuvable</div>;
     }
 
@@ -49,9 +56,22 @@ const PlaceDetails = () => {
     };
 
     // Enhanced Schema Markup for Local SEO
+    const getSchemaType = (cat) => {
+        const types = {
+            'Restaurant': 'Restaurant',
+            'Brasserie': 'Restaurant',
+            'Snack': 'FastFoodRestaurant',
+            'CoffeeShop': 'CafeOrCoffeeShop',
+            'Bar': 'BarOrPub',
+            'Boulangerie': 'Bakery',
+            'Vegan': 'Restaurant'
+        };
+        return types[cat] || 'Restaurant';
+    };
+
     const schema = {
         "@context": "https://schema.org",
-        "@type": "Restaurant",
+        "@type": getSchemaType(place.category),
         "name": place.name,
         "image": [place.image],
         "description": place.description || `Découvrez ${place.name} à ${place.city || 'Namur'}.`,
@@ -68,9 +88,10 @@ const PlaceDetails = () => {
             "longitude": place.lng || 4.8720
         },
         "url": window.location.href,
-        "telephone": "+3281000000", // Mock
+        "telephone": place.phone || "+3200000000",
         "servesCuisine": place.category,
-        "priceRange": "€€",
+        "priceRange": place.priceLevel || "€€",
+        "openingHoursSpecification": getSchemaOpeningHours(place.openingHours),
         "aggregateRating": {
             "@type": "AggregateRating",
             "ratingValue": place.rating || 4.5,
@@ -231,6 +252,28 @@ const PlaceDetails = () => {
                             </div>
                         </div>
                     </div>
+
+
+                    {/* Tags Section */}
+                    {place.tags && place.tags.length > 0 && (
+                        <div className="bg-gray-50 rounded-2xl p-6">
+                            <h3 className="font-bold text-brand-dark mb-4 flex items-center gap-2">
+                                <Tag size={18} className="text-brand-orange" />
+                                Ambiance & Services
+                            </h3>
+                            <div className="flex flex-wrap gap-2">
+                                {place.tags.map(tag => (
+                                    <Link
+                                        key={tag}
+                                        to={`/search?q=${tag}`}
+                                        className="bg-white border border-gray-200 text-gray-600 px-3 py-1 rounded-full text-xs font-bold hover:bg-brand-orange hover:text-white hover:border-brand-orange transition-colors"
+                                    >
+                                        #{tag}
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                     {/* Admin Verification Badge - Mock */}
                     <div className="bg-green-50 rounded-2xl p-6 border border-green-100 flex items-start gap-3">

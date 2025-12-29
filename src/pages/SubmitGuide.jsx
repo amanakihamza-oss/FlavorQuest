@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Camera, MapPin, Tag, Plus, ArrowLeft, Lock, Send, ChevronRight, Check, PartyPopper } from 'lucide-react';
 import OpeningHoursInput from '../components/OpeningHoursInput';
 import { NavLink, useNavigate } from 'react-router-dom';
@@ -16,6 +16,13 @@ const SubmitGuide = () => {
     const [currentStep, setCurrentStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
+
+    // Scroll to top when success message appears
+    useEffect(() => {
+        if (showSuccess) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }, [showSuccess]);
 
     // Form state
     const [formData, setFormData] = useState({

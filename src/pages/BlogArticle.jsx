@@ -4,12 +4,13 @@ import { motion, useScroll, useSpring } from 'framer-motion';
 import { useBlog } from '../context/BlogContext';
 import { usePlaces } from '../context/PlacesContext';
 import PlaceCard from '../components/PlaceCard';
+import PageLoader from '../components/PageLoader';
 import SEO from '../components/SEO';
 import { Clock, Calendar, ChevronLeft, MapPin, Heart, Share2, Facebook, Twitter, ArrowRight } from 'lucide-react';
 
 const BlogArticle = () => {
     const { slug } = useParams();
-    const { getArticleBySlug, toggleArticleLike, articles } = useBlog();
+    const { getArticleBySlug, toggleArticleLike, articles, isLive } = useBlog();
     const { places } = usePlaces();
     const [isLiked, setIsLiked] = useState(false);
     const [animateLike, setAnimateLike] = useState(false);
@@ -64,7 +65,28 @@ const BlogArticle = () => {
         }
     };
 
+    // Scroll detection for Mobile Action Bar visibility
+    const [showMobileActions, setShowMobileActions] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            // Show actions only after scrolling past the header (approx 200px)
+            if (window.scrollY > 200) {
+                setShowMobileActions(true);
+            } else {
+                setShowMobileActions(false);
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
     if (!article) {
+        if (!isLive) {
+            // Still waiting for Firestore sync (New Article case)
+            return <PageLoader />;
+        }
         return <div className="text-center py-20">Article introuvable</div>;
     }
 
@@ -98,60 +120,14 @@ const BlogArticle = () => {
             "logo": { "@type": "ImageObject", "url": "https://flavorquest.be/logo.png" }
         },
         "datePublished": article.date,
+        "dateModified": article.date, // Idealement lastUpdated, mais date publié est le fallback
         "description": article.excerpt,
+        "articleBody": article.content?.replace(/<[^>]*>?/gm, "") || "", // Strip HTML for body
+        "keywords": article.tags ? article.tags.join(', ') : article.category,
         "mainEntityOfPage": { "@type": "WebPage", "@id": `https://flavorquest.be/blog/${slug}` }
     };
 
-    // --- Dynamic Content Parsing (Shortcodes) ---
-    const renderContent = (content) => {
-        if (!content) return null;
-        const parts = content.split(/\[PLACES\s+(.*?)\]/g);
-
-        return (
-            <div className="space-y-8 text-gray-800 leading-relaxed">
-                {parts.map((part, index) => {
-                    if (index % 2 === 0) {
-                        if (!part.trim()) return null;
-                        return (
-                            <div key={index} dangerouslySetInnerHTML={{ __html: part }} />
-                        );
-                    }
-
-                    const args = part.split(/\s+/).reduce((acc, curr) => {
-                        const [key, value] = curr.split('=');
-                        if (key && value) acc[key] = value.replace(/['"]/g, '');
-                        return acc;
-                    }, {});
-
-                    const filteredPlaces = places.filter(p => {
-                        if (p.validationStatus !== 'approved') return false;
-                        if (args.city && p.city !== args.city) return false;
-                        if (args.category === 'Snack' && p.category !== 'Snack' && !p.tags?.includes('Snack')) return false;
-                        if (args.category && args.category !== 'Snack' && p.category !== args.category) return false;
-                        return true;
-                    }).slice(0, args.limit ? parseInt(args.limit) : 5);
-
-                    if (filteredPlaces.length === 0) return null;
-
-                    return (
-                        <div key={index} className="my-10 bg-gray-50 rounded-2xl p-8 border border-gray-100 shadow-sm not-prose">
-                            <h3 className="text-lg font-bold text-brand-dark mb-6 flex items-center gap-2">
-                                <div className="p-1.5 bg-brand-orange text-white rounded-md">
-                                    <MapPin size={18} />
-                                </div>
-                                Sélection : {args.city || 'Nos coups de cœur'}
-                            </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {filteredPlaces.map(place => (
-                                    <PlaceCard key={place.id} {...place} />
-                                ))}
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
-        );
-    };
+    // ...
 
     return (
         <div className="min-h-screen bg-white pb-20 font-sans text-brand-dark selection:bg-brand-orange/20">
@@ -161,7 +137,15 @@ const BlogArticle = () => {
                 style={{ scaleX }}
             />
 
-            <SEO title={article.title} description={article.excerpt} image={article.image} schema={schema} type="article" breadcrumbs={breadcrumbs} />
+            <SEO
+                title={article.title}
+                description={article.excerpt}
+                image={article.image}
+                schema={schema}
+                type="article"
+                keywords={article.tags ? article.tags.join(', ') : article.category}
+                breadcrumbs={breadcrumbs}
+            />
 
             {/* V2 Header: Image Only (Reduced Height + Gradient) */}
             <div className="relative w-full h-[40vh] md:h-[400px] bg-gray-100 group">
@@ -191,7 +175,7 @@ const BlogArticle = () => {
                         {article.title}
                     </h1>
 
-                    <div className="flex items-center justify-center gap-6 text-gray-500 text-sm">
+                    <div className="flex flex-wrap items-center justify-center gap-y-3 gap-x-4 md:gap-6 text-gray-500 text-sm">
                         <div className="flex items-center gap-2">
                             <div className="w-8 h-8 rounded-full bg-gray-200 overflow-hidden">
                                 <div className="w-full h-full bg-gradient-to-br from-brand-orange to-brand-yellow flex items-center justify-center text-white font-bold text-xs">
@@ -259,8 +243,8 @@ const BlogArticle = () => {
                         {renderContent(article.content)}
                     </div>
 
-                    {/* Mobile Action Bar (Sticky Bottom) */}
-                    <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-4 bg-white/90 backdrop-blur-md px-6 py-3 rounded-full shadow-xl border border-gray-100 ring-1 ring-black/5">
+                    {/* Mobile Action Bar (Sticky Bottom) - Hidden initially, appears on scroll */}
+                    <div className={`lg:hidden fixed bottom-20 left-1/2 -translate-x-1/2 z-40 flex items-center gap-4 bg-white/90 backdrop-blur-md px-6 py-3 rounded-full shadow-xl border border-gray-100 ring-1 ring-black/5 transition-all duration-500 transform ${showMobileActions ? 'translate-y-0 opacity-100' : 'translate-y-24 opacity-0 pointer-events-none'}`}>
                         <button
                             onClick={handleLike}
                             className={`flex items-center gap-2 px-3 py-1 rounded-full font-bold transition-all ${isLiked ? 'text-red-500 bg-red-50' : 'text-gray-600'}`}
@@ -268,6 +252,15 @@ const BlogArticle = () => {
                             <Heart size={20} className={isLiked ? 'fill-current' : ''} />
                             {article.likes || 0}
                         </button>
+                        <div className="w-px h-4 bg-gray-300"></div>
+                        <a
+                            href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[#1877F2]"
+                        >
+                            <Facebook size={20} />
+                        </a>
                         <div className="w-px h-4 bg-gray-300"></div>
                         <button onClick={handleShare} className="text-gray-600">
                             <Share2 size={20} />

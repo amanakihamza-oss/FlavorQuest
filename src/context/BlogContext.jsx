@@ -82,9 +82,26 @@ const SEED_ARTICLES = [
 export const BlogProvider = ({ children }) => {
     const [articles, setArticles] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [isLive, setIsLive] = useState(false); // True only if Firestore snapshot has fired
 
     // Sync with Firebase
     useEffect(() => {
+        // 1. Static Data Rehydration (Instant Load for Prerender/SEO)
+        const loadStaticData = async () => {
+            try {
+                const response = await fetch('/data/articles.json');
+                if (response.ok) {
+                    const staticArticles = await response.json();
+                    setArticles(prev => prev.length === 0 ? staticArticles : prev);
+                    setLoading(false); // Immediate unlock
+                }
+            } catch (e) {
+                console.warn("Static blog data load failed, waiting for Firestore...", e);
+            }
+        };
+        loadStaticData();
+
+        // 2. Real-time Firestore Sync
         const unsubscribe = onSnapshot(collection(db, 'articles'), (snapshot) => {
             const fetchedArticles = snapshot.docs.map(doc => ({
                 id: doc.id,
@@ -92,6 +109,7 @@ export const BlogProvider = ({ children }) => {
             }));
             setArticles(fetchedArticles);
             setLoading(false);
+            setIsLive(true); // MARK AS LIVE: We are now synced with the real DB
 
             // AUTO-SEED only if completely empty (first run logic)
             // Note: In production, use a dedicated admin script. Here for demo convenience.
@@ -104,7 +122,16 @@ export const BlogProvider = ({ children }) => {
             }
         });
 
-        return () => unsubscribe();
+        // Failsafe: Force loading/live state safety if Firebase hangs
+        const safetyTimeout = setTimeout(() => {
+            setLoading(false);
+            // We don't force isLive here to avoid false positives on 404s
+        }, 4000);
+
+        return () => {
+            clearTimeout(safetyTimeout);
+            unsubscribe();
+        };
     }, []);
 
     // Actions
@@ -218,7 +245,9 @@ export const BlogProvider = ({ children }) => {
             getArticleBySlug,
             getArticlesForPlace,
             getArticlesByCategory,
-            toggleArticleLike
+
+            toggleArticleLike,
+            isLive
         }}>
             {children}
         </BlogContext.Provider>
