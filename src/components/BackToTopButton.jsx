@@ -1,11 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
 
 const BackToTopButton = () => {
     const [isVisible, setIsVisible] = useState(false);
+    const location = useLocation();
+
+    // Only show on specific pages (Search and Blog Home)
+    const allowedPaths = ['/search', '/blog'];
+    const shouldRender = allowedPaths.includes(location.pathname);
 
     useEffect(() => {
+        if (!shouldRender) {
+            setIsVisible(false);
+            return;
+        }
+
         const toggleVisibility = () => {
             if (window.scrollY > 300) {
                 setIsVisible(true);
@@ -16,7 +27,7 @@ const BackToTopButton = () => {
 
         window.addEventListener('scroll', toggleVisibility);
         return () => window.removeEventListener('scroll', toggleVisibility);
-    }, []);
+    }, [shouldRender]);
 
     const scrollToTop = () => {
         window.scrollTo({
@@ -24,6 +35,8 @@ const BackToTopButton = () => {
             behavior: 'smooth',
         });
     };
+
+    if (!shouldRender) return null;
 
     return (
         <AnimatePresence>

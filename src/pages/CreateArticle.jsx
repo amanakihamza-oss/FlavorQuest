@@ -11,6 +11,25 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { BLOG_CATEGORIES } from '../utils/blogData';
 
+const MODULES = {
+    toolbar: [
+        [{ 'header': [2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+        ['link', 'clean']
+    ],
+    clipboard: {
+        matchVisual: false,
+    }
+};
+
+const FORMATS = [
+    'header',
+    'bold', 'italic', 'underline', 'strike',
+    'list', 'bullet',
+    'link'
+];
+
 const CreateArticle = () => {
     const { addArticle } = useBlog();
     const { places } = usePlaces();
@@ -36,22 +55,7 @@ const CreateArticle = () => {
 
     const [imagePreview, setImagePreview] = useState(null);
 
-    // Quill Modules Configuration
-    const modules = {
-        toolbar: [
-            [{ 'header': [2, 3, false] }],
-            ['bold', 'italic', 'underline', 'strike'],
-            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-            ['link', 'clean']
-        ],
-    };
 
-    const formats = [
-        'header',
-        'bold', 'italic', 'underline', 'strike',
-        'list', 'bullet',
-        'link'
-    ];
 
     // Auto-generate slug from title
     useEffect(() => {
@@ -345,8 +349,8 @@ const CreateArticle = () => {
                                     theme="snow"
                                     value={formData.content}
                                     onChange={handleContentChange}
-                                    modules={modules}
-                                    formats={formats}
+                                    modules={MODULES}
+                                    formats={FORMATS}
                                     className="bg-white rounded-xl overflow-hidden"
                                     style={{ height: '300px', marginBottom: '100px' }}
                                 />
@@ -393,6 +397,27 @@ const CreateArticle = () => {
                     min-height: 200px;
                     font-size: 1rem;
                     padding-bottom: 8rem;
+                    white-space: pre-wrap !important;
+                }
+                .ql-editor p {
+                    margin-bottom: 1rem;
+                }
+                .ql-editor h2 {
+                    margin-top: 1.5rem;
+                    margin-bottom: 1rem;
+                    font-weight: bold;
+                }
+                .ql-editor h3 {
+                    margin-top: 1.25rem;
+                    margin-bottom: 0.75rem;
+                    font-weight: bold;
+                }
+                .ql-editor ul, .ql-editor ol {
+                    margin-bottom: 1rem;
+                    padding-left: 1.5rem;
+                }
+                .ql-editor li {
+                    margin-bottom: 0.25rem;
                 }
             `}</style>
         </div >

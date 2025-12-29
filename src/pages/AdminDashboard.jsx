@@ -195,15 +195,25 @@ const AdminDashboard = () => {
                 <div className="flex gap-2 bg-gray-100 p-1 rounded-xl">
                     <button
                         onClick={() => setActiveTab('places')}
-                        className={`px-6 py-2.5 rounded-lg font-bold text-sm transition-all ${activeTab === 'places' ? 'bg-white text-brand-dark shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                        className={`px-6 py-2.5 rounded-lg font-bold text-sm transition-all flex items-center gap-2 ${activeTab === 'places' ? 'bg-white text-brand-dark shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
                     >
                         📍 Lieux
+                        {stats.placesPending > 0 && (
+                            <span className="bg-orange-100 text-brand-orange px-2 py-0.5 rounded-full text-xs">
+                                {stats.placesPending}
+                            </span>
+                        )}
                     </button>
                     <button
                         onClick={() => setActiveTab('articles')}
-                        className={`px-6 py-2.5 rounded-lg font-bold text-sm transition-all ${activeTab === 'articles' ? 'bg-white text-brand-dark shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                        className={`px-6 py-2.5 rounded-lg font-bold text-sm transition-all flex items-center gap-2 ${activeTab === 'articles' ? 'bg-white text-brand-dark shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
                     >
                         📰 Articles
+                        {stats.articlesPending > 0 && (
+                            <span className="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-xs">
+                                {stats.articlesPending}
+                            </span>
+                        )}
                     </button>
                     <button
                         onClick={() => setActiveTab('reviews')}
@@ -213,9 +223,14 @@ const AdminDashboard = () => {
                     </button>
                     <button
                         onClick={() => setActiveTab('claims')}
-                        className={`px-6 py-2.5 rounded-lg font-bold text-sm transition-all ${activeTab === 'claims' ? 'bg-white text-brand-dark shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                        className={`px-6 py-2.5 rounded-lg font-bold text-sm transition-all flex items-center gap-2 ${activeTab === 'claims' ? 'bg-white text-brand-dark shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
                     >
                         🛡️ Revendications
+                        {stats.claimsPending > 0 && (
+                            <span className="bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full text-xs">
+                                {stats.claimsPending}
+                            </span>
+                        )}
                     </button>
                     <button
                         onClick={() => setActiveTab('config')}

@@ -138,7 +138,7 @@ export const BlogProvider = ({ children }) => {
     const addArticle = async (articleData) => {
         let imageUrl = articleData.image;
 
-        if (articleData.image instanceof File) {
+        if (articleData.image instanceof Blob || articleData.image instanceof File) {
             try {
                 imageUrl = await uploadToImgBB(articleData.image);
             } catch (error) {
@@ -161,6 +161,7 @@ export const BlogProvider = ({ children }) => {
             return newArticle;
         } catch (e) {
             console.error("Error adding article: ", e);
+            throw e;
         }
     };
 
