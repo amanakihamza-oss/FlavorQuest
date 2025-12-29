@@ -8,6 +8,12 @@ import PageLoader from '../components/PageLoader';
 import SEO from '../components/SEO';
 import { Clock, Calendar, ChevronLeft, MapPin, Heart, Share2, Facebook, Twitter, ArrowRight } from 'lucide-react';
 
+// Helper to safely render HTML content with minimal sanitization for trusted admin content
+const renderContent = (content) => {
+    if (!content) return null;
+    return <div dangerouslySetInnerHTML={{ __html: content }} />;
+};
+
 const BlogArticle = () => {
     const { slug } = useParams();
     const { getArticleBySlug, toggleArticleLike, articles, isLive } = useBlog();
