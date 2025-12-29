@@ -47,7 +47,13 @@ const prerender = async () => {
         // 2. Launch Puppeteer
         const browser = await puppeteer.launch({
             headless: "new",
-            args: ['--no-sandbox', '--disable-setuid-sandbox'] // Required for some CI/CD
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage', // Critical for containerized envs
+                '--single-process', // Reduces memory usage
+                '--no-zygote'
+            ]
         });
         const page = await browser.newPage();
 
