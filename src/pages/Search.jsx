@@ -5,12 +5,36 @@ import { usePlaces } from '../context/PlacesContext';
 import PlaceCard from '../components/PlaceCard';
 import FilterBar from '../components/FilterBar';
 import { Helmet } from 'react-helmet-async';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { checkIsOpen } from '../utils/hours';
+
+// Helper for slugs
+const slugifyCity = (text) => {
+    return text
+        .toString()
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/[^\w\-]+/g, '')
+        .replace(/\-\-+/g, '-')
+        .replace(/^-+/, '')
+        .replace(/-+$/, '');
+};
+
+// Helper for accent-insensitive comparison
+const normalizeText = (text) => {
+    return text
+        .toString()
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+};
 
 const Search = () => {
     const { places } = usePlaces();
     const [searchParams, setSearchParams] = useSearchParams();
+    const navigate = useNavigate();
     const query = searchParams.get('q') || '';
 
     // States
@@ -34,7 +58,7 @@ const Search = () => {
 
     // Memoize filtered cities for stable indexing
     const filteredCities = uniqueCities.filter(c =>
-        c.toLowerCase().includes(selectedCity.toLowerCase())
+        normalizeText(c).includes(normalizeText(selectedCity))
     );
 
     const [activeCityIndex, setActiveCityIndex] = useState(-1);
@@ -96,7 +120,8 @@ const Search = () => {
         } else if (e.key === 'Enter') {
             e.preventDefault();
             if (activeCityIndex >= 0 && filteredCities[activeCityIndex]) {
-                setSelectedCity(filteredCities[activeCityIndex]);
+                // Navigate to City Page
+                navigate(`/${slugifyCity(filteredCities[activeCityIndex])}`);
                 setShowCityDropdown(false);
             }
         } else if (e.key === 'Escape') {
@@ -104,17 +129,12 @@ const Search = () => {
         }
     };
 
-    // Derived logic for display including "Partout" would be better but keeping simple for now.
-    // Let's actually make the dropdown options a single array for easier management next time.
-    // For now, I will stick to the existing visual structure but add the handler.
-
+    // Sync variables
     useEffect(() => {
         const cityParam = searchParams.get('city');
         if (cityParam && cityParam !== selectedCity) {
             setSelectedCity(cityParam);
         } else if (!cityParam && selectedCity) {
-            // Optional: clear city if removed from URL, though usually UI drives URL.
-            // Let's keep it simple: if URL has city, enforce it.
             setSelectedCity('');
         }
     }, [searchParams]);
@@ -130,7 +150,6 @@ const Search = () => {
                 delete params.q;
             }
 
-            // Sync City to URL (bi-directional)
             if (selectedCity) {
                 params.city = selectedCity;
             } else {
@@ -149,22 +168,35 @@ const Search = () => {
             return;
         }
 
-        const terms = searchTerm.toLowerCase();
+        const terms = normalizeText(searchTerm);
         const matches = [];
 
-        // 1. Match Places
+        // 1. Match Cities (Highest Priority)
+        const uniqueCitiesList = [...new Set(places.map(p => p.city).filter(Boolean))];
+        uniqueCitiesList.forEach(city => {
+            if (normalizeText(city).includes(terms)) {
+                matches.push({
+                    type: 'city',
+                    label: `Explorer ${city}`,
+                    originalName: city,
+                    slug: slugifyCity(city)
+                });
+            }
+        });
+
+        // 2. Match Places
         places.forEach(place => {
-            if (place.name.toLowerCase().includes(terms)) {
+            if (normalizeText(place.name).includes(terms)) {
                 matches.push({ type: 'place', label: place.name, id: place.id, image: place.image });
             }
         });
 
-        // 2. Match Categories/Tags (Unique)
+        // 3. Match Categories/Tags (Unique)
         const categories = new Set();
         places.forEach(place => {
-            if (place.category.toLowerCase().includes(terms)) categories.add(place.category);
+            if (normalizeText(place.category).includes(terms)) categories.add(place.category);
             place.tags?.forEach(tag => {
-                if (tag.toLowerCase().includes(terms)) categories.add(tag);
+                if (normalizeText(tag).includes(terms)) categories.add(tag);
             });
         });
         categories.forEach(cat => matches.push({ type: 'category', label: cat }));
@@ -175,7 +207,7 @@ const Search = () => {
 
     // Core Filtering & Sorting Logic
     useEffect(() => {
-        const terms = searchTerm.toLowerCase().trim().split(/\s+/).filter(t => t.length > 0);
+        const terms = normalizeText(searchTerm).trim().split(/\s+/).filter(t => t.length > 0);
 
         let filtered = places.filter(place => {
             if (place.validationStatus !== 'approved') return false;
@@ -185,10 +217,10 @@ const Search = () => {
 
             // 2. Search Term Match
             const matchesSearch = terms.length === 0 || terms.every(term =>
-                place.name.toLowerCase().includes(term) ||
-                (place.city && place.city.toLowerCase().includes(term)) ||
-                place.category.toLowerCase().includes(term) ||
-                (place.tags && place.tags.some(t => t.toLowerCase().includes(term)))
+                normalizeText(place.name).includes(term) ||
+                (place.city && normalizeText(place.city).includes(term)) ||
+                normalizeText(place.category).includes(term) ||
+                (place.tags && place.tags.some(t => normalizeText(t).includes(term)))
             );
 
             // 3. Tag Filter Match
@@ -235,7 +267,15 @@ const Search = () => {
     };
 
     const handleSuggestionClick = (suggestion) => {
-        setSearchTerm(suggestion.label); // Or navigate directly if it's a place using suggestion.id
+        if (suggestion.type === 'city') {
+            navigate(`/${suggestion.slug}`);
+            return;
+        }
+        if (suggestion.type === 'place') {
+            setSearchTerm(suggestion.label);
+        } else {
+            setSearchTerm(suggestion.label);
+        }
         setShowSuggestions(false);
     }
 
@@ -266,10 +306,6 @@ const Search = () => {
         return () => document.removeEventListener('click', handleClickOutside);
     }, []);
 
-    // Scroll Detection Removed - Sticky Header is now static
-    // const { scrollY } = useScroll();
-    // const headerY = useMotionValue(0);
-    // useMotionValueEvent(scrollY, "change", (latest) => { ... });
 
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
@@ -379,7 +415,7 @@ const Search = () => {
                                         <button
                                             key={city}
                                             onClick={() => {
-                                                setSelectedCity(city);
+                                                navigate(`/${slugifyCity(city)}`);
                                                 setShowCityDropdown(false);
                                             }}
                                             className={`w-full text-left px-4 py-2.5 hover:bg-orange-50 font-bold text-sm transition-colors flex items-center justify-between border-t border-gray-50 ${selectedCity === city || idx === activeCityIndex ? 'bg-orange-50 text-brand-orange' : 'text-gray-700'}`}

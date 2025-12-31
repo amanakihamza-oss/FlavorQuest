@@ -27,6 +27,7 @@ const LegalPage = React.lazy(() => import('./pages/LegalPage'));
 const ContactPage = React.lazy(() => import('./pages/ContactPage'));
 const ClaimPlace = React.lazy(() => import('./pages/ClaimPlace'));
 const NotFound = React.lazy(() => import('./pages/NotFound'));
+const CityPage = React.lazy(() => import('./pages/CityPage'));
 
 // Context Providers
 import { LanguageProvider } from './context/LanguageContext';
@@ -54,6 +55,8 @@ function App() {
                                         <Route path="/login" element={<Login />} />
                                         <Route path="/" element={<Layout />}>
                                             <Route index element={<Home />} />
+                                            {/* City Silo Route */}
+                                            <Route path="/:city" element={<CityPage />} />
                                             {/* SEO Silo Route (Priority) */}
                                             <Route path="/:city/:category/:slug" element={<PlaceDetails />} />
                                             {/* Legacy Route (Fallback) */}

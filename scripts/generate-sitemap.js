@@ -85,6 +85,14 @@ async function generate() {
         });
         console.log(`Added ${placeCount} places.`);
 
+        // --- CITY PAGES GENERATION ---
+        const cities = [...new Set(allPlaces.map(p => p.city ? slugifySimple(p.city) : null).filter(Boolean))];
+        cities.forEach(citySlug => {
+            urls.push(`${BASE_URL}/${citySlug}`);
+        });
+        console.log(`Added ${cities.length} city landing pages.`);
+        // -----------------------------
+
         // --- STATIC DATA INJECTION ---
         // Save places.json for instant hydration during Prerender/Client load
         const dataDir = path.resolve('./public/data');
@@ -157,6 +165,16 @@ async function generate() {
 
             // Place Details
             if (path.split('/').length > 2 && !path.startsWith('/blog')) {
+                return { priority: '0.8', changefreq: 'weekly' };
+            }
+
+            // City Landing Pages (e.g. /namur, /liege)
+            // They have exactly 2 parts after split by '/' (empty string and city name) e.g. /namur -> ['', 'namur']
+            // Wait, path is /namur. split('/') is ['', 'namur']. Length is 2.
+            if (path.split('/').length === 2 && path !== '/privacy' && path !== '/contact' && path !== '/legal' && path !== '/login') {
+                // Excluding static pages explicitly just in case, or setting high priority for them too is fine?
+                // Let's be specific for cities.
+                // Actually, checking if it is a known static page is better.
                 return { priority: '0.8', changefreq: 'weekly' };
             }
 

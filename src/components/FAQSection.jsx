@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Minus, HelpCircle } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
-const FAQ_DATA = [
+export const FAQ_DATA = [
     {
         question: "Comment trouver les meilleurs restaurants à Namur ?",
         answer: "FlavorQuest sélectionne pour vous les meilleures adresses (restaurants, snacks, brunchs) sur base d'avis vérifiés et de visites mystères. Utilisez nos filtres (Terrasse, Vegan, Ouvert tard...) pour trouver la pépite parfaite en quelques clics."
@@ -22,7 +22,7 @@ const FAQ_DATA = [
     }
 ];
 
-const FAQSection = () => {
+const FAQSection = ({ data = FAQ_DATA, title = "Questions Fréquentes" }) => {
     const [openIndex, setOpenIndex] = useState(null);
 
     const toggleAccordion = (index) => {
@@ -33,7 +33,7 @@ const FAQSection = () => {
     const schema = {
         "@context": "https://schema.org",
         "@type": "FAQPage",
-        "mainEntity": FAQ_DATA.map(item => ({
+        "mainEntity": data.map(item => ({
             "@type": "Question",
             "name": item.question,
             "acceptedAnswer": {
@@ -57,14 +57,14 @@ const FAQSection = () => {
                     <div className="inline-flex items-center justify-center p-3 bg-brand-orange/10 rounded-2xl mb-4 text-brand-orange">
                         <HelpCircle size={32} />
                     </div>
-                    <h2 className="text-3xl md:text-4xl font-bold text-brand-dark mb-4">Questions Fréquentes</h2>
+                    <h2 className="text-3xl md:text-4xl font-bold text-brand-dark mb-4">{title}</h2>
                     <p className="text-gray-500 text-lg max-w-2xl mx-auto">
                         Tout ce que vous devez savoir pour profiter au mieux de l'expérience FlavorQuest.
                     </p>
                 </div>
 
                 <div className="space-y-4">
-                    {FAQ_DATA.map((item, index) => (
+                    {data.map((item, index) => (
                         <div
                             key={index}
                             className={`border rounded-2xl transition-all duration-300 ${openIndex === index ? 'border-brand-orange bg-orange-50/30' : 'border-gray-100 bg-white hover:border-gray-200'

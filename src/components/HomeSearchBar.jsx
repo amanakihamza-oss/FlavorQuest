@@ -5,12 +5,35 @@ import { usePlaces } from '../context/PlacesContext';
 import { useLanguage } from '../context/LanguageContext';
 import { getPlaceUrl } from '../utils/url';
 
+// Helper for slugs
+const slugifyCity = (text) => {
+    return text
+        .toString()
+        .toLowerCase()
+        .normalize('NFD') // Decompose accented characters
+        .replace(/[\u0300-\u036f]/g, '') // Remove accent diacritics
+        .replace(/\s+/g, '-') // Replace spaces with -
+        .replace(/[^\w\-]+/g, '') // Remove all non-word chars
+        .replace(/\-\-+/g, '-') // Replace multiple - with single -
+        .replace(/^-+/, '') // Trim - from start
+        .replace(/-+$/, ''); // Trim - from end
+};
+
+// Helper for accent-insensitive comparison
+const normalizeText = (text) => {
+    return text
+        .toString()
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+};
+
 const HomeSearchBar = () => {
     const { places } = usePlaces();
     const { t } = useLanguage();
     const navigate = useNavigate();
     const wrapperRef = useRef(null);
-    const cityDropdownRef = useRef(null); // This ref is no longer strictly needed for the dropdown trigger, but can be used for the whole city input block
+    const cityDropdownRef = useRef(null);
 
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCity, setSelectedCity] = useState('');
@@ -31,10 +54,14 @@ const HomeSearchBar = () => {
             setCitySuggestions(uniqueCities);
             return;
         }
+        const terms = normalizeText(selectedCity);
         const filtered = uniqueCities.filter(city =>
-            city.toLowerCase().includes(selectedCity.toLowerCase())
+            normalizeText(city).includes(terms)
         );
         setCitySuggestions(filtered);
+
+        // Auto-select match if exact (insensitive) to allow typing "liege" -> selects "Liège" invisibly or visibly logic
+        // But here we rely on the dropdown selection or manual submission
     }, [selectedCity, uniqueCities]);
 
 
@@ -45,17 +72,14 @@ const HomeSearchBar = () => {
             return;
         }
 
-        const terms = searchTerm.toLowerCase();
+        const terms = normalizeText(searchTerm);
         const matches = [];
 
         // 1. Match Places
         places.forEach(place => {
-            // Filter by city if selected (and if it's a valid city in the list, roughly) in strict mode, 
-            // but for loose search we can just check if string matches.
-            // For now let's assume loose string match or exact match.
-            if (selectedCity && !place.city.toLowerCase().includes(selectedCity.toLowerCase())) return;
+            if (selectedCity && !normalizeText(place.city).includes(normalizeText(selectedCity))) return;
 
-            if (place.name.toLowerCase().includes(terms)) {
+            if (normalizeText(place.name).includes(terms)) {
                 matches.push({
                     type: 'place',
                     label: place.name,
@@ -67,11 +91,11 @@ const HomeSearchBar = () => {
         // 2. Match Categories/Tags (Unique)
         const categories = new Set();
         places.forEach(place => {
-            if (selectedCity && !place.city.toLowerCase().includes(selectedCity.toLowerCase())) return;
+            if (selectedCity && !normalizeText(place.city).includes(normalizeText(selectedCity))) return;
 
-            if (place.category.toLowerCase().includes(terms)) categories.add(place.category);
+            if (normalizeText(place.category).includes(terms)) categories.add(place.category);
             place.tags?.forEach(tag => {
-                if (tag.toLowerCase().includes(terms)) categories.add(tag);
+                if (normalizeText(tag).includes(terms)) categories.add(tag);
             });
         });
 
@@ -94,6 +118,19 @@ const HomeSearchBar = () => {
 
     const handleSearch = (e) => {
         if (e) e.preventDefault();
+
+        // New Logic: Check if we should redirect to City Page or Search Page
+        const cityOnly = !searchTerm && selectedCity;
+
+        if (cityOnly) {
+            // Check if strict match exists in our DB (accent insensitive)
+            const match = uniqueCities.find(c => normalizeText(c) === normalizeText(selectedCity));
+            if (match) {
+                // Redirect to SEO City Page
+                navigate(`/${slugifyCity(match)}`);
+                return;
+            }
+        }
 
         const params = new URLSearchParams();
         if (searchTerm) params.set('q', searchTerm);
