@@ -65,6 +65,7 @@ const PlaceCard = ({ id, name, rating, reviews, image, category, distance, statu
                     {/* Heart Button */}
                     <button
                         onClick={handleHeartClick}
+                        aria-label={isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
                         className="absolute top-3 right-3 p-2 rounded-full bg-white/90 backdrop-blur-sm shadow-sm hover:scale-110 transition-transform z-20"
                     >
                         <Heart size={18} className={isFavorite ? "fill-red-500 text-red-500" : "text-gray-400"} />

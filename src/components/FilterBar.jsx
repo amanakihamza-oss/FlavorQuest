@@ -38,12 +38,14 @@ const FilterBar = ({ activeFilters = [], onToggle, visible = true, compact = fal
                 {/* Scroll Buttons (Desktop Only) */}
                 <button
                     onClick={() => scroll(-200)}
+                    aria-label="Défiler à gauche"
                     className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 z-50 w-8 h-8 bg-white border border-gray-100 rounded-full items-center justify-center shadow-md text-gray-500 opacity-0 group-hover:opacity-100 transition-all hover:bg-brand-orange hover:text-white hover:scale-110"
                 >
                     <ChevronLeft size={20} />
                 </button>
                 <button
                     onClick={() => scroll(200)}
+                    aria-label="Défiler à droite"
                     className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 z-50 w-8 h-8 bg-white border border-gray-100 rounded-full items-center justify-center shadow-md text-gray-500 opacity-0 group-hover:opacity-100 transition-all hover:bg-brand-orange hover:text-white hover:scale-110"
                 >
                     <ChevronRight size={20} />

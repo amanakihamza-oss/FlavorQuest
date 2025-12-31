@@ -85,4 +85,5 @@ Si vous devez travailler sur ce projet, vérifiez systématiquement ces points :
     *   Mise en place de `cityDescriptions.js` pour le contenu éditorial.
     *   Correction sitemap automatique (Priorité 0.8 pour les villes).
     *   **Vérification Complète** : Audit architecture, routes, et `robots.txt` validés.
+    *   **Accessibilité & UX** : Ajout des `aria-label` manquants et ajustement du spacing sur les pages villes (`pt-8`).
     *   **Prêt pour déploiement** : Le site est stable et optimisé pour le SEO local.
