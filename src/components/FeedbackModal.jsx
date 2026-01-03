@@ -61,6 +61,7 @@ const FeedbackModal = ({ isOpen, onClose, onSend, placeName }) => {
                     </div>
 
                     <textarea
+                        aria-label="Message de feedback"
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
                         placeholder="Écrivez votre message ici..."

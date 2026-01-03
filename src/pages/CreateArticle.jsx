@@ -7,8 +7,8 @@ import { useAuth } from '../context/AuthContext';
 import { Helmet } from 'react-helmet-async';
 import { PenTool, Camera, Save, ArrowLeft, Link as LinkIcon, Clock } from 'lucide-react';
 import { compressImage } from '../utils/compressImage';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 import { BLOG_CATEGORIES } from '../utils/blogData';
 
 const MODULES = {
@@ -26,7 +26,7 @@ const MODULES = {
 const FORMATS = [
     'header',
     'bold', 'italic', 'underline', 'strike',
-    'list', 'bullet',
+    'list',
     'link'
 ];
 
@@ -167,8 +167,9 @@ const CreateArticle = () => {
                         {/* Title & Slug */}
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Titre de l'article</label>
+                                <label htmlFor="create-title" className="block text-sm font-bold text-gray-700 mb-2">Titre de l'article</label>
                                 <input
+                                    id="create-title"
                                     type="text"
                                     name="title"
                                     required
@@ -182,6 +183,7 @@ const CreateArticle = () => {
                                 <LinkIcon size={14} />
                                 <span className="font-mono">flavorquest.be/blog/</span>
                                 <input
+                                    aria-label="Slug de l'article"
                                     type="text"
                                     name="slug"
                                     value={formData.slug}
@@ -196,8 +198,9 @@ const CreateArticle = () => {
                             {/* Left Column: Meta Info */}
                             <div className="space-y-6">
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-2">Auteur</label>
+                                    <label htmlFor="create-author" className="block text-sm font-bold text-gray-700 mb-2">Auteur</label>
                                     <input
+                                        id="create-author"
                                         type="text"
                                         name="author"
                                         required
@@ -208,8 +211,9 @@ const CreateArticle = () => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-2">Catégorie</label>
+                                    <label htmlFor="create-category" className="block text-sm font-bold text-gray-700 mb-2">Catégorie</label>
                                     <select
+                                        id="create-category"
                                         name="category"
                                         value={formData.category}
                                         onChange={handleChange}
@@ -222,8 +226,9 @@ const CreateArticle = () => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-2">Ville (Optionnel)</label>
+                                    <label htmlFor="create-city" className="block text-sm font-bold text-gray-700 mb-2">Ville (Optionnel)</label>
                                     <input
+                                        id="create-city"
                                         type="text"
                                         name="city"
                                         value={formData.city}
@@ -235,10 +240,11 @@ const CreateArticle = () => {
 
                                 {/* Linked Places */}
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                                    <label htmlFor="create-place-select" className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
                                         <LinkIcon size={16} /> Associer un restaurant
                                     </label>
                                     <select
+                                        id="create-place-select"
                                         onChange={handlePlaceLink}
                                         value=""
                                         className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20 mb-3"
@@ -317,8 +323,9 @@ const CreateArticle = () => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Texte Alternatif (SEO)</label>
+                                    <label htmlFor="create-alt-text" className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Texte Alternatif (SEO)</label>
                                     <input
+                                        id="create-alt-text"
                                         type="text"
                                         name="altText"
                                         value={formData.altText}
@@ -332,9 +339,10 @@ const CreateArticle = () => {
 
                         {/* Content Area */}
                         <div className="border-t border-gray-100 pt-6">
-                            <label className="block text-sm font-bold text-gray-700 mb-4">Contenu de l'article</label>
+                            <label htmlFor="create-excerpt" className="block text-sm font-bold text-gray-700 mb-4">Contenu de l'article</label>
 
                             <textarea
+                                id="create-excerpt"
                                 name="excerpt"
                                 rows="2"
                                 required

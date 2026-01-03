@@ -55,8 +55,6 @@ const prerender = async () => {
                 '--no-zygote'
             ]
         });
-        const page = await browser.newPage();
-
         // 3. Get URLs
         const urls = getUrlsFromSitemap();
         console.log(`📋 Found ${urls.length} pages to prerender.`);
@@ -64,29 +62,32 @@ const prerender = async () => {
         const port = server.address().port; // Get dynamic port
 
         for (const url of urls) {
+            let page = null;
             try {
+                page = await browser.newPage();
+
                 // Convert absolute URL to local
                 const localUrl = url.replace('https://flavorquest.be', `http://localhost:${port}`);
                 const relativePath = url.replace('https://flavorquest.be', '');
 
                 console.log(`Rendering: ${relativePath || '/'}...`);
 
+                // Set user agent to avoid bot detection issues (optional but good practice)
+                await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+
                 await page.goto(localUrl, {
-                    waitUntil: 'domcontentloaded', // Rely on explicit waits below instead of network idle
+                    waitUntil: 'domcontentloaded',
                     timeout: 60000
                 });
 
-                // Wait for a key element to ensure React rendered (e.g., SEO title or Root)
-                // We use a safe wait that doesn't crash if selector is missing, but ensures dynamic content is there
-                // Strategy: Wait for H1 (present on all content pages) OR wait data-rh (Helmet)
+                // Wait for H1 (present on all content pages)
                 try {
-                    // Wait for H1 (present on all content pages) - Timeout extended for Firebase Cold Start
                     await page.waitForSelector('h1', { timeout: 30000 });
                 } catch (e) {
                     console.log('⚠️ Timeout waiting for h1, checking if loading is stuck...');
                 }
 
-                // Explicitly wait for "Chargement..." to disappear if it exists
+                // Explicitly wait for "Chargement..." to disappear
                 await page.waitForFunction(
                     () => !document.body.innerText.includes('Chargement...'),
                     { timeout: 30000 }
@@ -110,6 +111,8 @@ const prerender = async () => {
 
             } catch (err) {
                 console.error(`❌ Failed to render ${url}:`, err);
+            } finally {
+                if (page) await page.close();
             }
         }
 

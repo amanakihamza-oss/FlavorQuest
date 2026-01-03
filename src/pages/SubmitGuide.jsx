@@ -266,8 +266,9 @@ const SubmitGuide = () => {
                         {currentStep === 1 && (
                             <div className="space-y-6 animate-fade-in">
                                 <div>
-                                    <label className="block text-sm font-bold text-brand-dark uppercase mb-2">Nom de l'établissement</label>
+                                    <label htmlFor="submit-name" className="block text-sm font-bold text-brand-dark uppercase mb-2">Nom de l'établissement</label>
                                     <input
+                                        id="submit-name"
                                         type="text"
                                         name="name"
                                         value={formData.name}
@@ -279,8 +280,9 @@ const SubmitGuide = () => {
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label className="block text-sm font-bold text-brand-dark uppercase mb-2">Ville</label>
+                                        <label htmlFor="submit-city" className="block text-sm font-bold text-brand-dark uppercase mb-2">Ville</label>
                                         <input
+                                            id="submit-city"
                                             type="text"
                                             name="city"
                                             value={formData.city}
@@ -290,8 +292,9 @@ const SubmitGuide = () => {
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-bold text-brand-dark uppercase mb-2">Catégorie</label>
+                                        <label htmlFor="submit-category" className="block text-sm font-bold text-brand-dark uppercase mb-2">Catégorie</label>
                                         <select
+                                            id="submit-category"
                                             name="category"
                                             value={formData.category}
                                             onChange={handleChange}
@@ -332,10 +335,11 @@ const SubmitGuide = () => {
                         {currentStep === 2 && (
                             <div className="space-y-6 animate-fade-in">
                                 <div>
-                                    <label className="block text-sm font-bold text-brand-dark uppercase mb-2">Adresse complète</label>
+                                    <label htmlFor="submit-address" className="block text-sm font-bold text-brand-dark uppercase mb-2">Adresse complète</label>
                                     <div className="relative">
                                         <MapPin className="absolute top-3.5 left-4 text-gray-400" size={20} />
                                         <input
+                                            id="submit-address"
                                             type="text"
                                             name="address"
                                             value={formData.address}
@@ -348,8 +352,9 @@ const SubmitGuide = () => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-bold text-brand-dark uppercase mb-2">Description</label>
+                                    <label htmlFor="submit-description" className="block text-sm font-bold text-brand-dark uppercase mb-2">Description</label>
                                     <textarea
+                                        id="submit-description"
                                         name="description"
                                         value={formData.description}
                                         onChange={handleChange}
@@ -361,9 +366,10 @@ const SubmitGuide = () => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-bold text-brand-dark uppercase mb-2">Tags (Ambiance, Spécialités...)</label>
+                                    <label htmlFor="submit-tags" className="block text-sm font-bold text-brand-dark uppercase mb-2">Tags (Ambiance, Spécialités...)</label>
                                     <div className="flex gap-2 mb-3">
                                         <input
+                                            id="submit-tags"
                                             value={tagInput}
                                             onChange={(e) => setTagInput(e.target.value)}
                                             onKeyDown={(e) => e.key === 'Enter' && handleAddTag(e)}
@@ -391,8 +397,9 @@ const SubmitGuide = () => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-bold text-brand-dark uppercase mb-2">Téléphone (Optionnel)</label>
+                                    <label htmlFor="submit-phone" className="block text-sm font-bold text-brand-dark uppercase mb-2">Téléphone (Optionnel)</label>
                                     <input
+                                        id="submit-phone"
                                         type="tel"
                                         name="phone"
                                         value={formData.phone}
@@ -403,8 +410,9 @@ const SubmitGuide = () => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-bold text-brand-dark uppercase mb-2">Site Web (Optionnel)</label>
+                                    <label htmlFor="submit-website" className="block text-sm font-bold text-brand-dark uppercase mb-2">Site Web (Optionnel)</label>
                                     <input
+                                        id="submit-website"
                                         type="url"
                                         name="website"
                                         value={formData.website}

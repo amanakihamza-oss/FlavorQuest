@@ -139,6 +139,95 @@ export const PlacesProvider = ({ children }) => {
             // This prevents "Lieu introuvable" for new places if Firestore is just slow.
         }, 4000); // 4 seconds max wait for initial connection
 
+        // [AGENT ACTION] Inject Trendy Places (One-off)
+        if (!localStorage.getItem('trendy_places_injected_v2')) {
+            console.log("Seeding Trendy Places (v2)...");
+            const trendyPlaces = [
+                {
+                    name: 'Cup\'inn',
+                    category: 'CoffeeShop',
+                    city: 'Namur',
+                    address: 'Rue des Fossés Fleuris 38, 5000 Namur',
+                    description: 'Un salon de thé cosy et moderne, célèbre pour ses cupcakes maison et son ambiance chaleureuse. Le spot idéal pour une pause gourmande entre amis ou pour télétravailler avec un bon chai latte.',
+                    image: 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?q=80&w=2070&auto=format&fit=crop',
+                    tags: ['Terrasse', 'Végétarien', 'Wifi', 'Enfants', 'Brunch'],
+                    priceLevel: '€',
+                    openingHours: {
+                        monday: { open: '09:00', close: '18:00' },
+                        tuesday: { open: '09:00', close: '18:00' },
+                        wednesday: { open: 'Closed', close: 'Closed' },
+                        thursday: { open: '09:00', close: '18:00' },
+                        friday: { open: '09:00', close: '18:30' },
+                        saturday: { open: '10:00', close: '18:30' },
+                        sunday: { open: 'Closed', close: 'Closed' }
+                    },
+                    status: 'Ouvert',
+                    lat: 50.4635,
+                    lng: 4.8665,
+                    reviews: 42,
+                    submittedAt: new Date().toISOString(),
+                    validationStatus: 'approved',
+                    slug: 'cup-inn-namur'
+                },
+                {
+                    name: 'Bistro des Anges',
+                    category: 'Restaurant',
+                    city: 'Namur',
+                    address: 'Rue de la Crook 2, 5000 Namur',
+                    description: 'Une cuisine de brasserie raffinée dans un cadre élégant. Le chef revisite les classiques belges avec une touche de modernité. Mention spéciale pour les boulettes à la bière d\'Orval !',
+                    image: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?q=80&w=1974&auto=format&fit=crop',
+                    tags: ['Romantique', 'Terrasse', 'Mieux notés'],
+                    priceLevel: '€€',
+                    openingHours: {
+                        monday: { open: '12:00', close: '14:30' },
+                        tuesday: { open: '12:00', close: '14:30' },
+                        wednesday: { open: 'Closed', close: 'Closed' },
+                        thursday: { open: '12:00', close: '22:00' },
+                        friday: { open: '12:00', close: '23:00' },
+                        saturday: { open: '18:00', close: '23:00' },
+                        sunday: { open: '12:00', close: '15:00' }
+                    },
+                    status: 'Ouvert',
+                    lat: 50.4628,
+                    lng: 4.8611,
+                    reviews: 18,
+                    submittedAt: new Date().toISOString(),
+                    validationStatus: 'approved',
+                    slug: 'bistro-des-anges-namur'
+                },
+                {
+                    name: 'Nenuphar',
+                    category: 'Vegan',
+                    city: 'Namur',
+                    address: 'Place du Marché aux Légumes, 5000 Namur',
+                    description: 'Le temple de la cuisine végétale à Namur (fictif pour démo). Des bols colorés, sains et ultra-frais. Un incontournable pour les amateurs de healthy food, même non-végétariens.',
+                    image: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=80&w=2070&auto=format&fit=crop',
+                    tags: ['Végétarien', 'Vegan', 'Sans Gluten', 'Terrasse'],
+                    priceLevel: '€€',
+                    openingHours: {
+                        monday: { open: '11:00', close: '15:00' },
+                        tuesday: { open: '11:00', close: '15:00' },
+                        wednesday: { open: '11:00', close: '15:00' },
+                        thursday: { open: '11:00', close: '20:00' },
+                        friday: { open: '11:00', close: '21:00' },
+                        saturday: { open: '11:00', close: '21:00' },
+                        sunday: { open: 'Closed', close: 'Closed' }
+                    },
+                    status: 'Ouvert',
+                    lat: 50.4645,
+                    lng: 4.8655,
+                    reviews: 56,
+                    submittedAt: new Date().toISOString(),
+                    validationStatus: 'approved',
+                    slug: 'nenuphar-namur'
+                }
+            ];
+
+            trendyPlaces.forEach(place => addDoc(collection(db, 'places'), place));
+            localStorage.setItem('trendy_places_injected_v2', 'true');
+            console.log("Trendy places injected (v2).");
+        }
+
         return () => {
             clearTimeout(safetyTimeout);
             unsubscribePlaces();

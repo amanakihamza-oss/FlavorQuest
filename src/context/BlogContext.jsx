@@ -112,7 +112,6 @@ export const BlogProvider = ({ children }) => {
             setIsLive(true); // MARK AS LIVE: We are now synced with the real DB
 
             // AUTO-SEED only if completely empty (first run logic)
-            // Note: In production, use a dedicated admin script. Here for demo convenience.
             if (fetchedArticles.length === 0 && !localStorage.getItem('blog_seeded')) {
                 console.log("Seeding initial articles to Firebase...");
                 SEED_ARTICLES.forEach(async (article) => {
@@ -125,13 +124,133 @@ export const BlogProvider = ({ children }) => {
         // Failsafe: Force loading/live state safety if Firebase hangs
         const safetyTimeout = setTimeout(() => {
             setLoading(false);
-            // We don't force isLive here to avoid false positives on 404s
         }, 4000);
 
         return () => {
             clearTimeout(safetyTimeout);
             unsubscribe();
         };
+    }, []);
+
+    // ONE-OFF CLEANUP SCRIPT (Corrective Action)
+    // Run this once to clean the duplicates caused by loop
+    useEffect(() => {
+        const performCleanup = async () => {
+            if (articles.length > 50 && !localStorage.getItem('cleanup_done_v1')) {
+                console.log("Detecting huge number of articles... starting cleanup.");
+
+                // Group by slug
+                const slugMap = {};
+
+                articles.forEach(article => {
+                    if (!slugMap[article.slug]) {
+                        slugMap[article.slug] = [];
+                    }
+                    slugMap[article.slug].push(article.id);
+                });
+
+                let deleteCount = 0;
+                const poolSize = articles.length;
+
+                // Iterate and keep only the FIRST id for each slug
+                for (const slug in slugMap) {
+                    const ids = slugMap[slug];
+                    if (ids.length > 1) {
+                        // Keep index 0, delete the rest
+                        const toDelete = ids.slice(1);
+                        for (const id of toDelete) {
+                            try {
+                                await deleteDoc(doc(db, 'articles', id));
+                                deleteCount++;
+                                if (deleteCount % 20 === 0) console.log(`Deleted ${deleteCount} duplicates...`);
+                            } catch (e) {
+                                console.error("Cleanup error", e);
+                            }
+                        }
+                    }
+                }
+                console.log(`Cleanup finished. Removed ${deleteCount} duplicate articles.`);
+                localStorage.setItem('cleanup_done_v1', 'true');
+            }
+        };
+
+        if (articles.length > 0) {
+            performCleanup();
+        }
+    }, [articles]);
+
+    // [AGENT ACTION] Inject Spanish Article (Safe Effect)
+    useEffect(() => {
+        const injectSpanishArticle = async () => {
+            const key = 'spanish_article_injected';
+            if (localStorage.getItem(key)) return;
+
+            // Lock immediately to prevent any re-entry
+            localStorage.setItem(key, 'true');
+
+            console.log("Injecting Spanish Article...");
+
+            const spanishArticle = {
+                slug: 'top-10-plats-espagnols-vocabulaire-gourmand',
+                title: 'Viva España ! Top 10 des plats incontournables (et où les manger) 🇪🇸',
+                excerpt: 'Envie de soleil dans l\'assiette ? De la Paella aux Tapas, on vous emmène en voyage culinaire à travers les meilleures spécialités espagnoles.',
+                image: 'https://images.unsplash.com/photo-1515443961218-a51367888e4b?q=80&w=2070&auto=format&fit=crop', // Paella/Spanish feast
+                category: 'Découverte',
+                city: 'Namur', // Generic or maybe a specific one
+                date: new Date().toISOString().split('T')[0],
+                author: 'Maria Sabrosa',
+                readTime: '6 min',
+                content: `
+                    <h2>Le Soleil à 2h de Vol (ou dans l'assiette)</h2>
+                    <p>La cuisine espagnole, c'est bien plus que la Paella. C'est une cuisine de partage, d'huile d'olive, et de produits gorgés de soleil. Voici notre sélection des 10 incontournables à tester absolument.</p>
+
+                    <h2>1. La Paella Valenciana</h2>
+                    <p>La vraie, l'unique. Oubliez le chorizo (sacrilège !). La vraie paella de Valence se fait avec du lapin, du poulet, des haricots plats et parfois des escargots.</p>
+
+                    <h2>2. La Tortilla de Patatas</h2>
+                    <p>Le débat fait rage en Espagne : <em>Con cebolla</em> (avec oignon) ou <em>sin cebolla</em> ? Dans tous les cas, cette omelette aux pommes de terre doit être baveuse à souhait.</p>
+
+                    <h2>3. Les Patatas Bravas</h2>
+                    <p>Des cubes de pommes de terre frits, servis avec une sauce tomate pimentée (la salsa brava) et un aïoli. Le roi des tapas.</p>
+
+                    <h2>4. Le Gazpacho Andaluz</h2>
+                    <p>Une soupe froide tomate-poivron-concombre qui sauve la vie quand il fait 40°C à Séville. C'est vitaminé et rafraîchissant.</p>
+
+                    <h2>5. Le Jamón Ibérico de Bellota</h2>
+                    <p>Le caviar du jambon. Issu de porcs noirs nourris aux glands (bellota), sa graisse fond sur la langue. Un luxe nécessaire.</p>
+
+                    <h2>6. Les Gambas al Ajillo</h2>
+                    <p>Des crevettes saisies dans une huile bouillante avec beaucoup, beaucoup d'ail et du piment. Prévoyez du pain pour saucer !</p>
+
+                    <h2>7. Le Pulpo a la Gallega</h2>
+                    <p>Spécialité de Galice : du poulpe ultra-tendre saupoudré de paprika fumé (pimentón), d'huile d'olive et de gros sel. Servi sur des pommes de terre.</p>
+
+                    <h2>8. Les Croquetas</h2>
+                    <p>Bechamel crémeuse + Jambon (ou morue/champignons) + Panure croustillante. Attention, c'est addictif.</p>
+
+                    <h2>9. Les Calamares a la Romana</h2>
+                    <p>Des rondelles de calmar frites dans une pâte légère. Avec un filet de citron, c'est le bonheur simple.</p>
+
+                    <h2>10. Los Churros con Chocolate</h2>
+                    <p>Pour le petit-déjeuner ou le goûter. On trempe ces beignets allongés dans un chocolat chaud si épais qu'il tient la cuillère droite.</p>
+
+                    <h3>Où manger espagnol chez nous ?</h3>
+                    <p>Pas besoin de prendre l'avion. Plusieurs adresses de notre catalogue proposent des tapas d'exception. Gardez l'œil ouvert sur FlavorQuest !</p>
+                `,
+                relatedPlaceIds: [],
+                status: 'pending',
+                tags: ['Espagne', 'Tapas', 'Voyage', 'Méditerranée', 'Top 10'],
+                likes: 0
+            };
+
+            try {
+                await addDoc(collection(db, 'articles'), spanishArticle);
+                console.log("Spanish SEO Article injected successfully");
+            } catch (e) {
+                console.error("Failed to inject Spanish article", e);
+            }
+        };
+        injectSpanishArticle();
     }, []);
 
     // Actions

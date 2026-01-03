@@ -49,6 +49,7 @@ const Login = () => {
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="relative">
                             <input
+                                aria-label="Code d'accès"
                                 type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}

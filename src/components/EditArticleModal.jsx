@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Save, Image as ImageIcon, Link as LinkIcon } from 'lucide-react';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 import { useBlog } from '../context/BlogContext';
 import { usePlaces } from '../context/PlacesContext';
 
@@ -89,8 +89,9 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
 
                     {/* Title */}
                     <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2">Titre</label>
+                        <label htmlFor="article-title" className="block text-sm font-bold text-gray-700 mb-2">Titre</label>
                         <input
+                            id="article-title"
                             type="text"
                             name="title"
                             value={formData.title}
@@ -102,8 +103,9 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
                     {/* Meta: Author & Date */}
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">Auteur</label>
+                            <label htmlFor="article-author" className="block text-sm font-bold text-gray-700 mb-2">Auteur</label>
                             <input
+                                id="article-author"
                                 type="text"
                                 name="author"
                                 value={formData.author}
@@ -112,8 +114,9 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">Date de publication</label>
+                            <label htmlFor="article-date" className="block text-sm font-bold text-gray-700 mb-2">Date de publication</label>
                             <input
+                                id="article-date"
                                 type="date"
                                 name="date"
                                 value={formData.date}
@@ -125,8 +128,9 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
 
                     {/* SEO Keywords */}
                     <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2">Mots-clés SEO (séparés par des virgules)</label>
+                        <label htmlFor="article-tags" className="block text-sm font-bold text-gray-700 mb-2">Mots-clés SEO (séparés par des virgules)</label>
                         <input
+                            id="article-tags"
                             type="text"
                             placeholder="Ex: Burger, Guide, Namur, Pas cher"
                             value={formData.tags ? formData.tags.join(', ') : ''}
@@ -137,10 +141,11 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
 
                     {/* Linked Places */}
                     <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                        <label htmlFor="article-place-select" className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
                             <LinkIcon size={16} /> Associer un restaurant
                         </label>
                         <select
+                            id="article-place-select"
                             onChange={(e) => {
                                 const placeId = e.target.value;
                                 if (placeId && !formData.relatedPlaceIds.includes(placeId)) {
@@ -195,12 +200,13 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
 
                     {/* Image URL */}
                     <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2">Image de couverture (URL)</label>
+                        <label htmlFor="article-image" className="block text-sm font-bold text-gray-700 mb-2">Image de couverture (URL)</label>
                         <div className="flex gap-4 items-start">
                             <div className="flex-1">
                                 <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
                                     <ImageIcon size={18} className="text-gray-400" />
                                     <input
+                                        id="article-image"
                                         type="text"
                                         name="image"
                                         value={formData.image}

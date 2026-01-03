@@ -72,10 +72,11 @@ const AuthModal = () => {
                         <form onSubmit={handleSubmit} className="space-y-4">
                             {!isLogin && (
                                 <div>
-                                    <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Nom complet</label>
+                                    <label htmlFor="auth-name" className="block text-xs font-bold text-gray-400 uppercase mb-1">Nom complet</label>
                                     <div className="relative">
                                         <User className="absolute left-3 top-3 text-gray-400" size={18} />
                                         <input
+                                            id="auth-name"
                                             type="text"
                                             required
                                             value={formData.name}
@@ -88,10 +89,11 @@ const AuthModal = () => {
                             )}
 
                             <div>
-                                <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Email</label>
+                                <label htmlFor="auth-email" className="block text-xs font-bold text-gray-400 uppercase mb-1">Email</label>
                                 <div className="relative">
                                     <Mail className="absolute left-3 top-3 text-gray-400" size={18} />
                                     <input
+                                        id="auth-email"
                                         type="email"
                                         required
                                         value={formData.email}
@@ -103,10 +105,11 @@ const AuthModal = () => {
                             </div>
 
                             <div>
-                                <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Mot de passe</label>
+                                <label htmlFor="auth-password" className="block text-xs font-bold text-gray-400 uppercase mb-1">Mot de passe</label>
                                 <div className="relative">
                                     <Lock className="absolute left-3 top-3 text-gray-400" size={18} />
                                     <input
+                                        id="auth-password"
                                         type="password"
                                         required
                                         value={formData.password}

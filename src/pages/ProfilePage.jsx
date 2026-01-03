@@ -353,8 +353,9 @@ const ProfilePage = () => {
                             <h2 className="font-bold text-2xl mb-6">Modifier mon profil</h2>
                             <div className="space-y-6">
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-2">Nom d'affichage</label>
+                                    <label htmlFor="profile-name" className="block text-sm font-bold text-gray-700 mb-2">Nom d'affichage</label>
                                     <input
+                                        id="profile-name"
                                         type="text"
                                         value={isEditing ? editData.name : user.name}
                                         disabled={!isEditing}
@@ -363,8 +364,9 @@ const ProfilePage = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-2">Photo de profil (URL)</label>
+                                    <label htmlFor="profile-photo" className="block text-sm font-bold text-gray-700 mb-2">Photo de profil (URL)</label>
                                     <input
+                                        id="profile-photo"
                                         type="text"
                                         value={isEditing ? editData.photoURL : (user.photoURL || '')}
                                         disabled={!isEditing}

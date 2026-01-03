@@ -19,6 +19,7 @@ export default defineConfig({
                     'vendor-react': ['react', 'react-dom', 'react-router-dom'],
                     'vendor-firebase': ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/storage', 'firebase/analytics'],
                     'vendor-icons': ['lucide-react'],
+                    'vendor-animation': ['framer-motion'],
                 },
             },
         },

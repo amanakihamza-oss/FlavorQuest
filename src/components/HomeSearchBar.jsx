@@ -162,8 +162,10 @@ const HomeSearchBar = () => {
                 <div className="md:w-[55%] flex-grow relative flex items-center px-4 py-2 md:px-6 md:py-3 border-b md:border-b-0 border-gray-100">
                     <Search className="text-gray-400 shrink-0 mr-3 md:mr-4 w-5 h-5 md:w-6 md:h-6" />
                     <div className="w-full flex flex-col justify-center min-w-0">
-                        <label className="block text-[10px] md:text-[11px] uppercase font-extrabold text-gray-500 tracking-widest mb-0.5 truncate">Quoi ?</label>
+                        <label htmlFor="home-search-query" className="block text-[10px] md:text-[11px] uppercase font-extrabold text-gray-500 tracking-widest mb-0.5 truncate">Quoi ?</label>
                         <input
+                            id="home-search-query"
+                            name="search-query"
                             type="text"
                             value={searchTerm}
                             onChange={(e) => {
@@ -181,7 +183,7 @@ const HomeSearchBar = () => {
                         />
                     </div>
                     {searchTerm && (
-                        <button type="button" onClick={() => setSearchTerm('')} className="absolute right-4 text-gray-300 hover:text-gray-500 p-1">
+                        <button type="button" onClick={() => setSearchTerm('')} className="absolute right-4 text-gray-300 hover:text-gray-500 p-1" aria-label="Effacer la recherche">
                             <X size={20} />
                         </button>
                     )}
@@ -193,8 +195,10 @@ const HomeSearchBar = () => {
                         <MapPin size={18} className="md:w-5 md:h-5" />
                     </div>
                     <div className="w-full flex flex-col justify-center min-w-0">
-                        <label className="block text-[10px] md:text-[11px] uppercase font-extrabold text-gray-500 tracking-widest mb-0.5 truncate">Où ?</label>
+                        <label htmlFor="home-search-city" className="block text-[10px] md:text-[11px] uppercase font-extrabold text-gray-500 tracking-widest mb-0.5 truncate">Où ?</label>
                         <input
+                            id="home-search-city"
+                            name="search-city"
                             type="text"
                             value={selectedCity}
                             onChange={(e) => {

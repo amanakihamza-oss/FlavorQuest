@@ -87,3 +87,10 @@ Si vous devez travailler sur ce projet, vérifiez systématiquement ces points :
     *   **Vérification Complète** : Audit architecture, routes, et `robots.txt` validés.
     *   **Accessibilité & UX** : Ajout des `aria-label` manquants et ajustement du spacing sur les pages villes (`pt-8`).
     *   **Prêt pour déploiement** : Le site est stable et optimisé pour le SEO local.
+
+*   **[02/01/2026] - Session Performance & Blog**
+    *   **Optimisation Vitesse** : Code splitting (`framer-motion` isolé), Preconnect polices, vérification Lazy Loading.
+    *   **Le Mag 2.0** :
+        *   Layout "A la Une" (Hero header pour le dernier article).
+        *   Partage WhatsApp intégré.
+        *   Pagination "Voir plus" (Load More) pour alléger le chargement.

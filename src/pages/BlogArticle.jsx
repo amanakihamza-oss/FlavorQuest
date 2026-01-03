@@ -233,6 +233,17 @@ const BlogArticle = () => {
                         >
                             <Facebook size={18} />
                         </a>
+
+                        {/* WhatsApp Share Button */}
+                        <a
+                            href={`https://wa.me/?text=${encodeURIComponent(article.title + ' ' + window.location.href)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-10 h-10 rounded-full bg-green-50 text-[#25D366] border border-green-100 flex items-center justify-center transition-all shadow-sm hover:scale-110 hover:bg-[#25D366] hover:text-white"
+                            title="Partager sur WhatsApp"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21" /></svg>
+                        </a>
                     </div>
                 </aside>
 
@@ -266,6 +277,14 @@ const BlogArticle = () => {
                             className="text-[#1877F2]"
                         >
                             <Facebook size={20} />
+                        </a>
+                        <a
+                            href={`https://wa.me/?text=${encodeURIComponent(article.title + ' ' + window.location.href)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[#25D366]"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21" /></svg>
                         </a>
                         <div className="w-px h-4 bg-gray-300"></div>
                         <button onClick={handleShare} className="text-gray-600">
