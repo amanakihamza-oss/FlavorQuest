@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { db } from '../firebase';
-import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
+import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, where, getDocs, query } from 'firebase/firestore';
 import { uploadToImgBB } from '../utils/imgbb';
 
 const BlogContext = createContext();
@@ -179,16 +179,45 @@ export const BlogProvider = ({ children }) => {
         }
     }, [articles]);
 
+    // [AGENT ACTION] Fix Categories (Migration Script)
+    // Merges "City Guide" (and case variants) into "Guide"
+    useEffect(() => {
+        const fixCategories = async () => {
+            if (localStorage.getItem('category_fix_city_guide_v1')) return;
+
+            console.log("Running Category Migration: City Guide -> Guide");
+            const q = query(
+                collection(db, 'articles'),
+                where('category', 'in', ['City Guide', 'city guide', 'City guide'])
+            );
+
+            try {
+                const snapshot = await getDocs(q);
+                if (!snapshot.empty) {
+                    console.log(`Found ${snapshot.size} articles with bad category.`);
+                    snapshot.docs.forEach(async (docSnapshot) => {
+                        console.log(`Fixing category for ${docSnapshot.id}...`);
+                        await updateDoc(doc(db, 'articles', docSnapshot.id), { category: 'Guide' });
+                    });
+                } else {
+                    console.log("No articles found with bad category.");
+                }
+                localStorage.setItem('category_fix_city_guide_v1', 'true');
+            } catch (e) {
+                console.error("Migration failed:", e);
+            }
+        };
+
+        fixCategories();
+    }, []);
+
     // [AGENT ACTION] Inject Spanish Article (Safe Effect)
     useEffect(() => {
         const injectSpanishArticle = async () => {
             const key = 'spanish_article_injected';
             if (localStorage.getItem(key)) return;
 
-            // Lock immediately to prevent any re-entry
-            localStorage.setItem(key, 'true');
-
-            console.log("Injecting Spanish Article...");
+            console.log("Checking Spanish Article Injection...");
 
             const spanishArticle = {
                 slug: 'top-10-plats-espagnols-vocabulaire-gourmand',
@@ -244,8 +273,20 @@ export const BlogProvider = ({ children }) => {
             };
 
             try {
-                await addDoc(collection(db, 'articles'), spanishArticle);
-                console.log("Spanish SEO Article injected successfully");
+                // Check DB
+                const q = query(collection(db, 'articles'), where('slug', '==', spanishArticle.slug));
+                const snapshot = await getDocs(q);
+
+                if (snapshot.empty) {
+                    await addDoc(collection(db, 'articles'), spanishArticle);
+                    console.log("Spanish SEO Article injected successfully");
+                } else {
+                    console.log("Spanish Article already exists. Skipping.");
+                }
+
+                // Lock immediately
+                localStorage.setItem(key, 'true');
+
             } catch (e) {
                 console.error("Failed to inject Spanish article", e);
             }

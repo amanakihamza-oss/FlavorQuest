@@ -129,14 +129,14 @@ const OpeningHoursInput = ({ value, onChange }) => {
                                         <span className="text-xs text-gray-400 w-16">{idx === 0 ? 'Matin' : 'Soir'} :</span>
                                         <input
                                             type="time"
-                                            value={range.open}
+                                            value={range.open || ''}
                                             onChange={(e) => handleChange(day, 'open', e.target.value, idx)}
                                             className="px-2 py-1 rounded border border-gray-300 focus:outline-none focus:border-brand-orange bg-white w-24 text-sm"
                                         />
                                         <span className="text-gray-400">-</span>
                                         <input
                                             type="time"
-                                            value={range.close}
+                                            value={range.close || ''}
                                             onChange={(e) => handleChange(day, 'close', e.target.value, idx)}
                                             className="px-2 py-1 rounded border border-gray-300 focus:outline-none focus:border-brand-orange bg-white w-24 text-sm"
                                         />

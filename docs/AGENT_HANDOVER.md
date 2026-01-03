@@ -94,3 +94,29 @@ Si vous devez travailler sur ce projet, vérifiez systématiquement ces points :
         *   Layout "A la Une" (Hero header pour le dernier article).
         *   Partage WhatsApp intégré.
         *   Pagination "Voir plus" (Load More) pour alléger le chargement.
+
+---
+
+## 🛡️ 6. Règles de Création de Contenu (Anti-Amnésie)
+
+Pour éviter les régressions, tout agent doit respecter ces règles impératives :
+
+1.  **Idempotence des Données (Doublons)** :
+    *   **Ne jamais** se fier uniquement au LocalStorage pour vérifier si une donnée est déjà injectée.
+    *   **TOUJOURS** vérifier l'existence dans Firestore avant d'écrire (`check-before-write`).
+    *   Exemple : `where('slug', '==', newSlug)` sur la collection cible.
+
+2.  **Catégories Blog** :
+    *   **INTERDICTION** d'inventer des catégories.
+    *   Se référer strictement au fichier `src/utils/blogData.js`.
+    *   Règle spécifique : Utiliser **"Guide"** et JAMAIS "City Guide".
+
+3.  **Données Réelles Uniquement** :
+    *   **INTERDICTION** d'injecter des lieux fictifs ou des données de remplissage ("Lorem Ipsum", "Demo Restaurant").
+    *   Si le client demande d'ajouter des lieux, demander les infos réelles ou ne rien faire.
+    *   **Vérification Préalable** : Toujours vérifier `public/data/places.json` (ou la DB) pour éviter les doublons avant de créer un script d'ajout.
+    *   Les avis (reviews) doivent être à 0 par défaut, sauf si historique réel fourni.
+    *   **Tags Officiels** : Utiliser uniquement ces IDs pour peupler le tableau `tags` :
+        *   `halal`, `vegetarian`, `gluten-free`, `late-night`, `kids`, `top-rated`
+        *   `terrace`, `romantic`, `view`, `cheap`, `wifi`, `pets`, `delivery`
+
