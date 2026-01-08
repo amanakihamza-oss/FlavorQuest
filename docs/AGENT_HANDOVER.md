@@ -1,6 +1,6 @@
 # 📁 Dossier de Transmission (Handover) - FlavorQuest
 
-*Dernière mise à jour : 31 Décembre 2025*
+*Dernière mise à jour : 08 Janvier 2026*
 
 Ce document sert de référence pour tout agent (humain ou IA) prenant le relais sur le projet. Il concentre le contexte technique, l'état d'avancement et les points de vigilance.
 
@@ -39,6 +39,10 @@ Ce document sert de référence pour tout agent (humain ou IA) prenant le relais
     *   Si l'utilisateur tape une ville, on propose "Explorer [Ville]" qui redirige vers la page SEO dédiée.
     *   Si c'est un mot clé, on filte la liste globale.
     *   **Home Search Bar** : La saisie dans "Où ?" détecte aussi les accents et redirige vers `/ville` si aucun mot-clé n'est saisi.
+4.  **Blog (Le Mag)**
+    *   **Wizard de Création** : Processus en 2 étapes pour les rédacteurs (Contenu -> Métadonnées).
+    *   **Optimisation Images** : Compression WebP automatique côté client pour toutes les images (Cover et Editor).
+    *   **Validation** : Vérification des champs requis et feedback temps réel.
 
 3.  **Layout & Responsive**
     *   **Pages Villes** : Optimisées pour mobile (`px-4`, `text-3xl`) et Desktop (`px-6`, `text-5xl`).
@@ -57,6 +61,7 @@ Ce document sert de référence pour tout agent (humain ou IA) prenant le relais
 | **Prerender** | Timeout sur Vercel (Puppeteer trop lent sur les machines gratuites). | Le script a un `try/catch` global. S'il échoue, il ne casse pas le build, on fallback sur le SPA classique. |
 | **Search.jsx** | `ReferenceError: searchTerm` et boucles infinies. | Composant réécrit pour séparer l'état local du `query param` URL. |
 | **Sitemap** | URLs dupliquées ou accents mal gérés. | Création de la fonction utilitaire `slugifyCity` alignée entre `generate-sitemap.js` et `slugs.js`. |
+| **Blog Wizard** | Style Toolbar manquant & Erreur 500 (TDZ). | Ajout manuel des styles CSS Quill + Correction ordre déclaration `quillRef`. |
 
 ---
 
@@ -94,6 +99,12 @@ Si vous devez travailler sur ce projet, vérifiez systématiquement ces points :
         *   Layout "A la Une" (Hero header pour le dernier article).
         *   Partage WhatsApp intégré.
         *   Pagination "Voir plus" (Load More) pour alléger le chargement.
+
+*   **[08/01/2026] - Refonte Éditeur Blog (Wizard)**
+    *   Remplacement du formulaire monolithique par un **Wizard en 2 étapes**.
+    *   Intégration de `react-quill-new` avec styles customisés.
+    *   **Performance** : Intégration de `browser-image-compression` pour toutes les uploads images.
+    *   **Validation** : Build de production validé (0 erreurs).
 
 ---
 
