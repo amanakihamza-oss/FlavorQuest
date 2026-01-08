@@ -10,18 +10,7 @@ import { compressImage } from '../utils/compressImage';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { BLOG_CATEGORIES } from '../utils/blogData';
-
-const MODULES = {
-    toolbar: [
-        [{ 'header': [2, 3, false] }],
-        ['bold', 'italic', 'underline', 'strike'],
-        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-        ['link', 'clean']
-    ],
-    clipboard: {
-        matchVisual: false,
-    }
-};
+import { uploadToImgBB } from '../utils/imgbb';
 
 const FORMATS = [
     'header',
@@ -31,6 +20,52 @@ const FORMATS = [
 ];
 
 const CreateArticle = () => {
+
+    // Custom Image Handler for Quill
+    const imageHandler = React.useCallback(() => {
+        const input = document.createElement('input');
+        input.setAttribute('type', 'file');
+        input.setAttribute('accept', 'image/*');
+        input.click();
+
+        input.onchange = async () => {
+            const file = input.files[0];
+            if (file) {
+                try {
+                    const url = await uploadToImgBB(file);
+                    // Find the editor instance - this is tricky with functional components and refs
+                    // Simple hack: querySelector since we only have one editor
+                    // Better: use a ref for ReactQuill
+                    const quill = quillRef.current.getEditor();
+                    const range = quill.getSelection();
+                    quill.insertEmbed(range.index, 'image', url);
+                } catch (error) {
+                    console.error('Error uploading image:', error);
+                    alert("Erreur lors de l'upload de l'image");
+                }
+            }
+        };
+    }, []);
+
+    const modules = React.useMemo(() => ({
+        toolbar: {
+            container: [
+                [{ 'header': [2, 3, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                ['link', 'image', 'clean']
+            ],
+            handlers: {
+                image: imageHandler
+            }
+        },
+        clipboard: {
+            matchVisual: false,
+        }
+    }), [imageHandler]);
+
+    const quillRef = React.useRef(null); // Add ref
+
     const { addArticle } = useBlog();
     const { places } = usePlaces();
     const { user } = useAuth();
@@ -354,11 +389,17 @@ const CreateArticle = () => {
 
                             <div className="prose-editor">
                                 <ReactQuill
+                                    ref={quillRef}
                                     theme="snow"
                                     value={formData.content}
                                     onChange={handleContentChange}
-                                    modules={MODULES}
-                                    formats={FORMATS}
+                                    modules={modules}
+                                    formats={[
+                                        'header',
+                                        'bold', 'italic', 'underline', 'strike',
+                                        'list',
+                                        'link', 'image'
+                                    ]}
                                     className="bg-white rounded-xl overflow-hidden"
                                     style={{ height: '300px', marginBottom: '100px' }}
                                 />

@@ -46,7 +46,17 @@ const PlaceDetails = () => {
             return <PageLoader />;
         }
         // Confirmed missing in both Static AND Live data
-        return <div className="text-center py-20">Lieu introuvable</div>;
+        // Confirmed missing in both Static AND Live data
+        return (
+            <div className="text-center py-20">
+                <SEO title="Lieu introuvable - FlavorQuest" description="Ce lieu n'existe plus." noindex={true} />
+                <h2 className="text-2xl font-bold text-gray-700 mb-4">Lieu introuvable</h2>
+                <p className="text-gray-500 mb-6">Ce lieu a été supprimé ou n'existe pas.</p>
+                <Link to="/search" className="bg-brand-orange text-white px-6 py-2 rounded-full hover:bg-orange-600 transition-colors">
+                    Retour à la recherche
+                </Link>
+            </div>
+        );
     }
 
     const { status, color } = checkIsOpen(place.openingHours);

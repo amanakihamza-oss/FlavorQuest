@@ -1,7 +1,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 
-const SEO = ({ title, description, image, schema, type = 'website', keywords, breadcrumbs }) => {
+const SEO = ({ title, description, image, schema, type = 'website', keywords, breadcrumbs, noindex = false }) => {
     const siteTitle = 'FlavorQuest';
     // If title already contains "FlavorQuest", don't append it again
     const rawTitle = title ? (title.includes(siteTitle) ? title : `${title} | ${siteTitle}`) : siteTitle;
@@ -44,6 +44,8 @@ const SEO = ({ title, description, image, schema, type = 'website', keywords, br
             <title>{fullTitle}</title>
             <meta name="description" content={description} />
             {keywords && <meta name="keywords" content={keywords} />}
+            {/* Conditional NoIndex */}
+            {noindex && <meta name="robots" content="noindex" />}
             {/* Bing Verification Placeholder */}
             {/* <meta name="msvalidate.01" content="YOUR_BING_CODE_HERE" /> */}
 

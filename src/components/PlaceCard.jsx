@@ -5,7 +5,19 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { getPlaceUrl } from '../utils/url';
 
+// Helper to optimize images
+const optimizeImage = (url, width = 600) => {
+    if (!url) return null;
+    if (url.includes('images.unsplash.com')) {
+        // If it already has params, append or replace? Simplest is to append specific overrides
+        // Unsplash API prioritizes the last parameter often, or we can just append.
+        return `${url}&w=${width}&q=80&auto=format`;
+    }
+    return url;
+};
+
 const PlaceCard = ({ id, name, rating, reviews, image, category, distance, status, openingHours, city, isSponsored, slug, priceLevel }) => {
+    const optimizedImage = optimizeImage(image);
     const { favorites, toggleFavorite, isAuthenticated, setShowAuthModal } = useAuth();
     const { showToast } = useToast();
     const isFavorite = favorites.includes(id);
@@ -35,7 +47,7 @@ const PlaceCard = ({ id, name, rating, reviews, image, category, distance, statu
                     <img src="/favicon.svg" alt="" className="absolute w-12 h-12 opacity-20 grayscale" />
 
                     <img
-                        src={image}
+                        src={optimizedImage}
                         alt={name}
                         loading="lazy"
                         decoding="async"
