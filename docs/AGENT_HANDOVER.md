@@ -1,6 +1,6 @@
 # 📁 Dossier de Transmission (Handover) - FlavorQuest
 
-*Dernière mise à jour : 08 Janvier 2026*
+*Dernière mise à jour : 09 Janvier 2026*
 
 Ce document sert de référence pour tout agent (humain ou IA) prenant le relais sur le projet. Il concentre le contexte technique, l'état d'avancement et les points de vigilance.
 
@@ -105,6 +105,30 @@ Si vous devez travailler sur ce projet, vérifiez systématiquement ces points :
     *   Intégration de `react-quill-new` avec styles customisés.
     *   **Performance** : Intégration de `browser-image-compression` pour toutes les uploads images.
     *   **Validation** : Build de production validé (0 erreurs).
+
+*   **[09/01/2026] - Session Corrections Blog & UX**
+    *   **Fix Césure de Mots** : Correction du problème de mots coupés en fin de ligne (ex: "Charl-eroi").
+        *   **Cause** : Espaces insécables (`&nbsp;` / `\u00A0`) dans le contenu collé depuis Word ou autres éditeurs.
+        *   **Solution** : Nettoyage automatique dans `renderContent()` de `BlogArticle.jsx` qui remplace tous les `&nbsp;` par des espaces normaux.
+        *   **Impact** : Tous les articles (nouveaux et existants) sont désormais nettoyés automatiquement à l'affichage.
+    
+    *   **Amélioration Visibilité des Liens** :
+        *   Ajout de styles Tailwind pour les liens dans les articles : couleur orange, soulignement, effet hover.
+        *   Classes ajoutées : `prose-a:text-brand-orange prose-a:font-medium prose-a:underline prose-a:decoration-brand-orange/30`.
+        *   Les liens sources sont désormais clairement identifiables et cliquables.
+    
+    *   **Fix Sidebar Sticky** : Correction de la sidebar "Lieux cités" qui ne suivait plus le scroll.
+        *   **Cause** : L'élément `<aside>` avec `items-start` ne prenait que la hauteur de son contenu (1344px) au lieu de s'étendre sur toute la hauteur de l'article (2991px).
+        *   **Solution** : Ajout de la classe `h-full` sur l'`<aside>` pour qu'il s'étende sur toute la hauteur.
+        *   **Impact** : La sidebar reste sticky sur toute la durée de la lecture de l'article.
+    
+    *   **Fix Bouton J'aime** : Restauration de la fonctionnalité du bouton J'aime sur les articles.
+        *   **Cause** : Champ `likes` manquant sur les nouveaux articles créés.
+        *   **Solution** : 
+            *   Ajout de `likes: 0` par défaut dans `SEED_ARTICLES` et `addArticle()` du `BlogContext.jsx`.
+            *   Amélioration de `toggleArticleLike()` pour gérer les cas où le champ n'existe pas (avec `getDoc` et validation).
+            *   Script de migration créé : `scripts/add-likes-to-articles.js`.
+        *   **Impact** : Tous les nouveaux articles ont désormais le champ likes initialisé correctement.
 
 ---
 

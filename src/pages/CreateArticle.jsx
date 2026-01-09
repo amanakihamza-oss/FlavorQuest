@@ -49,6 +49,51 @@ const CreateArticle = () => {
         };
     }, []);
 
+    // Intercept Paste to handle images
+    useEffect(() => {
+        if (!quillRef.current) return;
+
+        const editor = quillRef.current.getEditor();
+        const root = editor.root;
+
+        const handlePaste = async (e) => {
+            const clipboardData = e.clipboardData || window.clipboardData;
+            const items = clipboardData.items;
+
+            if (!items) return;
+
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    e.preventDefault(); // Stop base64 insertion
+                    const file = items[i].getAsFile();
+
+                    if (file) {
+                        try {
+                            const range = editor.getSelection(true);
+                            // Insert placeholder
+                            editor.insertText(range.index, '⏳ Upload en cours...', 'bold', true);
+
+                            // Compress & Upload
+                            const compressed = await compressImage(file);
+                            const url = await uploadToImgBB(compressed);
+
+                            // Remove placeholder and insert image
+                            editor.deleteText(range.index, '⏳ Upload en cours...'.length);
+                            editor.insertEmbed(range.index, 'image', url);
+                        } catch (err) {
+                            console.error(err);
+                            alert("Erreur lors de l'upload de l'image collée");
+                        }
+                    }
+                    return; // Handle only one image for now or the first one found
+                }
+            }
+        };
+
+        root.addEventListener('paste', handlePaste);
+        return () => root.removeEventListener('paste', handlePaste);
+    }, []);
+
     const modules = React.useMemo(() => ({
         toolbar: {
             container: [
@@ -183,6 +228,13 @@ const CreateArticle = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Check for Base64 images (which cause the 1MB limit error)
+        if (formData.content.includes('src="data:image')) {
+            showToast("⚠️ Images trop lourdes détectées ! Veuillez utiliser le bouton 'Image' pour les uploader (ne pas coller directement).", "error");
+            return;
+        }
+
         setIsSubmitting(true);
 
         try {

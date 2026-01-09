@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { usePlaces } from '../context/PlacesContext';
 import { useBlog } from '../context/BlogContext';
-import { Check, X, Clock, Eye, Trash2, AlertCircle, MoreHorizontal, ChevronDown, MessageSquare, Pen, MapPin, Star, Search, ShieldAlert } from 'lucide-react';
+import { Check, X, Clock, Eye, Trash2, AlertCircle, MoreHorizontal, ChevronDown, MessageSquare, Pen, MapPin, Star, Search, ShieldAlert, Mail } from 'lucide-react';
 import FeedbackModal from '../components/FeedbackModal';
 import EditPlaceModal from '../components/EditPlaceModal';
 import EditArticleModal from '../components/EditArticleModal';
+import MessagesList from '../components/MessagesList';
 import { geocodeAddress } from '../utils/geocoding';
 
 const AdminDashboard = () => {
@@ -233,6 +234,12 @@ const AdminDashboard = () => {
                         )}
                     </button>
                     <button
+                        onClick={() => setActiveTab('messages')}
+                        className={`px-6 py-2.5 rounded-lg font-bold text-sm transition-all ${activeTab === 'messages' ? 'bg-white text-brand-dark shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                    >
+                        ✉️ Messages
+                    </button>
+                    <button
                         onClick={() => setActiveTab('config')}
                         className={`px-6 py-2.5 rounded-lg font-bold text-sm transition-all ${activeTab === 'config' ? 'bg-white text-brand-dark shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
                     >
@@ -297,6 +304,8 @@ const AdminDashboard = () => {
                     rejectClaim={rejectClaim}
                     deleteClaim={deleteClaim}
                 />
+            ) : activeTab === 'messages' ? (
+                <MessagesList searchTerm={searchTerm} />
             ) : (
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 min-h-[400px] animate-fade-in">
                     <div className="overflow-x-visible">

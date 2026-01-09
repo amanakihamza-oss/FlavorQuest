@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
-import { Home, Search, Heart, User, Globe } from 'lucide-react';
+import { Home, Search, Heart, User, Globe, Plus } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import LanguageSwitcher from './LanguageSwitcher';
@@ -44,11 +44,22 @@ const Layout = () => {
                     )}
                 </NavLink>
                 <div className="flex items-center gap-6">
-                    <nav className="flex gap-6">
+                    <nav className="flex gap-6 items-center">
                         <NavLink to="/" className={({ isActive }) => isActive ? "text-brand-orange font-medium" : "text-brand-dark hover:text-brand-orange"}>{t('nav_home')}</NavLink>
                         <NavLink to="/blog" className={({ isActive }) => isActive ? "text-brand-orange font-medium" : "text-brand-dark hover:text-brand-orange"}>{t('nav_mag')}</NavLink>
-                        <NavLink to="/search" className={({ isActive }) => isActive ? "text-brand-orange font-medium" : "text-brand-dark hover:text-brand-orange"}>{t('nav_search')}</NavLink>
-                        <NavLink to="/submit" className={({ isActive }) => isActive ? "text-brand-orange font-medium" : "text-brand-dark hover:text-brand-orange"}>{t('nav_submit')}</NavLink>
+                        <NavLink to="/contact" className={({ isActive }) => isActive ? "text-brand-orange font-medium" : "text-brand-dark hover:text-brand-orange"}>Contact</NavLink>
+                        <NavLink
+                            to="/search"
+                            className="bg-brand-orange text-white px-5 py-2.5 rounded-lg font-medium hover:bg-orange-600 transition-colors shadow-sm flex items-center gap-2"
+                        >
+                            <Search size={18} /> {t('nav_search')}
+                        </NavLink>
+                        <NavLink
+                            to="/submit"
+                            className="border-2 border-brand-orange text-brand-orange px-5 py-2.5 rounded-lg font-medium hover:bg-brand-orange hover:text-white transition-colors flex items-center gap-2"
+                        >
+                            <Plus size={18} /> {t('nav_submit')}
+                        </NavLink>
                     </nav>
                     <div className="h-6 w-px bg-gray-200" />
                     <NavLink to="/saved" className={({ isActive }) => `p-2 rounded-full hover:bg-gray-100 transition-colors ${isActive ? 'text-red-500' : 'text-gray-400 hover:text-red-500'}`} title="Mes Favoris">

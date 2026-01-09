@@ -17,6 +17,7 @@ const SEED_ARTICLES = [
         date: '2024-03-20',
         author: 'Julien StreetFood',
         readTime: '5 min',
+        likes: 0,
         content: `
             <h2>Le phénomène qui écrase tout</h2>
             <p>Oubliez les burgers épais et juteux d'antan. La mode est au "Smash" : une boule de viande écrasée violemment sur une plaque brûlante. Résultat ? Une croûte caramélisée incomparable (la réaction de Maillard pour les intellos) et un cœur fondant.</p>
@@ -36,6 +37,7 @@ const SEED_ARTICLES = [
         date: '2024-03-15',
         author: 'Sarah Gourmande',
         readTime: '4 min',
+        likes: 0,
         content: `<h2>Le brunch, c'est sacré !</h2><p>Namur regorge de petites pépites...</p>`,
         relatedPlaceIds: ['1', '4'],
         status: 'approved'
@@ -50,6 +52,7 @@ const SEED_ARTICLES = [
         date: '2024-03-10',
         author: 'Maxime Vert',
         readTime: '6 min',
+        likes: 0,
         content: `<h2>Manger sans cruauté à Liège</h2><p>Une scène culinaire végétale vibrante...</p>`,
         relatedPlaceIds: ['3'],
         status: 'approved'
@@ -64,6 +67,7 @@ const SEED_ARTICLES = [
         date: '2024-03-25',
         author: 'FlavorQuest Team',
         readTime: '3 min',
+        likes: 0,
         content: `
             <h2>La Cité Ardente et ses pépites salées</h2>
             <p>Liège n'est pas seulement la capitale de la gaufre. C'est aussi un repaire incroyable pour les amateurs de street food gouteuse et généreuse.</p>
@@ -134,50 +138,15 @@ export const BlogProvider = ({ children }) => {
 
     // ONE-OFF CLEANUP SCRIPT (Corrective Action)
     // Run this once to clean the duplicates caused by loop
+    // [AGENT ACTION] DISABLED CLEANUP to prevent resource exhaustion loop
+    /* 
     useEffect(() => {
         const performCleanup = async () => {
-            if (articles.length > 50 && !localStorage.getItem('cleanup_done_v1')) {
-                console.log("Detecting huge number of articles... starting cleanup.");
-
-                // Group by slug
-                const slugMap = {};
-
-                articles.forEach(article => {
-                    if (!slugMap[article.slug]) {
-                        slugMap[article.slug] = [];
-                    }
-                    slugMap[article.slug].push(article.id);
-                });
-
-                let deleteCount = 0;
-                const poolSize = articles.length;
-
-                // Iterate and keep only the FIRST id for each slug
-                for (const slug in slugMap) {
-                    const ids = slugMap[slug];
-                    if (ids.length > 1) {
-                        // Keep index 0, delete the rest
-                        const toDelete = ids.slice(1);
-                        for (const id of toDelete) {
-                            try {
-                                await deleteDoc(doc(db, 'articles', id));
-                                deleteCount++;
-                                if (deleteCount % 20 === 0) console.log(`Deleted ${deleteCount} duplicates...`);
-                            } catch (e) {
-                                console.error("Cleanup error", e);
-                            }
-                        }
-                    }
-                }
-                console.log(`Cleanup finished. Removed ${deleteCount} duplicate articles.`);
-                localStorage.setItem('cleanup_done_v1', 'true');
-            }
+            // ... (Disabled for safety)
         };
-
-        if (articles.length > 0) {
-            performCleanup();
-        }
-    }, [articles]);
+        // performCleanup();
+    }, []); 
+    */
 
     // [AGENT ACTION] Fix Categories (Migration Script)
     // Merges "City Guide" (and case variants) into "Guide"
@@ -230,6 +199,7 @@ export const BlogProvider = ({ children }) => {
             date: new Date().toISOString().split('T')[0],
             readTime: '5 min',
             relatedPlaceIds: [],
+            likes: 0,
             status: 'pending',
             ...articleData,
             image: imageUrl || "https://images.unsplash.com/photo-1499728603263-13726abce5fd?q=80&w=2070&auto=format&fit=crop"
@@ -280,12 +250,22 @@ export const BlogProvider = ({ children }) => {
 
         try {
             // Async Firestore update
-            const { increment } = await import('firebase/firestore');
+            const { increment, getDoc, setDoc } = await import('firebase/firestore');
 
+            // Check if document exists and has likes field
+            const docSnap = await getDoc(articleRef);
+            if (!docSnap.exists()) {
+                console.error('Article not found:', id);
+                return newLikedState;
+            }
+
+            const currentLikes = docSnap.data().likes || 0;
+
+            // Update with increment or set initial value
             if (currentlyLiked) {
-                await updateDoc(articleRef, { likes: increment(-1) });
+                await updateDoc(articleRef, { likes: Math.max(0, currentLikes - 1) });
             } else {
-                await updateDoc(articleRef, { likes: increment(1) });
+                await updateDoc(articleRef, { likes: currentLikes + 1 });
             }
         } catch (e) {
             console.error("Error toggling like: ", e);

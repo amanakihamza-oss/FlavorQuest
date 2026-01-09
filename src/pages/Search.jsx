@@ -316,7 +316,7 @@ const Search = () => {
 
             {/* Smart Header & Advanced Search Controls */}
             <motion.div
-                className="bg-white border-b border-gray-100 shadow-sm pt-4 pb-0 px-6"
+                className="bg-white border-b border-gray-100 shadow-sm pt-4 pb-0 px-6 relative z-10"
             >
                 <div className="max-w-4xl mx-auto space-y-4">
 

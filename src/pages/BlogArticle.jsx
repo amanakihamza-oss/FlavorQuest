@@ -9,9 +9,16 @@ import SEO from '../components/SEO';
 import { Clock, Calendar, ChevronLeft, MapPin, Heart, Share2, Facebook, Twitter, ArrowRight } from 'lucide-react';
 
 // Helper to safely render HTML content with minimal sanitization for trusted admin content
+// Also cleans non-breaking spaces that can cause word-breaking issues
 const renderContent = (content) => {
     if (!content) return null;
-    return <div dangerouslySetInnerHTML={{ __html: content }} />;
+
+    // Replace non-breaking spaces with regular spaces to prevent word-breaking issues
+    const cleanedContent = content
+        .replace(/&nbsp;/g, ' ')
+        .replace(/\u00A0/g, ' ');
+
+    return <div dangerouslySetInnerHTML={{ __html: cleanedContent }} />;
 };
 
 const BlogArticle = () => {
@@ -198,11 +205,12 @@ const BlogArticle = () => {
                 </div>
             </div>
 
-            <main className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 lg:grid-cols-12 gap-12">
+            {/* Refactored Grid: Robust 12-Column Grid (1 Actions - 8 Content - 3 Sidebar) */}
+            <main className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 lg:grid-cols-12 gap-6 xl:gap-12 items-start">
 
-                {/* Floating Sidebar Actions (Desktop) */}
-                <aside className="hidden lg:block lg:col-span-1 h-full pt-4">
-                    <div className="sticky top-40 flex flex-col gap-6 items-center">
+                {/* Left Column: Actions (Desktop Sticky) - Takes 1 column */}
+                <aside className="hidden lg:col-span-1 lg:block h-full pt-2">
+                    <div className="sticky top-32 flex flex-col gap-6 items-center">
                         <button
                             onClick={handleLike}
                             className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-sm hover:scale-110 border border-gray-100 ${isLiked ? 'bg-red-50 text-red-500 border-red-100' : 'bg-white text-gray-400 hover:text-red-500'}`}
@@ -247,11 +255,14 @@ const BlogArticle = () => {
                     </div>
                 </aside>
 
-                {/* Main Content Area */}
-                <article className="lg:col-span-7">
+                {/* Center Column: Content - Takes 8 columns */}
+                <article className="lg:col-span-8 min-w-0 w-full text-left">
 
                     {/* Content */}
-                    <div className={`prose prose-lg prose-slate max-w-none prose-headings:font-bold prose-headings:text-gray-900 prose-p:text-gray-600 prose-img:rounded-2xl prose-img:shadow-sm prose-lead:text-xl prose-lead:font-normal prose-lead:text-gray-500 ${article.hasDropCap ? 'prose-p:first-of-type:first-letter:float-left prose-p:first-of-type:first-letter:text-7xl prose-p:first-of-type:first-letter:pr-4 prose-p:first-of-type:first-letter:font-bold prose-p:first-of-type:first-letter:text-brand-orange prose-p:first-of-type:first-letter:leading-none' : ''}`}>
+                    <div
+                        className={`prose prose-lg prose-slate w-full max-w-full pr-6 hyphens-none prose-headings:font-bold prose-headings:text-gray-900 prose-p:text-gray-600 prose-img:rounded-2xl prose-img:shadow-sm prose-lead:text-xl prose-lead:font-normal prose-lead:text-gray-500 prose-a:text-brand-orange prose-a:font-medium prose-a:underline prose-a:decoration-brand-orange/30 prose-a:underline-offset-2 hover:prose-a:decoration-brand-orange hover:prose-a:text-orange-600 prose-a:transition-colors ${article.hasDropCap ? 'prose-p:first-of-type:first-letter:float-left prose-p:first-of-type:first-letter:text-7xl prose-p:first-of-type:first-letter:pr-4 prose-p:first-of-type:first-letter:font-bold prose-p:first-of-type:first-letter:text-brand-orange prose-p:first-of-type:first-letter:leading-none' : ''}`}
+                        style={{ wordBreak: 'normal', overflowWrap: 'break-word', webkitHyphens: 'none', hyphens: 'none' }}
+                    >
                         {/* Excerpt as Lead Paragraph with Drop Cap applied via classes above */}
                         <p className="lead border-l-4 border-brand-orange pl-6 italic mb-10 text-gray-700">
                             {article.excerpt}
@@ -304,8 +315,8 @@ const BlogArticle = () => {
                     </div>
                 </article>
 
-                {/* Sidebar Right (Related) */}
-                <aside className="lg:col-span-4 space-y-10 lg:pl-12 lg:border-l lg:border-gray-100">
+                {/* Sidebar Right (Related) - Takes 3 columns */}
+                <aside className="lg:col-span-3 space-y-10 lg:pl-6 lg:border-l lg:border-gray-100 h-full">
                     <div className="sticky top-32 space-y-12">
                         {relatedPlaces.length > 0 && (
                             <div>

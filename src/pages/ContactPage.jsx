@@ -2,19 +2,40 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Phone, MapPin, Send, CheckCircle, ArrowRight, MessageSquare } from 'lucide-react';
 import SEO from '../components/SEO';
+import { db } from '../firebase';
+import { collection, addDoc } from 'firebase/firestore';
 
 const ContactPage = () => {
     const [formState, setFormState] = useState({ name: '', email: '', subject: '', message: '' });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
+    const [error, setError] = useState(null);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        setIsSubmitting(false);
-        setSubmitted(true);
+        setError(null);
+
+        try {
+            // Save message to Firebase
+            await addDoc(collection(db, 'messages'), {
+                name: formState.name,
+                email: formState.email,
+                subject: formState.subject || 'Non spécifié',
+                message: formState.message,
+                date: new Date().toISOString(),
+                read: false,
+                status: 'new'
+            });
+
+            setSubmitted(true);
+            setFormState({ name: '', email: '', subject: '', message: '' });
+        } catch (err) {
+            console.error('Error submitting contact form:', err);
+            setError('Une erreur est survenue. Veuillez réessayer ou nous contacter par email.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -169,6 +190,12 @@ const ContactPage = () => {
                                             onChange={e => setFormState({ ...formState, message: e.target.value })}
                                         ></textarea>
                                     </div>
+
+                                    {error && (
+                                        <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
+                                            {error}
+                                        </div>
+                                    )}
 
                                     <button
                                         type="submit"
