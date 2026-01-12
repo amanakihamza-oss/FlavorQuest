@@ -4,4 +4,4 @@ Disallow: /search?*
 Disallow: /admin
 Disallow: /login
 
-Sitemap: https://flavorquest.be/sitemap.xml
+Sitemap: https://www.flavorquest.be/sitemap.xml

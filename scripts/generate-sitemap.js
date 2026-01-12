@@ -17,7 +17,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const BASE_URL = 'https://flavorquest.be';
+const BASE_URL = 'https://www.flavorquest.be';
 
 // Helper for consistent slug generation (matches src/utils/slugs.js)
 const generateSlug = (name, city = '') => {

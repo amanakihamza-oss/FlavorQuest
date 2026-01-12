@@ -81,32 +81,67 @@ const PlaceDetails = () => {
 
     const schema = {
         "@context": "https://schema.org",
-        "@type": getSchemaType(place.category),
-        "name": place.name,
-        "image": [place.image],
-        "description": place.description || `Découvrez ${place.name} à ${place.city || 'Namur'}.`,
-        "address": {
-            "@type": "PostalAddress",
-            "streetAddress": place.address || "Centre ville",
-            "addressLocality": place.city || "Namur",
-            "postalCode": "5000",
-            "addressCountry": "BE"
-        },
-        "geo": {
-            "@type": "GeoCoordinates",
-            "latitude": place.lat || 50.4674,
-            "longitude": place.lng || 4.8720
-        },
-        "url": window.location.href,
-        "telephone": place.phone || "+3200000000",
-        "servesCuisine": place.category,
-        "priceRange": place.priceLevel || "€€",
-        "openingHoursSpecification": getSchemaOpeningHours(place.openingHours),
-        "aggregateRating": {
-            "@type": "AggregateRating",
-            "ratingValue": place.rating || 4.5,
-            "reviewCount": place.reviews || 1
-        }
+        "@graph": [
+            {
+                "@type": getSchemaType(place.category),
+                "name": place.name,
+                "image": [place.image],
+                "description": place.description || `Découvrez ${place.name} à ${place.city || 'Namur'}.`,
+                "address": {
+                    "@type": "PostalAddress",
+                    "streetAddress": place.address || "Centre ville",
+                    "addressLocality": place.city || "Namur",
+                    "postalCode": "5000",
+                    "addressCountry": "BE"
+                },
+                "geo": {
+                    "@type": "GeoCoordinates",
+                    "latitude": place.lat || 50.4674,
+                    "longitude": place.lng || 4.8720
+                },
+                "url": window.location.href,
+                "telephone": place.phone || "+3200000000",
+                "servesCuisine": place.category,
+                "priceRange": place.priceLevel || "€€",
+                "openingHoursSpecification": getSchemaOpeningHours(place.openingHours),
+                "aggregateRating": {
+                    "@type": "AggregateRating",
+                    "ratingValue": place.rating || 4.5,
+                    "reviewCount": place.reviews || 1
+                }
+            },
+            {
+                "@type": "FAQPage",
+                "mainEntity": [
+                    {
+                        "@type": "Question",
+                        "name": `Quelles sont les heures d'ouverture de ${place.name} ?`,
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": typeof place.openingHours === 'object'
+                                ? `Les horaires de ${place.name} sont : ${getFormattedHours(place.openingHours).map(h => `${h.day} : ${h.hours}`).join(', ')}.`
+                                : `Les horaires sont : ${place.openingHours || 'Non renseignés'}.`
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": `Où se trouve ${place.name} ?`,
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": `${place.name} est situé à ${place.address || 'Centre ville'}, ${place.city || 'Namur'}, Belgique.`
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": `Quel type de cuisine propose ${place.name} ?`,
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": `${place.name} est un établissement de type ${place.category} proposant une cuisine variée.`
+                        }
+                    }
+                ]
+            }
+        ]
     };
 
     const pageTitle = `${place.name} - ${place.category} ${place.city || 'Namur'}`;
