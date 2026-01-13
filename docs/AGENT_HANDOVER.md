@@ -130,6 +130,16 @@ Si vous devez travailler sur ce projet, vérifiez systématiquement ces points :
             *   Script de migration créé : `scripts/add-likes-to-articles.js`.
         *   **Impact** : Tous les nouveaux articles ont désormais le champ likes initialisé correctement.
 
+*   **[12/01/2026] - Session SEO & Optimisation CTR**
+    *   **Fix Redirections GSC** : Résolution des erreurs "Page avec redirection" dans Google Search Console.
+        *   **Cause** : Incohérence entre `sitemap.xml` (généré avec `https://flavorquest.be`) et le site réel (redirige vers `https://www.flavorquest.be`).
+        *   **Solution** : Mise à jour de `BASE_URL` dans `scripts/generate-sitemap.js` et de l'URL du sitemap dans `robots.txt` pour utiliser exclusivement la version `www`.
+        *   **Impact** : Indexation propre sans chaînes de redirection.
+    *   **Optimisation CTR (Taux de Clic)** :
+        *   **Rich Snippets FAQ** : Ajout automatique de Schema.org `FAQPage` sur toutes les fiches restaurants (Généré dynamiquement depuis les horaires et l'adresse).
+        *   **Rich Snippets Restaurant** : Affinement du schéma `Restaurant` (ajout `servesCuisine`, `priceRange`) pour l'affichage des prix (€€) et du type de cuisine.
+        *   **Social Sharing** : Amélioration des balises OpenGraph (`og:image:width/height/alt`) pour garantir de beaux aperçus sur Facebook/WhatsApp.
+
 ---
 
 ## 🛡️ 6. Règles de Création de Contenu (Anti-Amnésie)
