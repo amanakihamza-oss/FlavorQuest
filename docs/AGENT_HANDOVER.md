@@ -1,6 +1,6 @@
 # 📁 Dossier de Transmission (Handover) - FlavorQuest
 
-*Dernière mise à jour : 09 Janvier 2026*
+*Dernière mise à jour : 26 Janvier 2026*
 
 Ce document sert de référence pour tout agent (humain ou IA) prenant le relais sur le projet. Il concentre le contexte technique, l'état d'avancement et les points de vigilance.
 
@@ -139,6 +139,27 @@ Si vous devez travailler sur ce projet, vérifiez systématiquement ces points :
         *   **Rich Snippets FAQ** : Ajout automatique de Schema.org `FAQPage` sur toutes les fiches restaurants (Généré dynamiquement depuis les horaires et l'adresse).
         *   **Rich Snippets Restaurant** : Affinement du schéma `Restaurant` (ajout `servesCuisine`, `priceRange`) pour l'affichage des prix (€€) et du type de cuisine.
         *   **Social Sharing** : Amélioration des balises OpenGraph (`og:image:width/height/alt`) pour garantir de beaux aperçus sur Facebook/WhatsApp.
+
+*   **[26/01/2026] - Session Admin & UX Améliorations**
+    *   **Featured Article Selection** : Ajout de la possibilité de choisir l'article "À la une" depuis l'admin.
+        *   **Nouvelle fonctionnalité** : Bouton étoile ⭐ dans l'onglet Articles de l'admin.
+        *   **Backend** : Méthode `setFeaturedArticle()` dans `BlogContext.jsx` qui garantit qu'un seul article est featured à la fois.
+        *   **Frontend** : `BlogHome.jsx` affiche automatiquement l'article featured avec fallback sur le plus récent.
+        *   **Impact** : Contrôle éditorial total sur le contenu "À la une" du blog.
+    
+    *   **Filtre "Ouvert maintenant" sur Pages Ville** :
+        *   **Ajout** : Bouton "Ouvert maintenant" sur toutes les pages de villes (`CityPage.jsx`).
+        *   **Logique** : Utilise la fonction `checkIsOpen()` pour filtrer en temps réel les restaurants ouverts.
+        *   **UI** : Bouton avec style cohérent (vert quand actif), positionné au-dessus de la FilterBar.
+    
+    *   **Sélecteur de Ville dans Random Discovery** :
+        *   **Amélioration** : Le bouton "Pas d'inspiration ?" (`MagicRandomizer.jsx`) propose maintenant un filtre ville optionnel.
+        *   **Fonctionnement** : 
+            *   Dropdown "Cibler une ville ?" avec option "Toute la Wallonie" par défaut.
+            *   Si une ville est choisie, seuls les lieux de cette ville sont dans le tirage aléatoire.
+            *   Bouton "Lancer la recherche" pour démarrer (pas d'auto-start).
+        *   **UX** : Close button amélioré avec meilleure visibilité (fond blanc, ombre, bordure).
+        *   **Responsive** : Padding optimisé (pt-16) pour éviter que le contenu ne cache le bouton X.
 
 ---
 

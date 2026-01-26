@@ -10,7 +10,7 @@ import { geocodeAddress } from '../utils/geocoding';
 
 const AdminDashboard = () => {
     const { places, reviews, claims, approvePlace, rejectPlace, reviewPlace, deletePlace, sendFeedback, updatePlace, filters, addFilter, deleteFilter, migrateSlugs, deleteReview, approveClaim, rejectClaim, deleteClaim } = usePlaces();
-    const { articles, approveArticle, rejectArticle, deleteArticle } = useBlog(); // Ensure we destruct actions here for ArticleList
+    const { articles, approveArticle, rejectArticle, deleteArticle, setFeaturedArticle } = useBlog(); // Ensure we destruct actions here for ArticleList
     const [selectedPlace, setSelectedPlace] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -383,6 +383,7 @@ const AdminDashboard = () => {
                                 approveArticle={approveArticle}
                                 rejectArticle={rejectArticle}
                                 deleteArticle={deleteArticle}
+                                setFeaturedArticle={setFeaturedArticle}
                             />
                         )}
                     </div>
@@ -728,7 +729,7 @@ const ReviewList = ({ reviews = [], places = [], deleteReview, searchTerm }) => 
     );
 };
 
-const ArticleList = ({ onEdit, articles, approveArticle, rejectArticle, deleteArticle }) => {
+const ArticleList = ({ onEdit, articles, approveArticle, rejectArticle, deleteArticle, setFeaturedArticle }) => {
     // Articles are now passed as props to support filtering from parent
 
     const getStatusBadge = (status) => {
@@ -770,6 +771,13 @@ const ArticleList = ({ onEdit, articles, approveArticle, rejectArticle, deleteAr
                         </td>
                         <td className="px-6 py-4 text-right">
                             <div className="flex justify-end gap-2">
+                                <button
+                                    onClick={() => setFeaturedArticle(article.id)}
+                                    className={`p-2 rounded-lg transition-colors ${article.featured ? 'bg-yellow-100 text-yellow-600' : 'bg-gray-50 text-gray-400 hover:bg-yellow-50 hover:text-yellow-500'}`}
+                                    title={article.featured ? "Retirer de la une" : "Mettre à la une"}
+                                >
+                                    <Star size={18} className={article.featured ? "fill-yellow-600" : ""} />
+                                </button>
                                 <button
                                     onClick={() => onEdit(article)}
                                     className="p-2 bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-100 transition-colors"

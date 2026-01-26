@@ -277,6 +277,45 @@ export const BlogProvider = ({ children }) => {
         return newLikedState;
     };
 
+    // Set Featured Article (only one at a time)
+    const setFeaturedArticle = async (articleId) => {
+        try {
+            console.log('🎯 Setting featured article:', articleId);
+
+            // Get the article being clicked
+            const targetArticle = articles.find(a => a.id === articleId);
+
+            // If clicking on already featured article, unfeature it
+            if (targetArticle?.featured) {
+                console.log('⭐ Removing featured status');
+                const articleRef = doc(db, 'articles', articleId);
+                await updateDoc(articleRef, { featured: false });
+                return;
+            }
+
+            // First, unset all other featured articles
+            const featuredQuery = query(collection(db, 'articles'), where('featured', '==', true));
+            const featuredSnapshot = await getDocs(featuredQuery);
+
+            console.log(`📋 Found ${featuredSnapshot.docs.length} currently featured articles`);
+
+            const unsetPromises = featuredSnapshot.docs.map(doc =>
+                updateDoc(doc.ref, { featured: false })
+            );
+            await Promise.all(unsetPromises);
+
+            // Then set the new featured article
+            const articleRef = doc(db, 'articles', articleId);
+            await updateDoc(articleRef, { featured: true });
+
+            console.log('✅ Article featured updated successfully');
+        } catch (error) {
+            console.error('❌ Error setting featured article:', error);
+            alert(`Erreur: ${error.message}`);
+            throw error;
+        }
+    };
+
     // Getters
     const getArticleBySlug = (slug) => {
         return articles.find(article => article.slug === slug);
@@ -307,6 +346,7 @@ export const BlogProvider = ({ children }) => {
             getArticlesByCategory,
 
             toggleArticleLike,
+            setFeaturedArticle,
             isLive
         }}>
             {children}

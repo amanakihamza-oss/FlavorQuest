@@ -17,13 +17,16 @@ const BlogHome = () => {
     const categories = ['All', ...BLOG_CATEGORIES];
     const displayedArticles = getArticlesByCategory(activeCategory);
 
+    // Find featured article or use most recent
+    const featuredArticle = displayedArticles.find(a => a.featured) || displayedArticles[0];
+
     // Pagination Logic
     const gridArticles = activeCategory === 'All'
-        ? displayedArticles.slice(1, visibleCount + 1)
+        ? displayedArticles.filter(a => a.id !== featuredArticle?.id).slice(0, visibleCount)
         : displayedArticles.slice(0, visibleCount);
 
     const hasMore = activeCategory === 'All'
-        ? displayedArticles.length > visibleCount + 1
+        ? displayedArticles.filter(a => a.id !== featuredArticle?.id).length > visibleCount
         : displayedArticles.length > visibleCount;
 
     const handleLoadMore = () => {
@@ -96,16 +99,16 @@ const BlogHome = () => {
                 {displayedArticles.length > 0 ? (
                     <div className="animate-fade-in space-y-16">
                         {/* FEATURED HERO ARTICLE */}
-                        {activeCategory === 'All' && (
+                        {activeCategory === 'All' && featuredArticle && (
                             <div>
                                 <h2 className="flex items-center gap-2 text-2xl font-bold text-gray-900 mb-6">
                                     <Sparkles className="text-brand-orange fill-brand-orange" size={24} />
                                     À la une cette semaine
                                 </h2>
-                                <div className="group relative rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 h-[500px] cursor-pointer" onClick={() => navigate(`/blog/${displayedArticles[0].slug}`)}>
+                                <div className="group relative rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 h-[500px] cursor-pointer" onClick={() => navigate(`/blog/${featuredArticle.slug}`)}>
                                     <img
-                                        src={displayedArticles[0].image}
-                                        alt={displayedArticles[0].title}
+                                        src={featuredArticle.image}
+                                        alt={featuredArticle.title}
                                         className="absolute inset-0 w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
                                     />
                                     <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black via-black/80 to-transparent flex flex-col justify-end p-8 md:p-12">
@@ -114,22 +117,22 @@ const BlogHome = () => {
                                                 À la UNE
                                             </span>
                                             <span className="text-gray-300 text-sm font-medium border-l border-gray-500 pl-3">
-                                                {displayedArticles[0].readTime} de lecture
+                                                {featuredArticle.readTime} de lecture
                                             </span>
                                         </div>
                                         <h2 className="text-3xl md:text-5xl font-bold text-white mb-4 font-serif leading-tight group-hover:text-brand-orange transition-colors">
-                                            {displayedArticles[0].title}
+                                            {featuredArticle.title}
                                         </h2>
                                         <p className="text-gray-300 text-lg md:text-xl line-clamp-2 max-w-3xl mb-6">
-                                            {displayedArticles[0].excerpt}
+                                            {featuredArticle.excerpt}
                                         </p>
                                         <div className="flex items-center gap-3">
                                             <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur text-white flex items-center justify-center font-bold">
-                                                {displayedArticles[0].author.charAt(0)}
+                                                {featuredArticle.author.charAt(0)}
                                             </div>
                                             <div className="text-white">
-                                                <p className="font-bold text-sm">{displayedArticles[0].author}</p>
-                                                <p className="text-xs text-gray-400">{new Date(displayedArticles[0].date).toLocaleDateString()}</p>
+                                                <p className="font-bold text-sm">{featuredArticle.author}</p>
+                                                <p className="text-xs text-gray-400">{new Date(featuredArticle.date).toLocaleDateString()}</p>
                                             </div>
                                         </div>
                                     </div>

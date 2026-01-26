@@ -99,6 +99,26 @@ export const cityDescriptions = {
             }
         ]
     },
+    "dinant": {
+        title: "Restaurants et Terrasses à Dinant (La Perle de la Meuse)",
+        metaDescription: "Où manger à Dinant ? Découvrez les meilleurs restaurants avec vue sur la Meuse, terrasses ensoleillées et spécialités locales de la ville d'Adolphe Sax.",
+        heroTitle: "Dinant, La Perle de la Meuse",
+        heroText: "Ville la plus touristique de Wallonie, Dinant fascine par son décor unique : sa Citadelle perchée, sa Collégiale majestueuse et ses maisons colorées qui se reflètent dans la Meuse. Découvrez une gastronomie généreuse à savourer en terrasse, bercée par le fleuve.",
+        faq: [
+            {
+                question: "Où manger avec une vue sur la Meuse à Dinant ?",
+                answer: "Les quais de Dinant regorgent de terrasses panoramiques face au fleuve. Recherchez les établissements côté 'Quai de Meuse' ou avec mention 'vue fleuve' pour profiter du cadre exceptionnel de la Collégiale et de la Citadelle."
+            },
+            {
+                question: "Quelle est la spécialité culinaire de Dinant ?",
+                answer: "Dinant est célèbre pour sa 'Couque de Dinant', un biscuit dur au miel décoré de motifs. Côté salé, les restaurants locaux proposent des plats traditionnels wallons et des spécialités au gibier de l'Ardenne voisine."
+            },
+            {
+                question: "Dinant est-elle une bonne destination pour un weekend gourmand ?",
+                answer: "Absolument ! Dinant combine cadre touristique exceptionnel et excellente table. Idéale pour un weekend romantique ou en famille, avec balades en bord de Meuse et découverte du patrimoine d'Adolphe Sax, l'inventeur du saxophone."
+            }
+        ]
+    },
     "default": {
         title: (city) => `Les meilleurs restaurants et activités à ${city} - FlavorQuest`,
         metaDescription: (city) => `Découvrez notre sélection des meilleurs restaurants, bars et activités à ${city}. Avis vérifiés, cartes et infos pratiques.`,

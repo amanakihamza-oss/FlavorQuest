@@ -5,9 +5,10 @@ import { usePlaces } from '../context/PlacesContext';
 import PlaceCard from '../components/PlaceCard';
 import FAQSection from '../components/FAQSection';
 import FilterBar from '../components/FilterBar';
-import { MapPin, ArrowLeft } from 'lucide-react';
+import { MapPin, ArrowLeft, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cityDescriptions } from '../data/cityDescriptions';
+import { checkIsOpen } from '../utils/hours';
 
 // Helper to normalize strings for comparison (matches sitemap logic)
 const slugifyCity = (text) => {
@@ -67,6 +68,7 @@ const CityPage = () => {
 
     // State for filters
     const [activeTags, setActiveTags] = useState([]);
+    const [onlyOpen, setOnlyOpen] = useState(false);
 
     const toggleFilter = (tagId) => {
         setActiveTags(prev =>
@@ -76,12 +78,25 @@ const CityPage = () => {
 
     // Filter logic
     const filteredPlaces = useMemo(() => {
-        if (activeTags.length === 0) return cityPlaces;
+        let filtered = cityPlaces;
 
-        return cityPlaces.filter(place => {
-            return activeTags.every(tag => place.tags && place.tags.includes(tag));
-        });
-    }, [cityPlaces, activeTags]);
+        // Filter by tags
+        if (activeTags.length > 0) {
+            filtered = filtered.filter(place => {
+                return activeTags.every(tag => place.tags && place.tags.includes(tag));
+            });
+        }
+
+        // Filter by open status
+        if (onlyOpen) {
+            filtered = filtered.filter(place => {
+                const openStatus = checkIsOpen(place.openingHours);
+                return openStatus.isOpen;
+            });
+        }
+
+        return filtered;
+    }, [cityPlaces, activeTags, onlyOpen]);
 
     // If no places found for this city slug...
     if (!realCityName) {
@@ -148,8 +163,22 @@ const CityPage = () => {
                 </div>
             </div>
 
-            {/* Sticky Filters */}
-            <FilterBar activeFilters={activeTags} onToggle={toggleFilter} visible={true} />
+            {/* Filters Section */}
+            <div className="bg-white border-b border-gray-100 py-4 px-4 md:px-6">
+                <div className="max-w-7xl mx-auto">
+                    <div className="flex items-center justify-between gap-4 mb-4">
+                        <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wide">Filtres</h3>
+                        <button
+                            onClick={() => setOnlyOpen(!onlyOpen)}
+                            className={`flex items-center justify-center gap-2 px-4 py-2 rounded-xl transition-all font-bold text-sm border whitespace-nowrap ${onlyOpen ? 'bg-green-100 text-green-700 border-green-200' : 'bg-white text-gray-500 border-gray-200 hover:border-brand-orange'}`}
+                        >
+                            <Clock size={16} className={onlyOpen ? "text-green-600" : "text-gray-400"} />
+                            <span>Ouvert maintenant</span>
+                        </button>
+                    </div>
+                    <FilterBar activeFilters={activeTags} onToggle={toggleFilter} visible={true} />
+                </div>
+            </div>
 
             {/* Content Grid */}
             <div className="max-w-7xl mx-auto px-4 md:px-6 pt-8">
