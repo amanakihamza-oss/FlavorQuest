@@ -119,6 +119,8 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
         }
     }), [imageHandler]);
 
+    const [tagsInput, setTagsInput] = useState('');
+
     useEffect(() => {
         if (article) {
             setFormData({
@@ -138,6 +140,7 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
                 relatedPlaceIds: article.relatedPlaceIds || []
             });
             setImagePreview(article.image || null);
+            setTagsInput(article.tags ? article.tags.join(', ') : '');
         }
     }, [article]);
 
@@ -147,8 +150,9 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
     };
 
     const handleTagsChange = (e) => {
-        const tagsString = e.target.value;
-        const tagsArray = tagsString.split(',').map(t => t.trim()).filter(t => t.length > 0);
+        const val = e.target.value;
+        setTagsInput(val);
+        const tagsArray = val.split(',').map(t => t.trim()).filter(t => t.length > 0);
         setFormData(prev => ({ ...prev, tags: tagsArray }));
     };
 
@@ -331,7 +335,7 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
                             id="edit-tags"
                             type="text"
                             placeholder="Ex: Burger, Guide, Namur, Pas cher"
-                            value={formData.tags ? formData.tags.join(', ') : ''}
+                            value={tagsInput}
                             onChange={handleTagsChange}
                             className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
                         />
