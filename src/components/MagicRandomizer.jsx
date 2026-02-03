@@ -9,6 +9,7 @@ const MagicRandomizer = ({ isOpen, onClose, places }) => {
     const [currentPlace, setCurrentPlace] = useState(null);
     const [showResult, setShowResult] = useState(false);
     const [selectedCity, setSelectedCity] = useState('');
+    const [showCityDropdown, setShowCityDropdown] = useState(false);
 
     // Filter valid places by city (if selected) and approval status
     const validPlaces = places.filter(p => {
@@ -31,6 +32,7 @@ const MagicRandomizer = ({ isOpen, onClose, places }) => {
             setShowResult(false);
             setCurrentPlace(null);
             setSelectedCity('');
+            setShowCityDropdown(false);
         }
     }, [isOpen]);
 
@@ -87,41 +89,75 @@ const MagicRandomizer = ({ isOpen, onClose, places }) => {
                         </button>
 
                         {/* Content */}
-                        <div className="p-8 pt-16 text-center flex flex-col items-center min-h-[500px]">
+                        <div className="p-5 pt-10 text-center flex flex-col items-center w-full">
 
-                            <div className="mb-4 mt-2">
-                                <div className="w-16 h-16 bg-brand-orange/10 text-brand-orange rounded-2xl flex items-center justify-center mx-auto mb-2 animate-bounce-slow">
-                                    <Sparkles size={32} />
+                            <div className="mb-1 mt-0 shrink-0">
+                                <div className="w-12 h-12 bg-brand-orange/10 text-brand-orange rounded-xl flex items-center justify-center mx-auto mb-1.5 animate-bounce-slow">
+                                    <Sparkles size={24} />
                                 </div>
-                                <h2 className="text-2xl font-black text-brand-dark uppercase tracking-tight">
+                                <h2 className="text-lg font-black text-brand-dark uppercase tracking-tight">
                                     {isSpinning ? "Recherche en cours..." : (showResult ? "C'est une pépite !" : "Prêt à découvrir ?")}
                                 </h2>
                             </div>
 
                             {/* City Filter */}
                             {!isSpinning && (
-                                <div className="w-full mb-4">
-                                    <label className="block text-sm font-bold text-gray-500 mb-2 text-left">
-                                        Cibler une ville ? (optionnel)
+                                <div className="w-full mb-2 shrink-0 relative z-30">
+                                    <label className="block text-[10px] font-bold text-gray-500 mb-1 text-left uppercase tracking-wide">
+                                        Cibler une ville (optionnel)
                                     </label>
-                                    <div className="relative">
-                                        <select
-                                            value={selectedCity}
-                                            onChange={(e) => setSelectedCity(e.target.value)}
-                                            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl font-medium text-gray-700 appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange pr-10"
-                                        >
-                                            <option value="">Toute la Wallonie</option>
-                                            {availableCities.map(city => (
-                                                <option key={city} value={city}>{city}</option>
-                                            ))}
-                                        </select>
-                                        <ChevronDown size={20} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                                    </div>
+
+                                    <button
+                                        onClick={() => setShowCityDropdown(!showCityDropdown)}
+                                        className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl font-medium text-gray-700 text-sm flex items-center justify-between hover:bg-gray-100 transition-colors focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange"
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <MapPin size={16} className="text-brand-orange" />
+                                            <span>{selectedCity || "Partout"}</span>
+                                        </div>
+                                        <ChevronDown size={14} className={`text-gray-400 transition-transform ${showCityDropdown ? 'rotate-180' : ''}`} />
+                                    </button>
+
+                                    {/* Custom Dropdown */}
+                                    <AnimatePresence>
+                                        {showCityDropdown && (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: -10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -10 }}
+                                                className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-50 max-h-48 overflow-y-auto"
+                                            >
+                                                <button
+                                                    onClick={() => {
+                                                        setSelectedCity("");
+                                                        setShowCityDropdown(false);
+                                                    }}
+                                                    className={`w-full text-left px-4 py-2.5 hover:bg-orange-50 font-bold transition-colors flex items-center justify-between text-sm ${selectedCity === "" ? 'bg-orange-50 text-brand-orange' : 'text-gray-700'}`}
+                                                >
+                                                    <span>Partout</span>
+                                                    {selectedCity === "" && <div className="w-1.5 h-1.5 bg-brand-orange rounded-full"></div>}
+                                                </button>
+                                                {availableCities.map(city => (
+                                                    <button
+                                                        key={city}
+                                                        onClick={() => {
+                                                            setSelectedCity(city);
+                                                            setShowCityDropdown(false);
+                                                        }}
+                                                        className={`w-full text-left px-4 py-2.5 hover:bg-orange-50 font-bold transition-colors flex items-center justify-between border-t border-gray-50 text-sm ${selectedCity === city ? 'bg-orange-50 text-brand-orange' : 'text-gray-700'}`}
+                                                    >
+                                                        <span>{city}</span>
+                                                        {selectedCity === city && <div className="w-1.5 h-1.5 bg-brand-orange rounded-full"></div>}
+                                                    </button>
+                                                ))}
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
                                 </div>
                             )}
 
                             {/* Card Slot */}
-                            <div className="relative w-full aspect-[4/3] rounded-3xl overflow-hidden shadow-inner bg-gray-100 mb-8 border-4 border-gray-100 ring-4 ring-brand-orange/20">
+                            <div className="relative w-full aspect-[16/8] rounded-xl overflow-hidden shadow-sm bg-gray-100 mb-3 border-2 border-gray-100 ring-2 ring-brand-orange/10 shrink-0">
                                 {currentPlace ? (
                                     <motion.div
                                         key={currentPlace.id} // Re-render on change causing animation
@@ -134,18 +170,18 @@ const MagicRandomizer = ({ isOpen, onClose, places }) => {
                                             alt={currentPlace.name}
                                             className="w-full h-full object-cover"
                                         />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-6 text-left">
-                                            <span className="text-brand-orange text-xs font-bold uppercase tracking-wider mb-1 bg-black/50 backdrop-blur w-fit px-2 py-1 rounded-lg">
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-3 text-left">
+                                            <span className="text-brand-orange text-[10px] font-bold uppercase tracking-wider mb-0.5 bg-black/60 backdrop-blur w-fit px-1.5 py-0.5 rounded">
                                                 {currentPlace.category}
                                             </span>
-                                            <h3 className="text-white text-2xl font-bold leading-tight">{currentPlace.name}</h3>
-                                            <p className="text-gray-300 text-sm flex items-center gap-1">
-                                                <MapPin size={12} /> {currentPlace.city || "Wallonie"}
+                                            <h3 className="text-white text-lg font-bold leading-tight line-clamp-1">{currentPlace.name}</h3>
+                                            <p className="text-gray-300 text-[10px] flex items-center gap-1 mt-0.5">
+                                                <MapPin size={10} /> {currentPlace.city || "Wallonie"}
                                             </p>
                                         </div>
                                     </motion.div>
                                 ) : (
-                                    <div className="flex items-center justify-center h-full text-gray-400">
+                                    <div className="flex items-center justify-center h-full text-gray-400 text-xs">
                                         Préparation...
                                     </div>
                                 )}
@@ -157,17 +193,17 @@ const MagicRandomizer = ({ isOpen, onClose, places }) => {
                             </div>
 
                             {/* Actions */}
-                            <div className="w-full space-y-3">
+                            <div className="w-full space-y-1.5 shrink-0 mt-auto">
                                 {!isSpinning && !showResult ? (
                                     // Initial state: Show launch button
                                     <motion.button
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
                                         onClick={startSpin}
                                         disabled={validPlaces.length === 0}
-                                        className="w-full py-4 bg-brand-orange text-white font-bold rounded-2xl shadow-lg shadow-orange-200 flex items-center justify-center gap-2 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="w-full py-2.5 bg-brand-orange text-white font-bold rounded-lg shadow-md shadow-orange-200/50 flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
-                                        <Sparkles size={20} />
+                                        <Sparkles size={16} />
                                         {validPlaces.length === 0
                                             ? `Aucun lieu disponible${selectedCity ? ` à ${selectedCity}` : ''}`
                                             : 'Lancer la recherche'}
@@ -176,24 +212,24 @@ const MagicRandomizer = ({ isOpen, onClose, places }) => {
                                     // Result shown: Discovery and retry buttons
                                     <>
                                         <motion.button
-                                            whileHover={{ scale: 1.05 }}
-                                            whileTap={{ scale: 0.95 }}
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
                                             onClick={handleVisit}
-                                            className="w-full py-4 bg-brand-orange text-white font-bold rounded-2xl shadow-lg shadow-orange-200 flex items-center justify-center gap-2 text-lg"
+                                            className="w-full py-2.5 bg-brand-orange text-white font-bold rounded-lg shadow-md shadow-orange-200/50 flex items-center justify-center gap-2 text-sm"
                                         >
-                                            Découvrir <ArrowRight size={20} />
+                                            Découvrir <ArrowRight size={16} />
                                         </motion.button>
                                         <button
                                             onClick={startSpin}
-                                            className="text-gray-400 font-bold hover:text-brand-dark flex items-center justify-center gap-2 text-sm py-2"
+                                            className="text-gray-400 font-bold hover:text-brand-dark flex items-center justify-center gap-1.5 text-xs py-1 transition-colors"
                                         >
-                                            <RotateCw size={14} /> Essayer une autre
+                                            <RotateCw size={12} /> Essayer une autre
                                         </button>
                                     </>
                                 ) : (
                                     // Spinning: Show loading message
-                                    <div className="h-14 flex items-center justify-center">
-                                        <span className="text-brand-orange font-bold animate-pulse">
+                                    <div className="h-10 flex items-center justify-center">
+                                        <span className="text-brand-orange font-bold animate-pulse text-xs">
                                             Le hasard décide...
                                         </span>
                                     </div>
