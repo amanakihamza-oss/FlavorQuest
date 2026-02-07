@@ -50,6 +50,8 @@ const BlogArticle = () => {
     const [animateLike, setAnimateLike] = useState(false);
     // Optimistic Like Count
     const [localLikes, setLocalLikes] = useState(article ? (article.likes || 0) : 0);
+    // Smart Sync: ignore server updates if we just clicked
+    const [isOptimistic, setIsOptimistic] = useState(false);
 
     // Reading Progress
     const { scrollYProgress } = useScroll();
@@ -62,14 +64,19 @@ const BlogArticle = () => {
         if (article) {
             const storedLike = localStorage.getItem(`liked_article_${article.id}`);
             setIsLiked(storedLike === 'true');
-            // Sync implementation with server if needed, but prioritize local for responsiveness
-            // Only update if server count is higher (meaning other people liked it)
-            // or if we haven't touched it yet. 
-            // Actually simpler: syncing fully might cause jumps if latency.
-            // Let's sync only on mount or if article changes significantly.
+
+            // Smart Sync Logic
             if (article.likes !== undefined) {
-                // We only sync if we are NOT currently animating a like to avoid jitter
-                setLocalLikes(article.likes);
+                if (isOptimistic) {
+                    // Server caught up to our prediction?
+                    if (article.likes === localLikes) {
+                        setIsOptimistic(false); // Sync complete, back to normal
+                    }
+                    // If not equal, we assume server is lagging, so we KEEP localLikes
+                } else {
+                    // Normal mode: accept server truth
+                    setLocalLikes(article.likes);
+                }
             }
 
             // Force process Instagram embeds if present
@@ -79,7 +86,7 @@ const BlogArticle = () => {
                 }, 500); // Small delay to ensure DOM is ready
             }
         }
-    }, [article]);
+    }, [article, isOptimistic, localLikes]);
 
     const handleLike = async () => {
         if (!article) return;
@@ -90,6 +97,8 @@ const BlogArticle = () => {
         setAnimateLike(isNowLiked); // Animate only on like
 
         // Optimistic Count Update
+        // We set optimistic flag to TRUE so useEffect ignores the next "old" data from server
+        setIsOptimistic(true);
         setLocalLikes(prev => isNowLiked ? prev + 1 : Math.max(0, prev - 1));
 
         // Secure update with context
