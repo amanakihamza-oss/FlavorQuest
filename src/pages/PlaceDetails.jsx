@@ -8,11 +8,13 @@ import { checkIsOpen } from '../utils/hours';
 import SEO from '../components/SEO';
 import ReviewForm from '../components/ReviewForm';
 
+import { useToast } from '../context/ToastContext';
 import PageLoader from '../components/PageLoader';
 
 const PlaceDetails = () => {
     const { slug, city, category } = useParams();
     const { places, addReview, isLoading, isLive } = usePlaces();
+    const { showToast } = useToast();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -61,8 +63,14 @@ const PlaceDetails = () => {
 
     const { status, color } = checkIsOpen(place.openingHours);
 
-    const handleReviewSubmit = (reviewData) => {
-        addReview(place.id, reviewData);
+    const handleReviewSubmit = async (reviewData) => {
+        try {
+            await addReview(place.id, reviewData);
+            showToast('Votre avis a été publié avec succès !', 'success');
+        } catch (error) {
+            console.error(error);
+            showToast("Erreur lors de l'envoi de l'avis.", 'error');
+        }
     };
 
     // Enhanced Schema Markup for Local SEO

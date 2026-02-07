@@ -47,6 +47,8 @@ const BlogArticle = () => {
     const { places } = usePlaces();
     const [isLiked, setIsLiked] = useState(false);
     const [animateLike, setAnimateLike] = useState(false);
+    // Optimistic Like Count
+    const [localLikes, setLocalLikes] = useState(article ? (article.likes || 0) : 0);
 
     // Reading Progress
     const { scrollYProgress } = useScroll();
@@ -58,6 +60,15 @@ const BlogArticle = () => {
         if (article) {
             const storedLike = localStorage.getItem(`liked_article_${article.id}`);
             setIsLiked(storedLike === 'true');
+            // Sync implementation with server if needed, but prioritize local for responsiveness
+            // Only update if server count is higher (meaning other people liked it)
+            // or if we haven't touched it yet. 
+            // Actually simpler: syncing fully might cause jumps if latency.
+            // Let's sync only on mount or if article changes significantly.
+            if (article.likes !== undefined) {
+                // We only sync if we are NOT currently animating a like to avoid jitter
+                setLocalLikes(article.likes);
+            }
 
             // Force process Instagram embeds if present
             if (window.instgrm) {
@@ -72,8 +83,12 @@ const BlogArticle = () => {
         if (!article) return;
 
         // Optimistic UI update immediately
-        setIsLiked(!isLiked);
-        setAnimateLike(!isLiked); // Animate only on like
+        const isNowLiked = !isLiked;
+        setIsLiked(isNowLiked);
+        setAnimateLike(isNowLiked); // Animate only on like
+
+        // Optimistic Count Update
+        setLocalLikes(prev => isNowLiked ? prev + 1 : Math.max(0, prev - 1));
 
         // Secure update with context
         const finalState = await toggleArticleLike(article.id);
@@ -83,7 +98,7 @@ const BlogArticle = () => {
             setIsLiked(finalState);
         }
 
-        if (!isLiked) { // If we just liked it
+        if (!isNowLiked) { // If we just un-liked it
             setTimeout(() => setAnimateLike(false), 300);
         }
     };
@@ -246,7 +261,7 @@ const BlogArticle = () => {
                             <Heart size={20} className={isLiked ? 'fill-current' : ''} />
                             {animateLike && <span className="absolute -top-8 text-sm font-bold text-red-500 animate-slide-up">+1</span>}
                         </button>
-                        <span className="text-xs font-bold text-gray-400 -mt-4">{article.likes || 0}</span>
+                        <span className="text-xs font-bold text-gray-400 -mt-4">{localLikes}</span>
 
                         <div className="w-8 h-px bg-gray-200"></div>
 
@@ -305,7 +320,7 @@ const BlogArticle = () => {
                             className={`flex items-center gap-2 px-3 py-1 rounded-full font-bold transition-all ${isLiked ? 'text-red-500 bg-red-50' : 'text-gray-600'}`}
                         >
                             <Heart size={20} className={isLiked ? 'fill-current' : ''} />
-                            {article.likes || 0}
+                            {localLikes}
                         </button>
                         <div className="w-px h-4 bg-gray-300"></div>
                         <a

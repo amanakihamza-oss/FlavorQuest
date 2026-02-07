@@ -202,7 +202,11 @@ export const PlacesProvider = ({ children }) => {
     // Merge Logic (remains mostly same, but ensures places have data)
     const placesWithRatings = places.map(place => {
         const realReviews = reviews.filter(r => r.placeId === place.id);
-        if (realReviews.length === 0) return place;
+
+        // Always provide a stable structure with userReviews array
+        if (realReviews.length === 0) {
+            return { ...place, userReviews: [] };
+        }
 
         const initialReviewsCount = place.reviews || 0;
         const initialRating = place.rating || 0;
