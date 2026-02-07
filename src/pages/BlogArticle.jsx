@@ -44,6 +44,7 @@ const renderContent = (content) => {
 const BlogArticle = () => {
     const { slug } = useParams();
     const { getArticleBySlug, toggleArticleLike, articles, isLive } = useBlog();
+    const article = getArticleBySlug(slug);
     const { places } = usePlaces();
     const [isLiked, setIsLiked] = useState(false);
     const [animateLike, setAnimateLike] = useState(false);
@@ -54,7 +55,8 @@ const BlogArticle = () => {
     const { scrollYProgress } = useScroll();
     const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
 
-    const article = getArticleBySlug(slug);
+    // Article definition moved up
+
 
     useEffect(() => {
         if (article) {
