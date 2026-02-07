@@ -98,9 +98,9 @@ const CreateArticle = () => {
         toolbar: {
             container: [
                 [{ 'header': [2, 3, false] }],
-                ['bold', 'italic', 'underline', 'strike'],
+                ['bold', 'italic', 'underline', 'strike', 'blockquote', 'code-block'],
                 [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                ['link', 'image', 'clean']
+                ['link', 'image', 'video', 'clean']
             ],
             handlers: {
                 image: imageHandler
@@ -360,7 +360,7 @@ const CreateArticle = () => {
                                         value={formData.content}
                                         onChange={handleContentChange}
                                         modules={modules}
-                                        formats={['header', 'bold', 'italic', 'underline', 'strike', 'list', 'link', 'image']}
+                                        formats={['header', 'bold', 'italic', 'underline', 'strike', 'blockquote', 'code-block', 'list', 'link', 'image', 'video']}
                                         className="bg-white rounded-2xl overflow-hidden"
                                         style={{ height: '500px', marginBottom: '50px' }}
                                         placeholder="Racontez tout..."

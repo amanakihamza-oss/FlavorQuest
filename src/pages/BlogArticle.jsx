@@ -13,12 +13,32 @@ import { Clock, Calendar, ChevronLeft, MapPin, Heart, Share2, Facebook, Twitter,
 const renderContent = (content) => {
     if (!content) return null;
 
-    // Replace non-breaking spaces with regular spaces to prevent word-breaking issues
-    const cleanedContent = content
+    // 1. Clean spaces
+    let processedContent = content
         .replace(/&nbsp;/g, ' ')
         .replace(/\u00A0/g, ' ');
 
-    return <div dangerouslySetInnerHTML={{ __html: cleanedContent }} />;
+    // 2. DETECT & UNWRAP EMBEDS IN CODE BLOCKS (Magic Fix)
+    // If user put an iframe or script inside a code block <pre>...</pre>,
+    // we assume they wanted to embed it, not show the code.
+    const unescapeHTML = (str) =>
+        str.replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&amp;/g, '&')
+            .replace(/&quot;/g, '"')
+            .replace(/&#39;/g, "'");
+
+    // Regex to find <pre> blocks containing common embed signatures
+    // We look for patterns like <pre ...>...instagram-media...</pre>
+    const embedRegex = /<pre[^>]*>([\s\S]*?(?:instagram-media|twitter-tweet|youtube\.com|youtu\.be)[\s\S]*?)<\/pre>/gi;
+
+    processedContent = processedContent.replace(embedRegex, (match, innerContent) => {
+        // Unescape the inner HTML (turn &lt;iframe into <iframe)
+        // and return it WITHOUT the <pre> wrapper
+        return `<div class="embed-wrapper my-8 max-w-[500px] mx-auto overflow-hidden rounded-xl shadow-lg border border-gray-100">${unescapeHTML(innerContent)}</div>`;
+    });
+
+    return <div dangerouslySetInnerHTML={{ __html: processedContent }} />;
 };
 
 const BlogArticle = () => {
@@ -38,6 +58,13 @@ const BlogArticle = () => {
         if (article) {
             const storedLike = localStorage.getItem(`liked_article_${article.id}`);
             setIsLiked(storedLike === 'true');
+
+            // Force process Instagram embeds if present
+            if (window.instgrm) {
+                setTimeout(() => {
+                    window.instgrm.Embeds.process();
+                }, 500); // Small delay to ensure DOM is ready
+            }
         }
     }, [article]);
 
@@ -261,7 +288,7 @@ const BlogArticle = () => {
                     {/* Content */}
                     <div
                         className={`prose prose-lg prose-slate w-full max-w-full pr-6 hyphens-none prose-headings:font-bold prose-headings:text-gray-900 prose-p:text-gray-600 prose-img:rounded-2xl prose-img:shadow-sm prose-lead:text-xl prose-lead:font-normal prose-lead:text-gray-500 prose-a:text-brand-orange prose-a:font-medium prose-a:underline prose-a:decoration-brand-orange/30 prose-a:underline-offset-2 hover:prose-a:decoration-brand-orange hover:prose-a:text-orange-600 prose-a:transition-colors ${article.hasDropCap ? 'prose-p:first-of-type:first-letter:float-left prose-p:first-of-type:first-letter:text-7xl prose-p:first-of-type:first-letter:pr-4 prose-p:first-of-type:first-letter:font-bold prose-p:first-of-type:first-letter:text-brand-orange prose-p:first-of-type:first-letter:leading-none' : ''}`}
-                        style={{ wordBreak: 'normal', overflowWrap: 'break-word', webkitHyphens: 'none', hyphens: 'none' }}
+                        style={{ wordBreak: 'normal', overflowWrap: 'break-word', WebkitHyphens: 'none', hyphens: 'none' }}
                     >
                         {/* Excerpt as Lead Paragraph with Drop Cap applied via classes above */}
                         <p className="lead border-l-4 border-brand-orange pl-6 italic mb-10 text-gray-700">

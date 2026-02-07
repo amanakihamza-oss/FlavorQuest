@@ -16,6 +16,7 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
     const { showToast } = useToast();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [imagePreview, setImagePreview] = useState(null);
+    const [showSource, setShowSource] = useState(false);
     const [formData, setFormData] = useState({
         title: '',
         slug: '',
@@ -106,9 +107,9 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
         toolbar: {
             container: [
                 [{ 'header': [2, 3, false] }],
-                ['bold', 'italic', 'underline', 'strike'],
+                ['bold', 'italic', 'underline', 'strike', 'blockquote', 'code-block'],
                 [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                ['link', 'image', 'clean']
+                ['link', 'image', 'video', 'clean']
             ],
             handlers: {
                 image: imageHandler
@@ -143,6 +144,27 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
             setTagsInput(article.tags ? article.tags.join(', ') : '');
         }
     }, [article]);
+
+    // Auto-calculate read time from content
+    useEffect(() => {
+        // Strip HTML tags for word count
+        // 1. Remove script and style tags and their content
+        let text = formData.content.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gm, "");
+        text = text.replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gm, "");
+        // 2. Remove pre tags (code blocks) and their content
+        text = text.replace(/<pre\b[^>]*>([\s\S]*?)<\/pre>/gm, "");
+        // 3. Remove remaining HTML tags
+        text = text.replace(/<[^>]*>/g, ' ');
+        // 4. Decode HTML entities
+        text = text.replace(/&nbsp;/g, ' ');
+
+        const words = text.trim().split(/\s+/).filter(word => word.length > 0).length;
+        const minutes = Math.ceil(words / 200);
+
+        if (words > 0) {
+            setFormData(prev => ({ ...prev, readTime: `${minutes} min` }));
+        }
+    }, [formData.content]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -452,22 +474,46 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
                         </div>
                     </div>
 
-                    {/* Content (Quill) */}
+                    {/* Content (Quill or Source) */}
                     <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2">Contenu</label>
-                        <div className="prose-editor group rounded-2xl shadow-sm hover:shadow-md border border-gray-100 transition-shadow">
-                            <ReactQuill
-                                ref={quillRef}
-                                theme="snow"
-                                value={formData.content}
-                                onChange={handleContentChange}
-                                modules={modules}
-                                formats={['header', 'bold', 'italic', 'underline', 'strike', 'list', 'link', 'image']}
-                                className="bg-white rounded-2xl overflow-hidden"
-                                style={{ height: '400px', marginBottom: '50px' }}
-                                placeholder="Le contenu de l'article..."
-                            />
+                        <div className="flex justify-between items-center mb-2">
+                            <label className="block text-sm font-bold text-gray-700">Contenu</label>
+                            <button
+                                type="button"
+                                onClick={() => setShowSource(!showSource)}
+                                className={`text-xs font-bold px-3 py-1 rounded-lg border transition-colors ${showSource ? 'bg-gray-900 text-green-400 border-gray-700' : 'bg-gray-100 text-gray-600 border-gray-200 hover:bg-gray-200'}`}
+                            >
+                                {showSource ? '👁️ Mode Visuel' : '💻 Mode Code HTML'}
+                            </button>
                         </div>
+
+                        {showSource ? (
+                            <textarea
+                                value={formData.content}
+                                onChange={(e) => handleContentChange(e.target.value)}
+                                className="w-full h-[450px] bg-gray-900 text-green-400 font-mono text-sm p-4 rounded-2xl focus:outline-none focus:ring-2 focus:ring-green-500/50 resize-y shadow-inner"
+                                placeholder="Collez votre code HTML ou embed ici..."
+                            />
+                        ) : (
+                            <div className="prose-editor group rounded-2xl shadow-sm hover:shadow-md border border-gray-100 transition-shadow">
+                                <ReactQuill
+                                    ref={quillRef}
+                                    theme="snow"
+                                    value={formData.content}
+                                    onChange={handleContentChange}
+                                    modules={modules}
+                                    formats={['header', 'bold', 'italic', 'underline', 'strike', 'blockquote', 'code-block', 'list', 'link', 'image', 'video']}
+                                    className="bg-white rounded-2xl overflow-hidden"
+                                    style={{ height: '400px', marginBottom: '50px' }}
+                                    placeholder="Le contenu de l'article..."
+                                />
+                            </div>
+                        )}
+                        {showSource && (
+                            <p className="text-xs text-orange-600 mt-2 font-medium">
+                                ⚠️ Attention : En repassant en mode Visuel, certains scripts complexes (comme Instagram) peuvent être masqués par l'éditeur. Pour les embeds, il est conseillé de sauvegarder directement depuis le mode Code HTML.
+                            </p>
+                        )}
                     </div>
 
                     {/* Footer Actions */}
@@ -543,7 +589,7 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
                     max-width: 100%;
                 }
             `}</style>
-        </div>
+        </div >
     );
 };
 
