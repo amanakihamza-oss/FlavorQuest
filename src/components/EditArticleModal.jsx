@@ -31,7 +31,8 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
         readTime: '',
         tags: [],
         hasDropCap: false,
-        relatedPlaceIds: []
+        relatedPlaceIds: [],
+        faq: []
     });
 
     // Custom Image Handler for Quill
@@ -138,7 +139,8 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
                 readTime: article.readTime || '',
                 tags: article.tags || [],
                 hasDropCap: article.hasDropCap || false,
-                relatedPlaceIds: article.relatedPlaceIds || []
+                relatedPlaceIds: article.relatedPlaceIds || [],
+                faq: article.faq || []
             });
             setImagePreview(article.image || null);
             setTagsInput(article.tags ? article.tags.join(', ') : '');
@@ -196,6 +198,26 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
                 showToast("Erreur lors de l'upload de l'image", "error");
             }
         }
+    };
+
+    // FAQ Handlers
+    const addFAQ = () => {
+        setFormData(prev => ({
+            ...prev,
+            faq: [...(prev.faq || []), { question: '', answer: '' }]
+        }));
+    };
+
+    const updateFAQ = (index, field, value) => {
+        const newFAQ = [...(formData.faq || [])];
+        newFAQ[index][field] = value;
+        setFormData(prev => ({ ...prev, faq: newFAQ }));
+    };
+
+    const removeFAQ = (index) => {
+        const newFAQ = [...(formData.faq || [])];
+        newFAQ.splice(index, 1);
+        setFormData(prev => ({ ...prev, faq: newFAQ }));
     };
 
     const handleSubmit = async (e) => {

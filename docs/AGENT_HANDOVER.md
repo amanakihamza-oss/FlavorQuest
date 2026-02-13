@@ -160,6 +160,26 @@ Si vous devez travailler sur ce projet, vérifiez systématiquement ces points :
             *   Bouton "Lancer la recherche" pour démarrer (pas d'auto-start).
         *   **UX** : Close button amélioré avec meilleure visibilité (fond blanc, ombre, bordure).
         *   **Responsive** : Padding optimisé (pt-16) pour éviter que le contenu ne cache le bouton X.
+        
+*   **[08/02/2026] - Session Mobile, Interactivité & Sécurité**
+    *   **Fix Likes sur Mobile (Smart Sync)** :
+        *   **Problème** : "Clignotement" du compteur de likes sur mobile (retour en arrière avant de remonter).
+        *   **Solution** : Implémentation d'une logique "Smart Sync" dans `BlogArticle.jsx`. Le front ignore les réponses "stale" du serveur tant que la nouvelle valeur n'est pas confirmée.
+        *   **UX** : Ajout de styles `touch-manipulation` et `active:scale-95` pour un feedback tactile immédiat.
+    
+    *   **Réparation Système de Commentaires** :
+        *   **Problème** : Commentaires invisibles/non soumis à cause d'une incompatibilité de type (ID string vs number).
+        *   **Solution** : Assouplissement des comparaisons dans `PlacesContext.jsx` et ajout de Toast de confirmation (Succès/Erreur).
+    
+    *   **Refonte Règles de Sécurité (Firestore)** :
+        *   **Problème** : Les invités (non connectés) ne pouvaient ni liker ni commenter.
+        *   **Solution** : Mise à jour des règles Firestore pour autoriser `create` sur `reviews` et `write` sur `articles` (likes) pour tout le monde (`if true`).
+    
+    *   **Gestion Avancée des Embeds (Instagram/YouTube)** :
+        *   **Problème** : Le code d'intégration était supprimé par l'éditeur ou compté dans le temps de lecture.
+        *   **Solution 1** : Ajout du mode "Code Source" dans l'éditeur.
+        *   **Solution 2** : "Magic Unwrap" -> Détecte automatiquement les embeds collés dans des blocs de code `<pre>` et les convertit en HTML vivant.
+        *   **Solution 3** : Le calcul du temps de lecture ignore désormais tout ce qui est balise `<script>`, `<style>` ou `<pre>`.
 
 ---
 
