@@ -367,66 +367,62 @@ const BlogArticle = () => {
                             <h3 className="font-bold text-lg text-gray-900">{article.author}</h3>
                         </div>
                     </div>
-                </div>
-        </div>
 
-                {/* Article FAQ */ }
-    {
-        article.faq && article.faq.length > 0 && (
-            <div className="mt-16">
-                <FAQSection data={article.faq} title="Questions Fréquentes" />
-            </div>
-        )
-    }
-            </article >
+                    {/* Article FAQ */}
+                    {article.faq && article.faq.length > 0 && (
+                        <div className="mt-16">
+                            <FAQSection data={article.faq} title="Questions Fréquentes" />
+                        </div>
+                    )}
+                </article>
 
-    {/* Sidebar Right (Related) - Takes 3 columns */ }
-    < aside className = "lg:col-span-3 space-y-10 lg:pl-6 lg:border-l lg:border-gray-100 h-full" >
-        <div className="sticky top-32 space-y-12">
-            {relatedPlaces.length > 0 && (
-                <div>
-                    <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2 text-sm uppercase tracking-wider">
-                        <MapPin size={16} className="text-brand-orange" />
-                        Lieux cités
-                    </h3>
-                    <div className="space-y-4">
-                        {relatedPlaces.map(place => (
-                            <div key={place.id} className="hover:bg-gray-50 p-2 -m-2 rounded-xl transition-colors">
-                                <PlaceCard {...place} compact />
+                {/* Sidebar Right (Related) - Takes 3 columns */}
+                <aside className="lg:col-span-3 space-y-10 lg:pl-6 lg:border-l lg:border-gray-100 h-full">
+                    <div className="sticky top-32 space-y-12">
+                        {relatedPlaces.length > 0 && (
+                            <div>
+                                <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2 text-sm uppercase tracking-wider">
+                                    <MapPin size={16} className="text-brand-orange" />
+                                    Lieux cités
+                                </h3>
+                                <div className="space-y-4">
+                                    {relatedPlaces.map(place => (
+                                        <div key={place.id} className="hover:bg-gray-50 p-2 -m-2 rounded-xl transition-colors">
+                                            <PlaceCard {...place} compact />
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
-                        ))}
-                    </div>
-                </div>
-            )}
+                        )}
 
-            {moreArticles.length > 0 && (
-                <div>
-                    <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2 text-sm uppercase tracking-wider">
-                        <ArrowRight size={16} className="text-brand-orange" />
-                        À lire aussi
-                    </h3>
-                    <div className="space-y-6">
-                        {moreArticles.map(art => (
-                            <Link key={art.id} to={`/blog/${art.slug}`} className="group flex gap-4 items-start">
-                                <div className="w-24 h-20 rounded-lg overflow-hidden shrink-0 bg-gray-100">
-                                    <img src={art.image} alt={art.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        {moreArticles.length > 0 && (
+                            <div>
+                                <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2 text-sm uppercase tracking-wider">
+                                    <ArrowRight size={16} className="text-brand-orange" />
+                                    À lire aussi
+                                </h3>
+                                <div className="space-y-6">
+                                    {moreArticles.map(art => (
+                                        <Link key={art.id} to={`/blog/${art.slug}`} className="group flex gap-4 items-start">
+                                            <div className="w-24 h-20 rounded-lg overflow-hidden shrink-0 bg-gray-100">
+                                                <img src={art.image} alt={art.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-bold text-gray-800 text-sm leading-snug group-hover:text-brand-orange transition-colors line-clamp-2 mb-1">
+                                                    {art.title}
+                                                </h4>
+                                                <span className="text-xs text-gray-400 capitalize">{art.category}</span>
+                                            </div>
+                                        </Link>
+                                    ))}
                                 </div>
-                                <div>
-                                    <h4 className="font-bold text-gray-800 text-sm leading-snug group-hover:text-brand-orange transition-colors line-clamp-2 mb-1">
-                                        {art.title}
-                                    </h4>
-                                    <span className="text-xs text-gray-400 capitalize">{art.category}</span>
-                                </div>
-                            </Link>
-                        ))}
+                            </div>
+                        )}
                     </div>
-                </div>
-            )}
+                </aside>
+            </main>
         </div>
-            </aside >
-        </main >
-    </div >
-);
+    );
 };
 
 export default BlogArticle;
