@@ -538,6 +538,60 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
                         )}
                     </div>
 
+                    {/* FAQ Section */}
+                    <div className="border border-gray-200 rounded-2xl p-6 bg-gray-50/50 mb-6">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="font-bold text-gray-800 text-lg flex items-center gap-2">
+                                <span className="bg-brand-orange/10 text-brand-orange p-1 rounded-lg">❓</span>
+                                Foire Aux Questions (FAQ)
+                            </h3>
+                            <button
+                                type="button"
+                                onClick={addFAQ}
+                                className="text-sm font-bold text-brand-orange bg-orange-50 px-3 py-1.5 rounded-lg hover:bg-orange-100 transition-colors"
+                            >
+                                + Ajouter une question
+                            </button>
+                        </div>
+
+                        <div className="space-y-4">
+                            {(!formData.faq || formData.faq.length === 0) && (
+                                <p className="text-sm text-gray-400 italic text-center py-4">
+                                    Aucune question ajoutée. Cliquez sur le bouton pour commencer.
+                                </p>
+                            )}
+
+                            {formData.faq && formData.faq.map((item, index) => (
+                                <div key={index} className="bg-white border border-gray-200 rounded-xl p-4 relative group">
+                                    <button
+                                        type="button"
+                                        onClick={() => removeFAQ(index)}
+                                        className="absolute top-2 right-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full opacity-0 group-hover:opacity-100 transition-all"
+                                        title="Supprimer"
+                                    >
+                                        <X size={16} />
+                                    </button>
+                                    <div className="space-y-3">
+                                        <input
+                                            type="text"
+                                            placeholder="Question (ex: Quel budget prévoir ?)"
+                                            value={item.question}
+                                            onChange={(e) => updateFAQ(index, 'question', e.target.value)}
+                                            className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-orange/20 font-bold text-sm"
+                                        />
+                                        <textarea
+                                            placeholder="Réponse..."
+                                            value={item.answer}
+                                            onChange={(e) => updateFAQ(index, 'answer', e.target.value)}
+                                            rows="2"
+                                            className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-orange/20 text-sm resize-none"
+                                        />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
                     {/* Footer Actions */}
                     <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
                         <button
