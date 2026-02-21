@@ -191,6 +191,12 @@ Si vous devez travailler sur ce projet, vérifiez systématiquement ces points :
         *   **Fix Build** : Correction d'erreurs JSX (fermetures de balises) qui bloquaient le build Vercel.
         *   **Script** : Amélioration de `deploy.bat` pour afficher le `git status` et éviter la confusion "rien ne se passe".
 
+*   **[21/02/2026] - Fix Global SEO (Meta Tags Vercel)**
+    *   **Problème** : Les articles n'avaient pas de titre précis lors du partage sur les réseaux sociaux (Fallback sur le titre générique "Guide Gastronomique").
+    *   **Cause** : Le pré-rendu `prerender.js` (Puppeteer) plante sur Vercel. Googlebot et les réseaux sociaux recevaient un `index.html` non complété par React.
+    *   **Solution** : Création de `scripts/inject-seo.js` ajouté au pipeline de build (`postbuild`).
+    *   **Fonctionnement** : Le script crée un vrai fichier `index.html` pour chaque article dans `dist/blog/[slug]` et y injecte "en dur" les balises `<title>`, `meta description`, et `og:image` provenant de l'éditeur Firebase (via `articles.json`).
+
 ---
 
 ## 🛡️ 6. Règles de Création de Contenu (Anti-Amnésie)

@@ -33,14 +33,15 @@ const injectSeoTags = () => {
             // Only process approved articles
             if (article.status === 'approved') {
                 const slug = article.slug || article.id;
-                const articleDir = path.join(DIST_DIR, 'blog', slug);
 
-                // Create the directory if it doesn't exist (e.g., /dist/blog/mon-article)
-                if (!fs.existsSync(articleDir)) {
-                    fs.mkdirSync(articleDir, { recursive: true });
+                // Create the blog directory if it doesn't exist (e.g., /dist/blog)
+                const blogDir = path.join(DIST_DIR, 'blog');
+                if (!fs.existsSync(blogDir)) {
+                    fs.mkdirSync(blogDir, { recursive: true });
                 }
 
-                const articleHtmlPath = path.join(articleDir, 'index.html');
+                // E.g., dist/blog/carbonnade-chimay.html
+                const articleHtmlPath = path.join(blogDir, `${slug}.html`);
 
                 // Truncate excerpt for description if necessary
                 const description = article.excerpt
