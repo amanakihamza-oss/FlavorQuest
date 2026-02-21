@@ -17,7 +17,8 @@ Ce document sert de référence pour tout agent (humain ou IA) prenant le relais
 **Dossiers Clés :**
 - `src/pages/CityPage.jsx` : Le template dynamique pour les pages de ville (Silos SEO). Utilise `src/data/cityDescriptions.js` pour le contenu riche.
 - `src/pages/Search.jsx` : Moteur de recherche central avec autocomplétion et filtres.
-- `scripts/generate-sitemap.js` : **CRITIQUE**. S'exécute au build (`npm run build`). Scanne Firebase et génère `sitemap.xml` statique.
+- `scripts/generate-sitemap.js` : **CRITIQUE**. S'exécute au build (`npm run build`). Scanne Firebase et génère `sitemap.xml` statique ainsi que `articles.json`/`places.json`.
+- `scripts/inject-seo.js` : **CRITIQUE**. S'exécute juste après le sitemap. Injecte les balises SEO exactes (Titre, Description) dans de vrais fichiers `index.html` pour chaque article, pour un référencement immédiat sans Javascript.
 - `scripts/prerender.js` : Tente de pré-rendre le HTML pour les bots. (Peut être capricieux sur Vercel).
 
 ---
@@ -49,7 +50,7 @@ Ce document sert de référence pour tout agent (humain ou IA) prenant le relais
     *   Le "saut" de header est minimisé grâce à une structure fixe.
 
 3.  **Pipeline de Build**
-    *   La commande `npm run build` enchaîne : `vite build` -> `generate-sitemap.js` -> `prerender.js`.
+    *   La commande `npm run build` enchaîne : `vite build` -> `generate-sitemap.js` -> `inject-seo.js` -> `prerender.js`.
     *   Cela garantit qu'un déploiement a toujours un sitemap à jour.
 
 ---
@@ -180,6 +181,15 @@ Si vous devez travailler sur ce projet, vérifiez systématiquement ces points :
         *   **Solution 1** : Ajout du mode "Code Source" dans l'éditeur.
         *   **Solution 2** : "Magic Unwrap" -> Détecte automatiquement les embeds collés dans des blocs de code `<pre>` et les convertit en HTML vivant.
         *   **Solution 3** : Le calcul du temps de lecture ignore désormais tout ce qui est balise `<script>`, `<style>` ou `<pre>`.
+
+*   **[15/02/2026] - Session FAQ Blog & Déploiement**
+    *   **FAQ pour Articles de Blog** :
+        *   **Ajout** : Intégration d'un éditeur de FAQ dans `EditArticleModal.jsx`.
+        *   **Front** : Affichage automatique via `FAQSection` en bas d'article (`BlogArticle.jsx`).
+        *   **SEO** : Génération automatique du schéma `FAQPage`.
+    *   **Stabilisation Déploiement** :
+        *   **Fix Build** : Correction d'erreurs JSX (fermetures de balises) qui bloquaient le build Vercel.
+        *   **Script** : Amélioration de `deploy.bat` pour afficher le `git status` et éviter la confusion "rien ne se passe".
 
 ---
 
