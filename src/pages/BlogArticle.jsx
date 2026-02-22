@@ -63,7 +63,7 @@ const BlogArticle = () => {
 
     useEffect(() => {
         if (article) {
-            const storedLike = localStorage.getItem(`liked_article_${article.id} `);
+            const storedLike = localStorage.getItem(`liked_article_${article.id}`);
             setIsLiked(storedLike === 'true');
 
             // Smart Sync Logic
@@ -89,13 +89,30 @@ const BlogArticle = () => {
         }
     }, [article, isOptimistic, localLikes]);
 
+    // Clear animation after 2.5 seconds
+    useEffect(() => {
+        let timeout;
+        if (animateLike) {
+            timeout = setTimeout(() => {
+                setAnimateLike(false);
+            }, 2500);
+        }
+        return () => clearTimeout(timeout);
+    }, [animateLike]);
+
     const handleLike = async () => {
         if (!article) return;
 
         // Optimistic UI update immediately
         const isNowLiked = !isLiked;
         setIsLiked(isNowLiked);
-        setAnimateLike(isNowLiked); // Animate only on like
+
+        // Only trigger animation when "Liking" (not when un-liking)
+        if (isNowLiked) {
+            setAnimateLike(true);
+        } else {
+            setAnimateLike(false); // Instantly hide if we un-liked
+        }
 
         // Optimistic Count Update
         // We set optimistic flag to TRUE so useEffect ignores the next "old" data from server
@@ -108,10 +125,6 @@ const BlogArticle = () => {
         // Ensure UI is in sync with truth (in case of race conditions)
         if (finalState !== undefined) {
             setIsLiked(finalState);
-        }
-
-        if (!isNowLiked) { // If we just un-liked it
-            setTimeout(() => setAnimateLike(false), 300);
         }
     };
 
@@ -267,11 +280,11 @@ const BlogArticle = () => {
                     <div className="sticky top-32 flex flex-col gap-6 items-center">
                         <button
                             onClick={handleLike}
-                            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-sm hover:scale-110 border border-gray-100 ${isLiked ? 'bg-red-50 text-red-500 border-red-100' : 'bg-white text-gray-400 hover:text-red-500'}`}
+                            className={`relative w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-sm hover:scale-110 border border-gray-100 ${isLiked ? 'bg-red-50 text-red-500 border-red-100' : 'bg-white text-gray-400 hover:text-red-500'}`}
                             title="J'aime"
                         >
                             <Heart size={20} className={isLiked ? 'fill-current' : ''} />
-                            {animateLike && <span className="absolute -top-8 text-sm font-bold text-red-500 animate-slide-up">+1</span>}
+                            {animateLike && <span className="absolute -top-6 text-sm font-bold text-red-500 animate-slide-up">+1</span>}
                         </button>
                         <span className="text-xs font-bold text-gray-400 -mt-4">{localLikes}</span>
 
@@ -329,10 +342,11 @@ const BlogArticle = () => {
                     <div className={`lg:hidden fixed bottom-20 left-1/2 -translate-x-1/2 z-40 flex items-center gap-4 bg-white/90 backdrop-blur-md px-6 py-3 rounded-full shadow-xl border border-gray-100 ring-1 ring-black/5 transition-all duration-500 transform ${showMobileActions ? 'translate-y-0 opacity-100' : 'translate-y-24 opacity-0 pointer-events-none'}`}>
                         <button
                             onClick={handleLike}
-                            className={`flex items-center gap-2 px-3 py-1 rounded-full font-bold transition-all cursor-pointer active:scale-95 touch-manipulation ${isLiked ? 'text-red-500 bg-red-50' : 'text-gray-600'}`}
+                            className={`relative flex items-center gap-2 px-3 py-1 rounded-full font-bold transition-all cursor-pointer active:scale-95 touch-manipulation ${isLiked ? 'text-red-500 bg-red-50' : 'text-gray-600'}`}
                         >
                             <Heart size={20} className={isLiked ? 'fill-current' : ''} />
                             {localLikes}
+                            {animateLike && <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-sm font-bold text-red-500 animate-slide-up">+1</span>}
                         </button>
                         <div className="w-px h-4 bg-gray-300"></div>
                         <a

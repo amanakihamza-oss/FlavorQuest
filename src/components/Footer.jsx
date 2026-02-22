@@ -55,7 +55,7 @@ const Footer = () => {
             </div>
             <div className="border-t border-gray-100 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-400">
                 <p>© {new Date().getFullYear()} FlavorQuest. Fait avec ❤️ en Belgique.</p>
-                <a href="/login" className="hover:text-brand-orange transition-colors">Espace Partenaire</a>
+                <NavLink to="/login" className="hover:text-brand-orange transition-colors">Espace Partenaire</NavLink>
             </div>
         </footer>
     );

@@ -8,11 +8,9 @@ const SEO = ({ title, description, image, schema, type = 'website', keywords, br
     const defaultImage = 'https://flavorquest.be/logo.png';
     const finalImage = image || defaultImage;
 
-    // Title Truncation Logic
-    const truncateTitle = (str, n) => {
-        return (str.length > n) ? str.substr(0, n - 1) + '...' : str;
-    };
-    const fullTitle = truncateTitle(rawTitle, 60);
+    // Let search engines and browsers handle truncation natively. 
+    // Manually appending '...' makes Google reject the title tag.
+    const fullTitle = rawTitle;
 
     // Safe URL generation
     const currentUrl = typeof window !== 'undefined' ? window.location.href.split('?')[0] : 'https://flavorquest.be';
