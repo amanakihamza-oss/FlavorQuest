@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { usePlaces } from '../context/PlacesContext';
 import { useToast } from '../context/ToastContext';
@@ -59,9 +60,9 @@ const ProfilePage = () => {
                     >
                         Se connecter
                     </button>
-                    <a href="/" className="px-6 py-3 bg-gray-100 text-gray-600 font-bold rounded-xl hover:bg-gray-200">
+                    <Link to="/" className="px-6 py-3 bg-gray-100 text-gray-600 font-bold rounded-xl hover:bg-gray-200">
                         Retour
-                    </a>
+                    </Link>
                 </div>
             </div>
         );

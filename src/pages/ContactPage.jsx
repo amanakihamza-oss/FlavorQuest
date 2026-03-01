@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Phone, MapPin, Send, CheckCircle, ArrowRight, MessageSquare } from 'lucide-react';
 import SEO from '../components/SEO';
@@ -116,9 +117,9 @@ const ContactPage = () => {
                             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
                             <h3 className="text-xl font-bold mb-4 relative z-10">Vous êtes restaurateur ?</h3>
                             <p className="text-gray-300 mb-6 relative z-10">Rejoignez le guide et donnez de la visibilité à votre établissement.</p>
-                            <a href="/login" className="inline-flex items-center gap-2 bg-white text-brand-dark px-6 py-3 rounded-xl font-bold hover:bg-gray-100 transition-colors relative z-10">
+                            <Link to="/login" className="inline-flex items-center gap-2 bg-white text-brand-dark px-6 py-3 rounded-xl font-bold hover:bg-gray-100 transition-colors relative z-10">
                                 Devenir Partenaire <ArrowRight size={18} />
-                            </a>
+                            </Link>
                         </div>
                     </motion.div>
 

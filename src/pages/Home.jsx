@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import Hero from '../components/Hero';
 import FilterBar from '../components/FilterBar';
 import PlaceCard from '../components/PlaceCard';
@@ -268,9 +268,9 @@ const Home = () => {
                             </div>
                             <h2 className="text-2xl font-bold text-gray-900">À la une du Mag</h2>
                         </div>
-                        <a href="/blog" className="text-brand-orange font-medium hover:underline flex items-center gap-1">
+                        <Link to="/blog" className="text-brand-orange font-medium hover:underline flex items-center gap-1">
                             Voir tout <ArrowRight size={16} />
-                        </a>
+                        </Link>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -285,9 +285,9 @@ const Home = () => {
                     <div className="max-w-xl">
                         <h2 className="text-3xl font-bold text-brand-dark mb-4">{t('footer_explore')}</h2>
                         <p className="text-gray-600 mb-6 text-lg">{t('footer_desc')}</p>
-                        <a href="/submit" className="bg-brand-dark text-white px-8 py-3 rounded-full font-bold hover:bg-black transition-colors shadow-lg inline-block">
+                        <Link to="/submit" className="bg-brand-dark text-white px-8 py-3 rounded-full font-bold hover:bg-black transition-colors shadow-lg inline-block">
                             {t('footer_btn')}
-                        </a>
+                        </Link>
                     </div>
                     <img
                         src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=60&w=800&auto=format&fit=crop"

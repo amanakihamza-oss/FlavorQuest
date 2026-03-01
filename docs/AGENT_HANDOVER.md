@@ -197,7 +197,11 @@ Si vous devez travailler sur ce projet, vérifiez systématiquement ces points :
     *   **Problème 2 (Google Search)** : Googlebot rejetait les titres des longs articles (ex: Carbonnade) et affichait le titre de base générique "Guide Gastronomique", mais acceptait les petits (ex: Saint-Valentin).
         *   *Cause* : Le composant `SEO.jsx` coupait manuellement les titres de plus de 60 caractères avec "...", ce que Google sanctionne comme une balise corrompue/incomplète.
         *   *Solution* : Suppression de la fonction `truncateTitle` dans `SEO.jsx`. Les navigateurs et moteurs s'occupent désormais de la troncature naturellement.
-        *   *Bonus* : Bug Vercel "Espace Partenaire" cassé (`/login` 404) dû au `cleanUrls` : réparé en remplaçant `<a href>` par `<NavLink>` dans le `Footer.jsx` pour garder un routage purement client.
+    *   **Dommage collatéral du `cleanUrls: true` (Erreurs 404)** :
+        *   *Problème* : L'activation de `cleanUrls` pour le SEO a cassé plusieurs liens internes du site ("Espace Partenaire", bouton "Retour" du profil, etc.) qui renvoyaient des erreurs 404 sur Vercel.
+        *   *Cause* : Ces liens utilisaient des balises HTML classiques `<a href="/...">`. Vercel essayait de charger un fichier statique introuvable, provoquant un rafraîchissement complet de la page au lieu d'utiliser le routeur interne de React.
+        *   *Solution* : Remplacement de toutes les balises `<a href>` internes par des composants `<Link to>` de `react-router-dom` (dans `Footer.jsx`, `Home.jsx`, `ContactPage.jsx`, `ProfilePage.jsx`, et `FavoritesPage.jsx`) pour forcer une navigation purement "Client-Side".
+        *   *Vérification (Post-Scan)* : Un scan complet de la base de code a été effectué le 01/03/2026. Absolument **toutes** les balises `<a href=>` restantes ont été vérifiées humainement. Elles sont *exclusivement* utilisées pour des actions externes légitimes (mailto:, tel:, liens sociaux sortants). Le site est étanche aux 404 internes.
 
 ---
 

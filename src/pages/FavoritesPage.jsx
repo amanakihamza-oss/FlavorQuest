@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { usePlaces } from '../context/PlacesContext';
 import { useAuth } from '../context/AuthContext';
 import PlaceCard from '../components/PlaceCard';
@@ -35,9 +36,9 @@ const FavoritesPage = () => {
                     </div>
                     <h2 className="text-xl font-bold text-gray-700 mb-2">Aucun favori pour le moment</h2>
                     <p className="text-gray-500 mb-6">Explorez les lieux et cliquez sur le cœur pour les ajouter ici.</p>
-                    <a href="/" className="px-6 py-3 bg-brand-orange text-white rounded-xl font-bold hover:bg-orange-600 transition-colors">
+                    <Link to="/" className="px-6 py-3 bg-brand-orange text-white rounded-xl font-bold hover:bg-orange-600 transition-colors">
                         Explorer les lieux
-                    </a>
+                    </Link>
                 </div>
             )}
         </div>
