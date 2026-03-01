@@ -36,7 +36,7 @@ const renderContent = (content) => {
     processedContent = processedContent.replace(embedRegex, (match, innerContent) => {
         // Unescape the inner HTML (turn &lt;iframe into <iframe)
         // and return it WITHOUT the <pre> wrapper
-        return `< div class="embed-wrapper my-8 max-w-[500px] mx-auto overflow-hidden rounded-xl shadow-lg border border-gray-100" > ${unescapeHTML(innerContent)}</div > `;
+        return `<div class="embed-wrapper my-8 max-w-[500px] mx-auto overflow-hidden rounded-xl shadow-lg border border-gray-100">${unescapeHTML(innerContent)}</div>`;
     });
 
     return <div dangerouslySetInnerHTML={{ __html: processedContent }} />;
