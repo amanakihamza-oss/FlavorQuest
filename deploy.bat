@@ -14,7 +14,7 @@ git add .
 echo [3/4] Sauvegarde...
 set /p msg="Message de mise a jour (Entree pour 'Update'): "
 if "%msg%"=="" set msg=Update
-git commit -m "%msg%"
+git commit --allow-empty -m "%msg%"
 
 echo [4/4] Envoi vers GitHub...
 git push
