@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, where, getDocs, query } from 'firebase/firestore';
 import { uploadToImgBB } from '../utils/imgbb';
+import { useToast } from './ToastContext';
 
 const BlogContext = createContext();
 
@@ -84,6 +85,7 @@ const SEED_ARTICLES = [
 ];
 
 export const BlogProvider = ({ children }) => {
+    const { showToast } = useToast();
     const [articles, setArticles] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isLive, setIsLive] = useState(false); // True only if Firestore snapshot has fired
@@ -115,14 +117,8 @@ export const BlogProvider = ({ children }) => {
             setLoading(false);
             setIsLive(true); // MARK AS LIVE: We are now synced with the real DB
 
-            // AUTO-SEED only if completely empty (first run logic)
-            if (fetchedArticles.length === 0 && !localStorage.getItem('blog_seeded')) {
-                console.log("Seeding initial articles to Firebase...");
-                SEED_ARTICLES.forEach(async (article) => {
-                    await addDoc(collection(db, 'articles'), article);
-                });
-                localStorage.setItem('blog_seeded', 'true');
-            }
+            // AUTO-SEED logic removed to prevent accidental creation of dummy articles
+            // if (fetchedArticles.length === 0 && !localStorage.getItem('blog_seeded')) { ... }
         });
 
         // Failsafe: Force loading/live state safety if Firebase hangs
@@ -311,7 +307,7 @@ export const BlogProvider = ({ children }) => {
             console.log('✅ Article featured updated successfully');
         } catch (error) {
             console.error('❌ Error setting featured article:', error);
-            alert(`Erreur: ${error.message}`);
+            showToast(`Erreur: ${error.message}`, 'error');
             throw error;
         }
     };

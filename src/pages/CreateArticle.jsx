@@ -43,7 +43,7 @@ const CreateArticle = () => {
                     quill.insertEmbed(range.index, 'image', url);
                 } catch (error) {
                     console.error('Error uploading image:', error);
-                    alert("Erreur lors de l'upload de l'image");
+                    showToast("Erreur lors de l'upload de l'image", "error");
                 }
             }
         };
@@ -82,7 +82,7 @@ const CreateArticle = () => {
                             editor.insertEmbed(range.index, 'image', url);
                         } catch (err) {
                             console.error(err);
-                            alert("Erreur lors de l'upload de l'image collée");
+                            showToast("Erreur lors de l'upload de l'image collée", "error");
                         }
                     }
                     return; // Handle only one image for now or the first one found
@@ -323,7 +323,7 @@ const CreateArticle = () => {
                                     <div className="bg-white p-2 rounded-lg shadow-sm border border-gray-200">
                                         <LinkIcon size={14} className="text-gray-400" />
                                     </div>
-                                    <span className="font-mono text-gray-400 tracking-tight">flavorquest.be/blog/</span>
+                                    <span className="font-mono text-gray-400 tracking-tight">www.flavorquest.be/blog/</span>
                                     <input
                                         type="text"
                                         name="slug"

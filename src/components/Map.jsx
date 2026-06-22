@@ -45,14 +45,14 @@ const LocateControl = () => {
 
     return (
         <div className="absolute bottom-4 right-4 z-[9999]">
-            <div className="bg-white rounded-lg shadow-md hover:bg-gray-50 border border-gray-100 overflow-hidden pointer-events-auto">
+            <div className="bg-white dark:bg-[#1E1E1E] rounded-xl shadow-lg hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-100 dark:border-gray-800 overflow-hidden pointer-events-auto transition-colors">
                 <button
                     onClick={handleLocate}
-                    className="p-2 text-brand-dark transition-colors flex items-center justify-center w-10 h-10"
+                    className="p-2 text-brand-dark dark:text-gray-200 hover:text-brand-orange dark:hover:text-brand-orange transition-colors flex items-center justify-center w-10 h-10"
                     title="Autour de moi"
                     type="button"
                 >
-                    <Crosshair size={20} />
+                    <Navigation size={18} />
                 </button>
             </div>
             {position && (
@@ -73,23 +73,23 @@ const CustomZoomControl = () => {
     const map = useMap();
 
     return (
-        <div className="absolute bottom-20 right-4 flex flex-col gap-2 z-[9999]">
-            <div className="flex flex-col bg-white rounded-lg shadow-md overflow-hidden border border-gray-100 pointer-events-auto">
+        <div className="absolute bottom-16 right-4 flex flex-col gap-2 z-[9999]">
+            <div className="flex flex-col bg-white dark:bg-[#1E1E1E] rounded-xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-800 pointer-events-auto transition-colors">
                 <button
                     onClick={() => map.zoomIn()}
-                    className="p-2 hover:bg-gray-50 text-brand-dark border-b border-gray-100 transition-colors w-10 h-10 flex items-center justify-center"
+                    className="p-2 hover:bg-gray-50 dark:hover:bg-gray-800 text-brand-dark dark:text-gray-200 border-b border-gray-100 dark:border-gray-800 transition-colors w-10 h-10 flex items-center justify-center font-bold text-lg"
                     title="Zoom avant"
                     type="button"
                 >
-                    <span className="text-xl font-bold">+</span>
+                    +
                 </button>
                 <button
                     onClick={() => map.zoomOut()}
-                    className="p-2 hover:bg-gray-50 text-brand-dark transition-colors w-10 h-10 flex items-center justify-center"
+                    className="p-2 hover:bg-gray-50 dark:hover:bg-gray-800 text-brand-dark dark:text-gray-200 transition-colors w-10 h-10 flex items-center justify-center font-bold text-lg"
                     title="Zoom arrière"
                     type="button"
                 >
-                    <span className="text-xl font-bold">-</span>
+                    -
                 </button>
             </div>
         </div>
@@ -120,14 +120,25 @@ const Map = ({ places }) => {
     // Default center (Namur)
     const defaultCenter = [50.4674, 4.8720];
 
+    // Cache Leaflet icons to prevent renderToStaticMarkup and L.divIcon instantiations on every render
+    const iconsCache = React.useMemo(() => {
+        const cache = {};
+        places.forEach(place => {
+            if (place.lat && place.lng) {
+                cache[place.id] = createCustomIcon(place.name);
+            }
+        });
+        return cache;
+    }, [places]);
+
     return (
-        <div className="h-[600px] w-full rounded-3xl overflow-hidden shadow-xl border border-gray-100 relative z-0">
+        <div className="h-[600px] w-full rounded-3xl overflow-hidden shadow-xl border border-gray-100 dark:border-gray-800 relative z-0">
             <MapContainer
                 center={defaultCenter}
                 zoom={13}
                 scrollWheelZoom={true}
                 zoomControl={false}
-                className="h-full w-full bg-gray-50"
+                className="h-full w-full bg-gray-50 dark:bg-brand-dark"
             >
                 <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -148,38 +159,38 @@ const Map = ({ places }) => {
                             <Marker
                                 key={place.id}
                                 position={[place.lat, place.lng]}
-                                icon={createCustomIcon(place.name)}
+                                icon={iconsCache[place.id]}
                             >
                                 <Popup className="custom-popup" closeButton={false}>
-                                    <div className="w-[260px] p-0 font-sans">
-                                        <Link to={place.slug ? `/place/${place.slug}` : `/place/${place.id}`} className="block relative h-36 group overflow-hidden">
+                                    <div className="w-[260px] p-0 font-sans dark:bg-[#1E1E1E]">
+                                        <Link to={place.slug ? `/place/${place.slug}` : `/place/${place.id}`} className="block relative h-32 group overflow-hidden">
                                             <img
                                                 src={place.image}
                                                 alt={place.name}
-                                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                                className="w-full h-full object-cover transition-transform duration-750 group-hover:scale-105"
                                             />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-60"></div>
-                                            <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider text-brand-orange shadow-sm">
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                                            <div className="absolute top-3 left-3 bg-white/95 dark:bg-[#1D1D1D]/90 backdrop-blur-md px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider text-brand-orange shadow-sm">
                                                 {place.category === 'Snack' ? 'Fast Food' : place.category}
                                             </div>
                                         </Link>
 
-                                        <div className="p-4 bg-white">
-                                            <div className="flex justify-between items-start mb-1">
-                                                <h3 className="font-exrabold text-brand-dark text-lg leading-tight line-clamp-1">{place.name}</h3>
-                                                <div className="flex items-center gap-1 text-xs font-bold text-yellow-600 bg-yellow-50 px-1.5 py-0.5 rounded-md">
+                                        <div className="p-4 bg-white dark:bg-[#1E1E1E]">
+                                            <div className="flex justify-between items-start gap-2 mb-1.5">
+                                                <h3 className="font-bold text-brand-dark dark:text-gray-100 text-base leading-tight line-clamp-1">{place.name}</h3>
+                                                <div className="flex items-center gap-0.5 text-xs font-bold text-yellow-600 bg-yellow-50 dark:bg-yellow-950/20 px-1.5 py-0.5 rounded">
                                                     <span>★</span> {place.rating || '4.5'}
                                                 </div>
                                             </div>
 
-                                            <div className="flex items-center gap-1.5 text-gray-500 text-xs mb-4">
+                                            <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 text-xs mb-4">
                                                 <MapPin size={12} className="shrink-0 text-brand-orange" />
                                                 <span className="line-clamp-1">{place.address || place.city || 'Namur'}</span>
                                             </div>
 
                                             <Link
                                                 to={place.slug ? `/place/${place.slug}` : `/place/${place.id}`}
-                                                className="block w-full text-center py-2.5 rounded-xl bg-brand-dark text-white font-bold text-sm transition-all hover:bg-brand-orange hover:shadow-lg hover:shadow-orange-500/20 active:scale-95"
+                                                className="block w-full text-center py-2 rounded-xl bg-brand-dark dark:bg-brand-orange text-white font-bold text-sm transition-all hover:bg-brand-orange dark:hover:bg-orange-600 hover:shadow-lg hover:shadow-orange-500/20"
                                             >
                                                 Voir la fiche
                                             </Link>
@@ -195,13 +206,24 @@ const Map = ({ places }) => {
             <style>{`
                 .custom-popup .leaflet-popup-content-wrapper {
                     padding: 0;
-                    border-radius: 12px;
+                    border-radius: 20px;
                     overflow: hidden;
-                    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+                    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+                    border: 1px solid rgba(0, 0, 0, 0.05);
+                }
+                .dark .custom-popup .leaflet-popup-content-wrapper {
+                    background: #1E1E1E;
+                    border: 1px solid rgba(255, 255, 255, 0.08);
                 }
                 .custom-popup .leaflet-popup-content {
                     margin: 0;
                     width: auto !important;
+                }
+                .custom-popup .leaflet-popup-tip {
+                    display: none; /* Hide standard Leaflet pointer tip for a cleaner card look */
+                }
+                .dark .leaflet-tile-container {
+                    filter: invert(90%) hue-rotate(180deg) brightness(95%) contrast(90%);
                 }
                 .pulse-ring {
                     box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);

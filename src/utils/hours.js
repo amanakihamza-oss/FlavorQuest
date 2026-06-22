@@ -16,6 +16,7 @@ export const checkIsOpen = (openingHours) => {
 
     // Helper to check a specific range
     const checkRange = (openStr, closeStr, currentT) => {
+        if (!openStr || !closeStr) return 'closed';
         const [openH, openM] = openStr.split(':').map(Number);
         const [closeH, closeM] = closeStr.split(':').map(Number);
 

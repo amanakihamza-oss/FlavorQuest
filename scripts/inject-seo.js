@@ -50,8 +50,8 @@ async function injectSEO() {
                     const articleHtmlPath = path.join(blogDir, `${slug}.html`);
                     const description = article.excerpt ? article.excerpt.replace(/"/g, '&quot;') : '';
                     const title = `${article.title} | FlavorQuest`.replace(/"/g, '&quot;');
-                    const image = article.image || 'https://flavorquest.be/logo.png';
-                    const url = `https://flavorquest.be/blog/${slug}`;
+                    const image = article.image || 'https://www.flavorquest.be/logo.png';
+                    const url = `https://www.flavorquest.be/blog/${slug}`;
 
                     const seoTags = `
     <!-- Injected Static SEO -->
@@ -97,8 +97,8 @@ async function injectSEO() {
                     const title = `${place.name} - ${place.city} | FlavorQuest`.replace(/"/g, '&quot;');
 
                     // Prioritize the first cover image or use default
-                    const image = (place.images && place.images.length > 0) ? place.images[0] : 'https://flavorquest.be/logo.png';
-                    const url = `https://flavorquest.be/${citySlug}/${categorySlug}/${placeSlug}`;
+                    const image = (place.images && place.images.length > 0) ? place.images[0] : 'https://www.flavorquest.be/logo.png';
+                    const url = `https://www.flavorquest.be/${citySlug}/${categorySlug}/${placeSlug}`;
 
                     const seoTags = `
     <!-- Injected Static SEO (Place) -->

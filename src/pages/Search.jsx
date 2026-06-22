@@ -137,6 +137,13 @@ const Search = () => {
         } else if (!cityParam && selectedCity) {
             setSelectedCity('');
         }
+
+        const qParam = searchParams.get('q');
+        if (qParam && qParam !== searchTerm) {
+            setSearchTerm(qParam);
+        } else if (!qParam && searchTerm) {
+            setSearchTerm('');
+        }
     }, [searchParams]);
 
     // Update URL when search term changes
@@ -308,7 +315,7 @@ const Search = () => {
 
 
     return (
-        <div className="min-h-screen bg-gray-50 pb-20">
+        <div className="min-h-screen bg-gray-50 dark:bg-brand-dark pb-20 text-gray-900 dark:text-gray-100 transition-colors duration-200">
             <Helmet>
                 <title>{getPageTitle()}</title>
                 <meta name="description" content={getPageDescription()} />
@@ -316,7 +323,7 @@ const Search = () => {
 
             {/* Smart Header & Advanced Search Controls */}
             <motion.div
-                className="bg-white border-b border-gray-100 shadow-sm pt-4 pb-0 px-6 relative z-10"
+                className="bg-white dark:bg-[#1D1D1D] border-b border-gray-100 dark:border-gray-800 shadow-sm pt-4 pb-0 px-6 relative z-10 transition-colors duration-200"
             >
                 <div className="max-w-4xl mx-auto space-y-4">
 
@@ -334,7 +341,7 @@ const Search = () => {
                             }}
                             onFocus={() => setShowSuggestions(true)}
                             onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                            className="block w-full pl-10 pr-10 py-3 bg-gray-100 border-none rounded-xl text-base font-medium text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:bg-white transition-all shadow-inner"
+                            className="block w-full pl-10 pr-10 py-3 bg-gray-100 dark:bg-gray-800 border-none rounded-xl text-base font-medium text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:bg-white dark:focus:bg-gray-700 transition-all shadow-inner"
                             placeholder="Rechercher un lieu, un plat, une ambiance..."
                         />
                         {searchTerm && (
@@ -348,18 +355,18 @@ const Search = () => {
 
                         {/* Autocomplete Dropdown */}
                         {showSuggestions && suggestions.length > 0 && (
-                            <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden animate-fade-in origin-top">
+                            <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#2A2A2A] rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden animate-fade-in origin-top">
                                 {suggestions.map((suggestion, idx) => (
                                     <button
                                         key={idx}
                                         onClick={() => handleSuggestionClick(suggestion)}
-                                        className="w-full text-left px-4 py-3 hover:bg-orange-50 flex items-center gap-3 transition-colors border-b border-gray-50 last:border-none"
+                                        className="w-full text-left px-4 py-3 hover:bg-orange-50 dark:hover:bg-orange-950/20 flex items-center gap-3 transition-colors border-b border-gray-50 dark:border-gray-800 last:border-none"
                                     >
-                                        <div className={`p-2 rounded-full ${suggestion.type === 'place' ? 'bg-orange-100 text-brand-orange' : 'bg-gray-100 text-gray-500'}`}>
+                                        <div className={`p-2 rounded-full ${suggestion.type === 'place' ? 'bg-orange-100 dark:bg-orange-950/50 text-brand-orange' : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400'}`}>
                                             {suggestion.type === 'place' ? <MapPin size={16} /> : <TrendingUp size={16} />}
                                         </div>
                                         <div>
-                                            <p className="font-bold text-gray-800">{suggestion.label}</p>
+                                            <p className="font-bold text-gray-800 dark:text-gray-200">{suggestion.label}</p>
                                             {suggestion.type === 'place' && <p className="text-xs text-brand-orange">Lieu</p>}
                                         </div>
                                     </button>
@@ -385,7 +392,7 @@ const Search = () => {
                                     }}
                                     onKeyDown={handleCityKeyDown}
                                     onFocus={() => setShowCityDropdown(true)}
-                                    className="bg-white border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-brand-orange focus:border-brand-orange block w-full pl-10 p-2.5 outline-none font-bold placeholder-gray-500"
+                                    className="bg-white dark:bg-[#1D1D1D] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-100 text-sm rounded-xl focus:ring-brand-orange focus:border-brand-orange block w-full pl-10 p-2.5 outline-none font-bold placeholder-gray-500"
                                     placeholder="Toutes les villes"
                                 />
                                 {selectedCity && (
@@ -400,13 +407,13 @@ const Search = () => {
 
                             {/* City Dropdown */}
                             {showCityDropdown && (
-                                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden animate-fade-in z-50 max-h-60 overflow-y-auto">
+                                <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#2A2A2A] rounded-xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden animate-fade-in z-50 max-h-60 overflow-y-auto">
                                     <button
                                         onClick={() => {
                                             setSelectedCity("");
                                             setShowCityDropdown(false);
                                         }}
-                                        className={`w-full text-left px-4 py-2.5 hover:bg-orange-50 font-bold text-sm transition-colors flex items-center justify-between ${selectedCity === "" ? 'bg-orange-50 text-brand-orange' : 'text-gray-700'}`}
+                                        className={`w-full text-left px-4 py-2.5 hover:bg-orange-50 dark:hover:bg-orange-950/20 font-bold text-sm transition-colors flex items-center justify-between ${selectedCity === "" ? 'bg-orange-50 dark:bg-orange-950/30 text-brand-orange' : 'text-gray-700 dark:text-gray-200'}`}
                                     >
                                         <span>Partout</span>
                                         {selectedCity === "" && <div className="w-2 h-2 bg-brand-orange rounded-full"></div>}
@@ -418,7 +425,7 @@ const Search = () => {
                                                 navigate(`/${slugifyCity(city)}`);
                                                 setShowCityDropdown(false);
                                             }}
-                                            className={`w-full text-left px-4 py-2.5 hover:bg-orange-50 font-bold text-sm transition-colors flex items-center justify-between border-t border-gray-50 ${selectedCity === city || idx === activeCityIndex ? 'bg-orange-50 text-brand-orange' : 'text-gray-700'}`}
+                                            className={`w-full text-left px-4 py-2.5 hover:bg-orange-50 dark:hover:bg-orange-950/20 font-bold text-sm transition-colors flex items-center justify-between border-t border-gray-50 dark:border-gray-800 ${selectedCity === city || idx === activeCityIndex ? 'bg-orange-50 dark:bg-orange-950/30 text-brand-orange' : 'text-gray-700 dark:text-gray-200'}`}
                                         >
                                             <span>{city}</span>
                                             {selectedCity === city && <div className="w-2 h-2 bg-brand-orange rounded-full"></div>}
@@ -439,7 +446,7 @@ const Search = () => {
                                 <button
                                     onClick={() => setShowSortDropdown(!showSortDropdown)}
                                     onKeyDown={handleSortKeyDown}
-                                    className="w-full bg-white border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-brand-orange/20 block pl-10 pr-4 py-2.5 outline-none font-bold flex items-center justify-between transition-colors hover:border-gray-300"
+                                    className="w-full bg-white dark:bg-[#1D1D1D] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-100 text-sm rounded-xl focus:ring-2 focus:ring-brand-orange/20 block pl-10 pr-4 py-2.5 outline-none font-bold flex items-center justify-between transition-colors hover:border-gray-300 dark:hover:border-gray-700"
                                 >
                                     <span className="truncate">
                                         {sortBy === 'relevance' && 'Pertinence'}
@@ -451,7 +458,7 @@ const Search = () => {
                             </div>
 
                             {showSortDropdown && (
-                                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden animate-fade-in z-50">
+                                <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#2A2A2A] rounded-xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden animate-fade-in z-50">
                                     {SORT_OPTIONS.map((option, idx) => (
                                         <button
                                             key={option.value}
@@ -459,7 +466,7 @@ const Search = () => {
                                                 setSortBy(option.value);
                                                 setShowSortDropdown(false);
                                             }}
-                                            className={`w-full text-left px-4 py-2.5 hover:bg-orange-50 font-bold text-sm transition-colors flex items-center justify-between border-t border-gray-50 first:border-none ${sortBy === option.value || idx === activeSortIndex ? 'bg-orange-50 text-brand-orange' : 'text-gray-700'}`}
+                                            className={`w-full text-left px-4 py-2.5 hover:bg-orange-50 dark:hover:bg-orange-950/20 font-bold text-sm transition-colors flex items-center justify-between border-t border-gray-50 dark:border-gray-800 first:border-none ${sortBy === option.value || idx === activeSortIndex ? 'bg-orange-50 dark:bg-orange-950/30 text-brand-orange' : 'text-gray-700 dark:text-gray-200'}`}
                                         >
                                             <div className="flex items-center gap-2">
                                                 <option.icon size={16} className={sortBy === option.value ? "text-brand-orange" : "text-gray-400"} />
@@ -474,7 +481,7 @@ const Search = () => {
 
                         <button
                             onClick={() => setOnlyOpen(!onlyOpen)}
-                            className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl transition-all font-bold text-sm border whitespace-nowrap ${onlyOpen ? 'bg-green-100 text-green-700 border-green-200' : 'bg-white text-gray-500 border-gray-200 hover:border-brand-orange'}`}
+                            className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl transition-all font-bold text-sm border whitespace-nowrap ${onlyOpen ? 'bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-900/50' : 'bg-white dark:bg-[#1D1D1D] text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-800 hover:border-brand-orange'}`}
                         >
                             <Clock size={16} className={onlyOpen ? "text-green-600" : "text-gray-400"} />
                             <span>Ouvert maintenant</span>
@@ -482,7 +489,7 @@ const Search = () => {
                     </div>
 
                     {/* Integrated FilterBar */}
-                    <div className="-mx-6 border-t border-gray-100 pt-2">
+                    <div className="-mx-6 border-t border-gray-100 dark:border-gray-800 pt-2">
                         <FilterBar activeFilters={activeTags} onToggle={toggleFilter} visible={true} compact={true} />
                     </div>
                 </div>
@@ -491,10 +498,10 @@ const Search = () => {
             <div className="max-w-7xl mx-auto px-6 py-8">
                 <div className="flex items-center justify-between mb-6">
                     <div>
-                        <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                        <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2">
                             Résultats ({results.length})
                         </h2>
-                        {searchTerm && <p className="text-sm text-gray-500">Pour "{searchTerm}"</p>}
+                        {searchTerm && <p className="text-sm text-gray-500 dark:text-gray-400">Pour "{searchTerm}"</p>}
                     </div>
                     {(searchTerm || activeTags.length > 0 || onlyOpen || selectedCity) && (
                         <button onClick={clearSearch} className="text-sm text-brand-orange hover:underline font-bold">
@@ -531,12 +538,12 @@ const Search = () => {
                         ))}
                     </motion.div>
                 ) : (
-                    <div className="text-center py-20 bg-white rounded-3xl border border-gray-100 shadow-sm animate-fade-in">
-                        <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-300">
+                    <div className="text-center py-20 bg-white dark:bg-[#1D1D1D] rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm animate-fade-in">
+                        <div className="w-20 h-20 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-300 dark:text-gray-600">
                             <SearchIcon size={40} />
                         </div>
-                        <h3 className="text-xl font-bold text-gray-900 mb-2">Aucun résultat trouvé</h3>
-                        <p className="text-gray-500 max-w-md mx-auto mb-6">
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Aucun résultat trouvé</h3>
+                        <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-6">
                             Essayez de modifier vos filtres ou de chercher autre chose.
                         </p>
                         <button

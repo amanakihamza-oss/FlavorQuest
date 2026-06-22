@@ -39,7 +39,7 @@ const BlogHome = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 pb-20">
+        <div className="min-h-screen bg-gray-50 dark:bg-brand-dark pb-20 text-gray-900 dark:text-gray-100 transition-colors duration-200">
             <Helmet>
                 <title>Le Mag - FlavorQuest</title>
                 <meta name="description" content="Inspiration, guides et découvertes culinaires en Wallonie. Explorez nos articles pour dénicher les meilleures adresses." />
@@ -64,15 +64,15 @@ const BlogHome = () => {
 
             <main className="max-w-7xl mx-auto px-6 -mt-10 relative z-20">
                 {/* Filter & Search Bar */}
-                <div className="bg-white p-2 rounded-2xl shadow-lg border border-gray-100 flex flex-col md:flex-row items-center justify-between gap-4 mb-12 max-w-5xl mx-auto">
-                    <div className="flex p-1 bg-gray-100/80 rounded-xl w-full md:w-auto overflow-x-auto no-scrollbar">
+                <div className="bg-white dark:bg-[#1D1D1D] p-2 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-800 flex flex-col md:flex-row items-center justify-between gap-4 mb-12 max-w-5xl mx-auto transition-colors duration-200">
+                    <div className="flex p-1 bg-gray-100/80 dark:bg-gray-800/80 rounded-xl w-full md:w-auto overflow-x-auto no-scrollbar">
                         {categories.map(cat => (
                             <button
                                 key={cat}
                                 onClick={() => handleCategoryClick(cat)}
                                 className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${activeCategory === cat
-                                    ? 'bg-white text-brand-dark shadow-sm'
-                                    : 'text-gray-500 hover:text-brand-dark'
+                                    ? 'bg-white dark:bg-gray-700 text-brand-dark dark:text-white shadow-sm'
+                                    : 'text-gray-500 dark:text-gray-400 hover:text-brand-dark dark:hover:text-white'
                                     }`}
                             >
                                 {cat === 'All' ? 'Tout' : cat}
@@ -101,7 +101,7 @@ const BlogHome = () => {
                         {/* FEATURED HERO ARTICLE */}
                         {activeCategory === 'All' && featuredArticle && (
                             <div>
-                                <h2 className="flex items-center gap-2 text-2xl font-bold text-gray-900 mb-6">
+                                <h2 className="flex items-center gap-2 text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
                                     <Sparkles className="text-brand-orange fill-brand-orange" size={24} />
                                     À la une cette semaine
                                 </h2>
@@ -143,7 +143,7 @@ const BlogHome = () => {
                         {/* REMAINING ARTICLES GRID */}
                         <div>
                             {activeCategory === 'All' && (
-                                <h2 className="flex items-center gap-2 text-2xl font-bold text-gray-900 mb-8 border-l-4 border-brand-dark pl-4">
+                                <h2 className="flex items-center gap-2 text-2xl font-bold text-gray-900 dark:text-gray-100 mb-8 border-l-4 border-brand-dark dark:border-gray-700 pl-4">
                                     <Grid className="text-gray-400" size={24} />
                                     Dernières publications
                                 </h2>
@@ -160,7 +160,7 @@ const BlogHome = () => {
                             <div className="flex justify-center pt-8">
                                 <button
                                     onClick={handleLoadMore}
-                                    className="px-8 py-3 bg-white border border-gray-200 text-gray-600 font-bold rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm flex items-center gap-2 group"
+                                    className="px-8 py-3 bg-white dark:bg-[#1D1D1D] border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-300 font-bold rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-700 transition-all shadow-sm flex items-center gap-2 group"
                                 >
                                     Voir plus d'articles
                                     <ChevronDown size={20} className="group-hover:translate-y-1 transition-transform" />
@@ -169,7 +169,7 @@ const BlogHome = () => {
                         )}
                     </div>
                 ) : (
-                    <div className="text-center py-20 bg-white rounded-3xl shadow-sm border border-gray-100">
+                    <div className="text-center py-20 bg-white dark:bg-[#1D1D1D] rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800">
                         <p className="text-gray-500 text-lg">Aucun article trouvé dans cette catégorie pour le moment.</p>
                         <button
                             onClick={() => setActiveCategory('All')}

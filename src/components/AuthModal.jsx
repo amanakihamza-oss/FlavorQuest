@@ -10,7 +10,7 @@ const AuthModal = () => {
     const [isLogin, setIsLogin] = useState(true);
     const [formData, setFormData] = useState({ name: '', email: '', password: '' });
 
-    if (!showAuthModal) return null;
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -32,8 +32,7 @@ const AuthModal = () => {
     };
 
     return (
-        <AnimatePresence>
-            <div className="fixed inset-0 z-[60] flex items-center justify-center px-4">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center px-4 animate-fade-in">
                 {/* Backdrop */}
                 <motion.div
                     initial={{ opacity: 0 }}
@@ -48,21 +47,21 @@ const AuthModal = () => {
                     initial={{ scale: 0.9, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.9, opacity: 0 }}
-                    className="bg-white w-full max-w-md rounded-3xl overflow-hidden shadow-2xl relative z-10"
+                    className="bg-white dark:bg-[#1D1D1D] w-full max-w-md rounded-3xl overflow-hidden shadow-2xl relative z-10 border border-gray-100 dark:border-gray-800 transition-colors duration-200"
                 >
                     <button
                         onClick={() => setShowAuthModal(false)}
-                        className="absolute top-4 right-4 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+                        className="absolute top-4 right-4 p-2 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                     >
                         <X size={20} />
                     </button>
 
                     <div className="p-8">
                         <div className="text-center mb-8">
-                            <h2 className="text-2xl font-bold text-brand-dark mb-2">
+                            <h2 className="text-2xl font-bold text-brand-dark dark:text-gray-100 mb-2">
                                 {isLogin ? 'Bon retour ! 👋' : 'Rejoignez-nous ! 🚀'}
                             </h2>
-                            <p className="text-gray-500 text-sm">
+                            <p className="text-gray-500 dark:text-gray-400 text-sm">
                                 {isLogin
                                     ? 'Connectez-vous pour retrouver vos favoris.'
                                     : 'Créez un compte pour partager vos découvertes.'}
@@ -72,16 +71,16 @@ const AuthModal = () => {
                         <form onSubmit={handleSubmit} className="space-y-4">
                             {!isLogin && (
                                 <div>
-                                    <label htmlFor="auth-name" className="block text-xs font-bold text-gray-400 uppercase mb-1">Nom complet</label>
+                                    <label htmlFor="auth-name" className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase mb-1">Nom complet</label>
                                     <div className="relative">
-                                        <User className="absolute left-3 top-3 text-gray-400" size={18} />
+                                        <User className="absolute left-3 top-3 text-gray-400 dark:text-gray-500" size={18} />
                                         <input
                                             id="auth-name"
                                             type="text"
                                             required
                                             value={formData.name}
                                             onChange={e => setFormData({ ...formData, name: e.target.value })}
-                                            className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
+                                            className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20 transition-colors"
                                             placeholder="John Doe"
                                         />
                                     </div>
@@ -89,32 +88,32 @@ const AuthModal = () => {
                             )}
 
                             <div>
-                                <label htmlFor="auth-email" className="block text-xs font-bold text-gray-400 uppercase mb-1">Email</label>
+                                <label htmlFor="auth-email" className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase mb-1">Email</label>
                                 <div className="relative">
-                                    <Mail className="absolute left-3 top-3 text-gray-400" size={18} />
+                                    <Mail className="absolute left-3 top-3 text-gray-400 dark:text-gray-500" size={18} />
                                     <input
                                         id="auth-email"
                                         type="email"
                                         required
                                         value={formData.email}
                                         onChange={e => setFormData({ ...formData, email: e.target.value })}
-                                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
+                                        className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20 transition-colors"
                                         placeholder="hello@example.com"
                                     />
                                 </div>
                             </div>
 
                             <div>
-                                <label htmlFor="auth-password" className="block text-xs font-bold text-gray-400 uppercase mb-1">Mot de passe</label>
+                                <label htmlFor="auth-password" className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase mb-1">Mot de passe</label>
                                 <div className="relative">
-                                    <Lock className="absolute left-3 top-3 text-gray-400" size={18} />
+                                    <Lock className="absolute left-3 top-3 text-gray-400 dark:text-gray-500" size={18} />
                                     <input
                                         id="auth-password"
                                         type="password"
                                         required
                                         value={formData.password}
                                         onChange={e => setFormData({ ...formData, password: e.target.value })}
-                                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
+                                        className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20 transition-colors"
                                         placeholder="••••••••"
                                     />
                                 </div>
@@ -122,18 +121,18 @@ const AuthModal = () => {
 
                             <button
                                 type="submit"
-                                className="w-full bg-brand-orange text-white font-bold py-3 rounded-xl hover:bg-orange-600 transition-colors flex items-center justify-center gap-2 mt-6 shadow-lg shadow-brand-orange/20"
+                                className="w-full bg-brand-orange hover:bg-orange-600 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 mt-6 shadow-lg shadow-brand-orange/20 dark:shadow-none"
                             >
                                 {isLogin ? 'Se connecter' : "S'inscrire"} <ArrowRight size={18} />
                             </button>
                         </form>
 
-                        <div className="text-center mt-6 pt-6 border-t border-gray-100">
-                            <p className="text-sm text-gray-500">
+                        <div className="text-center mt-6 pt-6 border-t border-gray-100 dark:border-gray-800">
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
                                 {isLogin ? "Pas encore de compte ?" : "Déjà membre ?"}
                                 <button
                                     onClick={() => setIsLogin(!isLogin)}
-                                    className="ml-2 font-bold text-brand-dark hover:text-brand-orange transition-colors"
+                                    className="ml-2 font-bold text-brand-dark dark:text-gray-200 hover:text-brand-orange dark:hover:text-brand-orange transition-colors"
                                 >
                                     {isLogin ? "Créer un compte" : "Se connecter"}
                                 </button>
@@ -142,7 +141,6 @@ const AuthModal = () => {
                     </div>
                 </motion.div>
             </div>
-        </AnimatePresence>
     );
 };
 

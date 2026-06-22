@@ -40,7 +40,7 @@ const ContactPage = () => {
     };
 
     return (
-        <div className="pt-24 pb-20 min-h-screen bg-gray-50">
+        <div className="pt-24 pb-20 min-h-screen bg-gray-50 dark:bg-brand-dark transition-colors duration-200">
             <SEO
                 title="Contactez-nous - FlavorQuest"
                 description="Une question, une suggestion ou une demande de partenariat ? Contactez l'équipe FlavorQuest."
@@ -60,7 +60,7 @@ const ContactPage = () => {
                     <motion.h1
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
-                        className="text-4xl md:text-5xl font-extrabold text-brand-dark mb-4"
+                        className="text-4xl md:text-5xl font-extrabold text-brand-dark dark:text-gray-100 mb-4"
                     >
                         Parlons <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-orange to-brand-yellow">Pépites</span>.
                     </motion.h1>
@@ -68,7 +68,7 @@ const ContactPage = () => {
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.1 }}
-                        className="text-gray-500 text-lg"
+                        className="text-gray-500 dark:text-gray-400 text-lg"
                     >
                         Une suggestion de restaurant ? Une idée de partenariat ? Ou juste envie de dire bonjour ? Nous sommes tout ouïe.
                     </motion.p>
@@ -83,28 +83,28 @@ const ContactPage = () => {
                         transition={{ delay: 0.2 }}
                         className="space-y-8"
                     >
-                        <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-                            <h3 className="text-xl font-bold mb-6">Nos Coordonnées</h3>
+                        <div className="bg-white dark:bg-[#1D1D1D] p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 transition-colors duration-200">
+                            <h3 className="text-xl font-bold mb-6 text-gray-900 dark:text-gray-100">Nos Coordonnées</h3>
                             <ul className="space-y-6">
                                 <li className="flex items-start gap-4">
-                                    <div className="w-12 h-12 bg-blue-50 text-blue-500 rounded-xl flex items-center justify-center shrink-0">
+                                    <div className="w-12 h-12 bg-blue-50 dark:bg-blue-950/20 text-blue-500 dark:text-blue-400 rounded-xl flex items-center justify-center shrink-0">
                                         <Mail size={24} />
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-gray-900">Email</h4>
-                                        <p className="text-gray-500 text-sm mb-1">Pour toute demande générale</p>
+                                        <h4 className="font-bold text-gray-900 dark:text-gray-100">Email</h4>
+                                        <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">Pour toute demande générale</p>
                                         <a href="mailto:flavorquest.contact@gmail.com" className="text-brand-orange font-bold hover:underline">
                                             flavorquest.contact@gmail.com
                                         </a>
                                     </div>
                                 </li>
                                 <li className="flex items-start gap-4">
-                                    <div className="w-12 h-12 bg-purple-50 text-purple-500 rounded-xl flex items-center justify-center shrink-0">
+                                    <div className="w-12 h-12 bg-purple-50 dark:bg-purple-950/20 text-purple-500 dark:text-purple-400 rounded-xl flex items-center justify-center shrink-0">
                                         <MessageSquare size={24} />
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-gray-900">Réseaux Sociaux</h4>
-                                        <p className="text-gray-500 text-sm mb-1">Suivez nos aventures gourmandes</p>
+                                        <h4 className="font-bold text-gray-900 dark:text-gray-100">Réseaux Sociaux</h4>
+                                        <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">Suivez nos aventures gourmandes</p>
                                         <div className="flex gap-4 mt-2">
                                             <a href="https://instagram.com/flavorquest_be" target="_blank" className="text-gray-400 hover:text-brand-orange transition-colors font-bold">@flavorquest_be</a>
                                         </div>
@@ -113,11 +113,11 @@ const ContactPage = () => {
                             </ul>
                         </div>
 
-                        <div className="bg-brand-dark text-white p-8 rounded-3xl relative overflow-hidden">
+                        <div className="bg-brand-dark dark:bg-black/30 text-white dark:text-gray-100 p-8 rounded-3xl border border-transparent dark:border-gray-800 relative overflow-hidden">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
                             <h3 className="text-xl font-bold mb-4 relative z-10">Vous êtes restaurateur ?</h3>
                             <p className="text-gray-300 mb-6 relative z-10">Rejoignez le guide et donnez de la visibilité à votre établissement.</p>
-                            <Link to="/login" className="inline-flex items-center gap-2 bg-white text-brand-dark px-6 py-3 rounded-xl font-bold hover:bg-gray-100 transition-colors relative z-10">
+                            <Link to="/login" className="inline-flex items-center gap-2 bg-white dark:bg-[#2A2A2A] text-brand-dark dark:text-white px-6 py-3 rounded-xl font-bold hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative z-10">
                                 Devenir Partenaire <ArrowRight size={18} />
                             </Link>
                         </div>
@@ -125,10 +125,10 @@ const ContactPage = () => {
 
                     {/* Contact Form */}
                     <motion.div
-                        initial={{ x: 50, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
+                        initial={{ y: 50, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.3 }}
-                        className="bg-white p-8 md:p-10 rounded-[2.5rem] shadow-xl shadow-brand-orange/5 border border-gray-100 relative"
+                        className="bg-white dark:bg-[#1D1D1D] p-8 md:p-10 rounded-[2.5rem] shadow-xl shadow-brand-orange/5 border border-gray-100 dark:border-gray-800 relative transition-colors duration-200"
                     >
                         <AnimatePresence mode="wait">
                             {!submitted ? (
@@ -142,22 +142,22 @@ const ContactPage = () => {
                                 >
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
-                                            <label className="text-sm font-bold text-gray-700 ml-1">Votre Nom</label>
+                                            <label className="text-sm font-bold text-gray-700 dark:text-gray-300 ml-1">Votre Nom</label>
                                             <input
                                                 required
                                                 type="text"
-                                                className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:border-brand-orange focus:ring-4 focus:ring-brand-orange/10 transition-all font-medium"
+                                                className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-2xl focus:outline-none focus:border-brand-orange focus:ring-4 focus:ring-brand-orange/10 transition-all font-medium"
                                                 placeholder="Jean Dupont"
                                                 value={formState.name}
                                                 onChange={e => setFormState({ ...formState, name: e.target.value })}
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-sm font-bold text-gray-700 ml-1">Votre Email</label>
+                                            <label className="text-sm font-bold text-gray-700 dark:text-gray-300 ml-1">Votre Email</label>
                                             <input
                                                 required
                                                 type="email"
-                                                className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:border-brand-orange focus:ring-4 focus:ring-brand-orange/10 transition-all font-medium"
+                                                className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-2xl focus:outline-none focus:border-brand-orange focus:ring-4 focus:ring-brand-orange/10 transition-all font-medium"
                                                 placeholder="jean@example.com"
                                                 value={formState.email}
                                                 onChange={e => setFormState({ ...formState, email: e.target.value })}
@@ -166,26 +166,26 @@ const ContactPage = () => {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label className="text-sm font-bold text-gray-700 ml-1">Sujet</label>
+                                        <label className="text-sm font-bold text-gray-700 dark:text-gray-300 ml-1">Sujet</label>
                                         <select
-                                            className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:border-brand-orange focus:ring-4 focus:ring-brand-orange/10 transition-all font-medium appearance-none"
+                                            className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-2xl focus:outline-none focus:border-brand-orange focus:ring-4 focus:ring-brand-orange/10 transition-all font-medium appearance-none"
                                             value={formState.subject}
                                             onChange={e => setFormState({ ...formState, subject: e.target.value })}
                                         >
-                                            <option value="">Sélectionnez un sujet</option>
-                                            <option value="suggestion">Suggérer une pépite</option>
-                                            <option value="partnership">Partenariat / Publicité</option>
-                                            <option value="support">Problème technique</option>
-                                            <option value="other">Autre</option>
+                                            <option value="" className="dark:bg-gray-800">Sélectionnez un sujet</option>
+                                            <option value="suggestion" className="dark:bg-gray-800">Suggérer une pépite</option>
+                                            <option value="partnership" className="dark:bg-gray-800">Partenariat / Publicité</option>
+                                            <option value="support" className="dark:bg-gray-800">Problème technique</option>
+                                            <option value="other" className="dark:bg-gray-800">Autre</option>
                                         </select>
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label className="text-sm font-bold text-gray-700 ml-1">Message</label>
+                                        <label className="text-sm font-bold text-gray-700 dark:text-gray-300 ml-1">Message</label>
                                         <textarea
                                             required
                                             rows="5"
-                                            className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:border-brand-orange focus:ring-4 focus:ring-brand-orange/10 transition-all font-medium resize-none"
+                                            className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-2xl focus:outline-none focus:border-brand-orange focus:ring-4 focus:ring-brand-orange/10 transition-all font-medium resize-none"
                                             placeholder="Dites-nous tout..."
                                             value={formState.message}
                                             onChange={e => setFormState({ ...formState, message: e.target.value })}
@@ -217,11 +217,11 @@ const ContactPage = () => {
                                     animate={{ opacity: 1, scale: 1 }}
                                     className="text-center py-20"
                                 >
-                                    <div className="w-24 h-24 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl shadow-green-100">
+                                    <div className="w-24 h-24 bg-green-100 dark:bg-green-950/30 text-green-500 dark:text-green-400 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl shadow-green-100 dark:shadow-none">
                                         <CheckCircle size={48} />
                                     </div>
-                                    <h3 className="text-2xl font-bold text-gray-900 mb-2">Message reçu ! 🚀</h3>
-                                    <p className="text-gray-500 max-w-sm mx-auto mb-8">
+                                    <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Message reçu ! 🚀</h3>
+                                    <p className="text-gray-500 dark:text-gray-400 max-w-sm mx-auto mb-8">
                                         Merci de nous avoir contactés. Notre équipe va lire votre message avec attention et vous répondra très bientôt.
                                     </p>
                                     <button

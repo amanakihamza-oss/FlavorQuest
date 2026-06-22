@@ -28,23 +28,23 @@ const FeedbackModal = ({ isOpen, onClose, onSend, placeName }) => {
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-scale-in">
+            <div className="bg-white dark:bg-[#1D1D1D] rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-gray-100 dark:border-gray-800 animate-scale-in transition-colors duration-200">
 
                 {/* Header */}
-                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                    <h3 className="font-bold text-gray-800 flex items-center gap-2">
+                <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50 dark:bg-gray-800">
+                    <h3 className="font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
                         <MessageSquare size={18} className="text-brand-orange" />
                         Message à l'auteur
                     </h3>
-                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
+                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                         <X size={20} />
                     </button>
                 </div>
 
                 {/* Body */}
                 <div className="p-6">
-                    <p className="text-sm text-gray-500 mb-4">
-                        Concerne le lieu : <span className="font-bold text-gray-800">{placeName}</span>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                        Concerne le lieu : <span className="font-bold text-gray-800 dark:text-gray-200">{placeName}</span>
                     </p>
 
                     <div className="flex flex-wrap gap-2 mb-4">
@@ -53,7 +53,7 @@ const FeedbackModal = ({ isOpen, onClose, onSend, placeName }) => {
                                 key={i}
                                 type="button"
                                 onClick={() => handlePresetClick(text)}
-                                className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${preset === text ? 'bg-brand-orange text-white border-brand-orange' : 'bg-white text-gray-600 border-gray-200 hover:border-brand-orange hover:text-brand-orange'}`}
+                                className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${preset === text ? 'bg-brand-orange text-white border-brand-orange' : 'bg-white dark:bg-gray-800 text-gray-650 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-brand-orange hover:text-brand-orange dark:hover:text-brand-orange'}`}
                             >
                                 {text.substring(0, 20)}...
                             </button>
@@ -65,23 +65,23 @@ const FeedbackModal = ({ isOpen, onClose, onSend, placeName }) => {
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
                         placeholder="Écrivez votre message ici..."
-                        className="w-full h-32 p-3 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-brand-orange focus:border-transparent outline-none resize-none text-sm"
+                        className="w-full h-32 p-3 rounded-xl bg-gray-50 dark:bg-gray-850 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-brand-orange focus:border-transparent outline-none resize-none text-sm"
                         autoFocus
                     ></textarea>
                 </div>
 
                 {/* Footer */}
-                <div className="px-6 py-4 border-t border-gray-100 flex justify-end gap-3">
+                <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-800 flex justify-end gap-3 bg-white dark:bg-[#1D1D1D]">
                     <button
                         onClick={onClose}
-                        className="px-4 py-2 rounded-lg text-gray-600 font-medium hover:bg-gray-100 transition-colors text-sm"
+                        className="px-4 py-2 rounded-lg text-gray-600 dark:text-gray-350 font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-sm"
                     >
                         Annuler
                     </button>
                     <button
                         onClick={handleSubmit}
                         disabled={!message.trim()}
-                        className="px-6 py-2 rounded-lg bg-brand-dark text-white font-bold text-sm hover:bg-black transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-6 py-2 rounded-lg bg-brand-dark dark:bg-gray-700 text-white font-bold text-sm hover:bg-black dark:hover:bg-gray-600 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         <Send size={16} /> Envoyer
                     </button>

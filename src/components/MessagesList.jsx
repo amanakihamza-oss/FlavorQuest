@@ -68,36 +68,36 @@ const MessagesList = ({ searchTerm = '' }) => {
         <div className="space-y-4">
             {/* Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-xl border border-blue-100 dark:border-blue-900/30">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-blue-500 text-white rounded-lg flex items-center justify-center">
                             <Mail size={20} />
                         </div>
                         <div>
-                            <p className="text-xs text-blue-600 font-bold">Total</p>
-                            <p className="text-2xl font-bold text-blue-900">{messages.length}</p>
+                            <p className="text-xs text-blue-600 dark:text-blue-400 font-bold">Total</p>
+                            <p className="text-2xl font-bold text-blue-900 dark:text-blue-200">{messages.length}</p>
                         </div>
                     </div>
                 </div>
-                <div className="bg-green-50 p-4 rounded-xl border border-green-100">
+                <div className="bg-green-50 dark:bg-green-950/20 p-4 rounded-xl border border-green-100 dark:border-green-900/30">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-green-500 text-white rounded-lg flex items-center justify-center">
                             <Check size={20} />
                         </div>
                         <div>
-                            <p className="text-xs text-green-600 font-bold">Lus</p>
-                            <p className="text-2xl font-bold text-green-900">{messages.filter(m => m.read).length}</p>
+                            <p className="text-xs text-green-600 dark:text-green-400 font-bold">Lus</p>
+                            <p className="text-2xl font-bold text-green-900 dark:text-green-200">{messages.filter(m => m.read).length}</p>
                         </div>
                     </div>
                 </div>
-                <div className="bg-orange-50 p-4 rounded-xl border border-orange-100">
+                <div className="bg-orange-50 dark:bg-orange-950/20 p-4 rounded-xl border border-orange-100 dark:border-orange-900/30">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-orange-500 text-white rounded-lg flex items-center justify-center">
                             <Clock size={20} />
                         </div>
                         <div>
-                            <p className="text-xs text-orange-600 font-bold">Non lus</p>
-                            <p className="text-2xl font-bold text-orange-900">{messages.filter(m => !m.read).length}</p>
+                            <p className="text-xs text-orange-600 dark:text-orange-400 font-bold">Non lus</p>
+                            <p className="text-2xl font-bold text-orange-900 dark:text-orange-200">{messages.filter(m => !m.read).length}</p>
                         </div>
                     </div>
                 </div>
@@ -105,16 +105,16 @@ const MessagesList = ({ searchTerm = '' }) => {
 
             {/* Messages List */}
             {filteredMessages.length === 0 ? (
-                <div className="text-center py-16 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
-                    <Mail size={48} className="mx-auto text-gray-300 mb-4" />
-                    <p className="text-gray-400 font-medium">Aucun message trouvé</p>
+                <div className="text-center py-16 bg-gray-50 dark:bg-[#1E1E1E] rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-800">
+                    <Mail size={48} className="mx-auto text-gray-300 dark:text-gray-600 mb-4" />
+                    <p className="text-gray-400 dark:text-gray-500 font-medium">Aucun message trouvé</p>
                 </div>
             ) : (
                 <div className="space-y-3">
                     {filteredMessages.map((message) => (
                         <div
                             key={message.id}
-                            className={`bg-white border rounded-2xl p-6 transition-all hover:shadow-md ${!message.read ? 'border-brand-orange bg-orange-50/30' : 'border-gray-200'
+                            className={`bg-white dark:bg-[#1E1E1E] border rounded-2xl p-6 transition-all hover:shadow-md ${!message.read ? 'border-brand-orange dark:border-brand-orange bg-orange-50/30 dark:bg-orange-950/10' : 'border-gray-200 dark:border-gray-800'
                                 }`}
                         >
                             <div className="flex items-start justify-between gap-4">
@@ -123,13 +123,13 @@ const MessagesList = ({ searchTerm = '' }) => {
                                         {!message.read && (
                                             <span className="w-2 h-2 bg-brand-orange rounded-full animate-pulse"></span>
                                         )}
-                                        <h3 className="font-bold text-gray-900">{message.name}</h3>
-                                        <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full font-medium">
+                                        <h3 className="font-bold text-gray-900 dark:text-gray-100">{message.name}</h3>
+                                        <span className="text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 px-2 py-1 rounded-full font-medium">
                                             {getSubjectLabel(message.subject)}
                                         </span>
                                     </div>
-                                    <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
-                                        <a href={`mailto:${message.email}`} className="hover:text-brand-orange transition-colors">
+                                    <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-3">
+                                        <a href={`mailto:${message.email}`} className="hover:text-brand-orange dark:hover:text-brand-orange transition-colors">
                                             {message.email}
                                         </a>
                                         <span>•</span>
@@ -144,26 +144,26 @@ const MessagesList = ({ searchTerm = '' }) => {
                                             })}
                                         </span>
                                     </div>
-                                    <p className="text-gray-700 mb-4 whitespace-pre-wrap">{message.message}</p>
+                                    <p className="text-gray-700 dark:text-gray-300 mb-4 whitespace-pre-wrap">{message.message}</p>
 
                                     <div className="flex items-center gap-2">
                                         {!message.read && (
                                             <button
                                                 onClick={() => handleMarkAsRead(message.id)}
-                                                className="text-xs bg-green-50 text-green-600 px-3 py-1.5 rounded-lg font-medium hover:bg-green-100 transition-colors flex items-center gap-1.5"
+                                                className="text-xs bg-green-50 dark:bg-green-950/20 text-green-600 dark:text-green-400 px-3 py-1.5 rounded-lg font-medium hover:bg-green-100 dark:hover:bg-green-950/40 transition-colors flex items-center gap-1.5"
                                             >
                                                 <Check size={14} /> Marquer comme lu
                                             </button>
                                         )}
                                         <button
                                             onClick={() => handleDelete(message.id)}
-                                            className="text-xs bg-red-50 text-red-600 px-3 py-1.5 rounded-lg font-medium hover:bg-red-100 transition-colors flex items-center gap-1.5"
+                                            className="text-xs bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 px-3 py-1.5 rounded-lg font-medium hover:bg-red-100 dark:hover:bg-red-950/40 transition-colors flex items-center gap-1.5"
                                         >
                                             <Trash2 size={14} /> Supprimer
                                         </button>
                                         <a
                                             href={`mailto:${message.email}?subject=Re: ${getSubjectLabel(message.subject)}`}
-                                            className="text-xs bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg font-medium hover:bg-blue-100 transition-colors flex items-center gap-1.5"
+                                            className="text-xs bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 px-3 py-1.5 rounded-lg font-medium hover:bg-blue-100 dark:hover:bg-blue-950/40 transition-colors flex items-center gap-1.5"
                                         >
                                             <Mail size={14} /> Répondre
                                         </a>

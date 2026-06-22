@@ -2,58 +2,68 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Helper functions
+    // --- Helper Functions ---
+    
+    // Vérifie si l'utilisateur est connecté à Firebase Auth
     function isAuthenticated() {
       return request.auth != null;
     }
     
+    // Vérifie si l'utilisateur connecté est un administrateur
     function isAdmin() {
-      // Replace with your actual admin email or UID logic
-      // For now, checking if email matches the project domain or specific admin
-      return request.auth.token.email.matches('.*@flavorquest.be') || 
-             request.auth.token.email.matches('.*@flavorquest.com') ||
-             request.auth.token.email == 'admin@flavorquest.com'; 
+      return isAuthenticated() && (
+        request.auth.token.email.matches('.*@flavorquest.be') || 
+        request.auth.token.email.matches('.*@flavorquest.com') ||
+        request.auth.token.email == 'admin@flavorquest.com' ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
+      );
     }
-
-    // --- Places ---
+    
+    // --- Lieux (Places) ---
     match /places/{placeId} {
-      // Public read
       allow read: if true;
-      
-      // Auth users can propose a place (must be pending)
-      allow create: if isAuthenticated() 
-                    && request.resource.data.validationStatus == 'pending'
-                    && request.resource.data.keys().hasAll(['name', 'city', 'category']);
-      
-      // Only Admins can update (approve) or delete
-      // FALLBACK: For now, allowing any auth user to update/delete to prevent breaking your current workflow
-      // if you share a generic login. Ideally, switch to 'if isAdmin()'.
-      allow update, delete: if isAuthenticated(); 
+      // Création autorisée pour tout utilisateur connecté (statut en attente)
+      allow create: if isAuthenticated() && request.resource.data.validationStatus == 'pending';
+      // Mises à jour et suppressions réservées aux administrateurs
+      allow update, delete: if isAdmin(); 
     }
-
-    // --- Reviews ---
+    
+    // --- Avis (Reviews) ---
     match /reviews/{reviewId} {
       allow read: if true;
-      allow create: if isAuthenticated();
-      // Users can delete their own reviews, Admins can delete any
-      allow delete: if isAuthenticated() && (request.auth.uid == resource.data.userId || isAdmin());
+      // CORRECTION : Tout le monde peut poster un avis (sans compte obligatoire)
+      allow create: if true;
+      // Suppression autorisée pour l'auteur de l'avis ou pour un admin
+      allow delete: if isAuthenticated() && (
+        request.auth.uid == resource.data.userId || isAdmin()
+      );
     }
-
+    
     // --- Articles (Blog) ---
     match /articles/{articleId} {
       allow read: if true;
-      allow write: if isAuthenticated(); // Restrict to logged users (Partners/Admins)
+      // Seuls les admins peuvent créer ou supprimer un article
+      allow create, delete: if isAdmin();
+      // Tout le monde peut mettre à jour l'article SI ET SEULEMENT SI seul le champ 'likes' est modifié (pour le vote public).
+      // Sinon, la mise à jour complète est réservée aux admins.
+      allow update: if isAdmin() || (
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes'])
+      );
     }
-
-    // --- Users ---
+    
+    // --- Utilisateurs ---
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      // Un utilisateur ne peut lire/écrire que son propre document utilisateur
+      allow read, write: if isAuthenticated() && request.auth.uid == userId;
     }
-
-    // --- Claim Requests ---
+    
+    // --- Demandes de revendication (Claim Requests) ---
     match /claim_requests/{claimId} {
-      allow create: if isAuthenticated();
-      allow read, write: if isAdmin(); // Only admins process claims
+      // Les propriétaires de restaurant peuvent faire une demande de revendication sans compte
+      allow create: if true; 
+      // Seuls les admins peuvent lire ou modifier les demandes (pour traitement/validation)
+      allow read, write: if isAdmin();
     }
   }
 }

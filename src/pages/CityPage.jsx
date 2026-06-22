@@ -100,24 +100,23 @@ const CityPage = () => {
 
     // If no places found for this city slug...
     if (!realCityName) {
-        // ... (existing 404 logic)
         return (
-            <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6">
+            <div className="min-h-screen bg-gray-50 dark:bg-brand-dark flex flex-col items-center justify-center p-6 text-gray-900 dark:text-gray-100">
                 <Helmet>
                     <title>Ville introuvable - FlavorQuest</title>
                     <meta name="robots" content="noindex" />
                 </Helmet>
-                <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-6">
-                    <MapPin className="text-gray-400" size={40} />
+                <div className="w-20 h-20 bg-gray-100 dark:bg-gray-850 rounded-full flex items-center justify-center mb-6">
+                    <MapPin className="text-gray-400 dark:text-gray-550" size={40} />
                 </div>
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">Oups !</h1>
-                <p className="text-gray-500 mb-6 text-center max-w-md">
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Oups !</h1>
+                <p className="text-gray-500 dark:text-gray-400 mb-6 text-center max-w-md">
                     Nous n'avons pas encore d'adresses répertoriées pour "{city}".
                     FlavorQuest grandit chaque jour !
                 </p>
                 <Link
                     to="/search"
-                    className="px-6 py-3 bg-brand-orange text-white rounded-xl font-bold hover:bg-brand-dark transition-colors"
+                    className="px-6 py-3 bg-brand-orange text-white rounded-xl font-bold hover:bg-brand-dark dark:hover:bg-gray-800 transition-colors"
                 >
                     Voir toutes les adresses
                 </Link>
@@ -126,18 +125,18 @@ const CityPage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 pb-20 pt-0">
+        <div className="min-h-screen bg-gray-50 dark:bg-brand-dark pb-20 pt-0 transition-colors duration-200">
             <Helmet>
                 <title>{content?.title}</title>
                 <meta
                     name="description"
                     content={content?.metaDescription}
                 />
-                <link rel="canonical" href={`https://flavorquest.be/${city}`} />
+                <link rel="canonical" href={`https://www.flavorquest.be/${city}`} />
             </Helmet>
 
             {/* Hero Section */}
-            <div className="bg-white border-b border-gray-100 pb-12 pt-8 mb-0 px-4 md:px-6">
+            <div className="bg-white dark:bg-[#1D1D1D] border-b border-gray-100 dark:border-gray-800 pb-12 pt-8 mb-0 px-4 md:px-6 transition-colors duration-200">
                 <div className="max-w-7xl mx-auto">
                     <Link to="/" className="inline-flex items-center gap-2 text-gray-400 hover:text-brand-orange mb-6 text-sm font-bold transition-colors">
                         <ArrowLeft size={16} /> Retour à l'accueil
@@ -148,29 +147,29 @@ const CityPage = () => {
                             <div className="inline-block px-3 py-1 bg-brand-orange/10 text-brand-orange rounded-full text-sm font-bold mb-4">
                                 Destination
                             </div>
-                            <h1 className="text-3xl md:text-5xl font-black text-gray-900 mb-4 tracking-tight">
+                            <h1 className="text-3xl md:text-5xl font-black text-gray-900 dark:text-gray-100 mb-4 tracking-tight">
                                 {content?.heroTitle}
                             </h1>
-                            <p className="text-xl text-gray-500 max-w-2xl">
+                            <p className="text-xl text-gray-500 dark:text-gray-400 max-w-2xl">
                                 {content?.heroText}
                             </p>
                         </div>
-                        <div className="bg-gray-50 px-6 py-4 rounded-2xl border border-gray-100 text-center min-w-[140px] w-full md:w-auto self-start">
+                        <div className="bg-gray-50 dark:bg-gray-800/50 px-6 py-4 rounded-2xl border border-gray-100 dark:border-gray-700/50 text-center min-w-[140px] w-full md:w-auto self-start">
                             <span className="block text-3xl font-black text-brand-orange">{filteredPlaces.length}</span>
-                            <span className="text-sm font-bold text-gray-400 uppercase tracking-wide">Adresses</span>
+                            <span className="text-sm font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide">Adresses</span>
                         </div>
                     </div>
                 </div>
             </div>
 
             {/* Filters Section */}
-            <div className="bg-white border-b border-gray-100 py-4 px-4 md:px-6">
+            <div className="bg-white dark:bg-[#1D1D1D] border-b border-gray-100 dark:border-gray-800 py-4 px-4 md:px-6 transition-colors duration-200">
                 <div className="max-w-7xl mx-auto">
                     <div className="flex items-center justify-between gap-4 mb-4">
-                        <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wide">Filtres</h3>
+                        <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Filtres</h3>
                         <button
                             onClick={() => setOnlyOpen(!onlyOpen)}
-                            className={`flex items-center justify-center gap-2 px-4 py-2 rounded-xl transition-all font-bold text-sm border whitespace-nowrap ${onlyOpen ? 'bg-green-100 text-green-700 border-green-200' : 'bg-white text-gray-500 border-gray-200 hover:border-brand-orange'}`}
+                            className={`flex items-center justify-center gap-2 px-4 py-2 rounded-xl transition-all font-bold text-sm border whitespace-nowrap ${onlyOpen ? 'bg-green-100 dark:bg-green-950/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800/50' : 'bg-white dark:bg-[#1D1D1D] text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-800 hover:border-brand-orange hover:bg-orange-50 dark:hover:bg-orange-950/20'}`}
                         >
                             <Clock size={16} className={onlyOpen ? "text-green-600" : "text-gray-400"} />
                             <span>Ouvert maintenant</span>
@@ -209,7 +208,7 @@ const CityPage = () => {
                             </motion.div>
                         ))
                     ) : (
-                        <div className="col-span-full py-12 text-center text-gray-500">
+                        <div className="col-span-full py-12 text-center text-gray-500 dark:text-gray-400">
                             Aucune adresse ne correspond à vos filtres à {realCityName}.
                         </div>
                     )}

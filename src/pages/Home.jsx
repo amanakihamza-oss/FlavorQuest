@@ -23,18 +23,18 @@ const Home = () => {
             {
                 "@type": "WebSite",
                 "name": "FlavorQuest",
-                "url": "https://flavorquest.be",
+                "url": "https://www.flavorquest.be",
                 "potentialAction": {
                     "@type": "SearchAction",
-                    "target": "https://flavorquest.be/search?q={search_term_string}",
+                    "target": "https://www.flavorquest.be/search?q={search_term_string}",
                     "query-input": "required name=search_term_string"
                 }
             },
             {
                 "@type": "Organization",
                 "name": "FlavorQuest",
-                "url": "https://flavorquest.be",
-                "logo": "https://flavorquest.be/logo.png",
+                "url": "https://www.flavorquest.be",
+                "logo": "https://www.flavorquest.be/logo.png",
                 "description": "Le guide ultime des meilleures adresses food en Wallonie."
             }
         ]
@@ -154,7 +154,7 @@ const Home = () => {
     const displayArticles = finalArticles;
 
     return (
-        <div className="pb-24 md:pb-10">
+        <div className="pb-24 md:pb-10 bg-brand-gray dark:bg-brand-dark transition-colors duration-200">
             <SEO
                 title="Guide des Meilleurs Restaurants & Snacks en Wallonie"
                 description="Découvrez les meilleures pépites culinaires de Wallonie : restaurants, snacks, brasseries et plus encore sur FlavorQuest."
@@ -162,7 +162,7 @@ const Home = () => {
             />
 
             <Hero />
-            <div className="mt-8 border-b border-gray-100/50 pb-8">
+            <div className="mt-8 border-b border-gray-100/50 dark:border-gray-800/50 pb-8">
                 <VisualCategories onSelect={(cat) => {
                     setSelectedCategory(cat);
                     // Optional: scroll to list
@@ -181,29 +181,29 @@ const Home = () => {
                             <div className="p-2 bg-brand-orange/10 rounded-full text-brand-orange">
                                 <Sparkles size={20} />
                             </div>
-                            <h2 className="text-2xl font-bold text-gray-900">{t('gems_title')}</h2>
+                            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('gems_title')}</h2>
                         </div>
 
                         {/* Desktop Toggle (Hidden on mobile) */}
                         <div className="flex items-center gap-4">
                             <button
                                 onClick={() => setOnlyOpen(!onlyOpen)}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all font-bold text-sm border ${onlyOpen ? 'bg-green-100 text-green-700 border-green-200' : 'bg-white text-gray-500 border-gray-100 hover:border-gray-200'}`}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all font-bold text-sm border ${onlyOpen ? 'bg-green-100 dark:bg-green-950/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800/50' : 'bg-white dark:bg-[#1D1D1D] text-gray-500 dark:text-gray-400 border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700'}`}
                             >
                                 <Clock size={18} className={onlyOpen ? "text-green-600" : "text-gray-400"} />
                                 Ouvert maintenant
                             </button>
 
-                            <div className="hidden md:flex bg-gray-100 p-1 rounded-xl items-center">
+                            <div className="hidden md:flex bg-gray-100 dark:bg-gray-800 p-1 rounded-xl items-center">
                                 <button
                                     onClick={() => setViewMode('list')}
-                                    className={`p-2 rounded-lg transition-all flex items-center gap-2 text-sm font-bold ${viewMode === 'list' ? 'bg-white shadow text-brand-dark' : 'text-gray-400 hover:text-gray-600'}`}
+                                    className={`p-2 rounded-lg transition-all flex items-center gap-2 text-sm font-bold ${viewMode === 'list' ? 'bg-white dark:bg-gray-700 shadow text-brand-dark dark:text-white' : 'text-gray-400 hover:text-gray-600'}`}
                                 >
                                     <List size={18} /> Liste
                                 </button>
                                 <button
                                     onClick={() => setViewMode('map')}
-                                    className={`p-2 rounded-lg transition-all flex items-center gap-2 text-sm font-bold ${viewMode === 'map' ? 'bg-white shadow text-brand-dark' : 'text-gray-400 hover:text-gray-600'}`}
+                                    className={`p-2 rounded-lg transition-all flex items-center gap-2 text-sm font-bold ${viewMode === 'map' ? 'bg-white dark:bg-gray-700 shadow text-brand-dark dark:text-white' : 'text-gray-400 hover:text-gray-600'}`}
                                 >
                                     <MapIcon size={18} /> Carte
                                 </button>
@@ -213,16 +213,16 @@ const Home = () => {
 
                     {/* Mobile Sticky Toggle (Conditional Visibility) */}
                     {showMobileToggle && (
-                        <div className={`md:hidden fixed bottom-24 left-1/2 transform -translate-x-1/2 z-40 bg-white/90 backdrop-blur-md shadow-xl p-1.5 rounded-full border border-gray-100 ring-1 ring-black/5 flex gap-1 mb-safe transition-all duration-500 ${showMobileToggle ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20 pointer-events-none'}`}>
+                        <div className={`md:hidden fixed bottom-24 left-1/2 transform -translate-x-1/2 z-40 bg-white/90 dark:bg-[#1D1D1D]/90 backdrop-blur-md shadow-xl p-1.5 rounded-full border border-gray-100 dark:border-gray-800 ring-1 ring-black/5 flex gap-1 mb-safe transition-all duration-500 ${showMobileToggle ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20 pointer-events-none'}`}>
                             <button
                                 onClick={() => setViewMode('list')}
-                                className={`px-6 py-3 rounded-full transition-all flex items-center gap-2 text-sm font-bold ${viewMode === 'list' ? 'bg-brand-dark text-white shadow-lg' : 'text-gray-500'}`}
+                                className={`px-6 py-3 rounded-full transition-all flex items-center gap-2 text-sm font-bold ${viewMode === 'list' ? 'bg-brand-dark dark:bg-gray-700 text-white shadow-lg' : 'text-gray-500 dark:text-gray-400'}`}
                             >
                                 <List size={18} /> Liste
                             </button>
                             <button
                                 onClick={() => setViewMode('map')}
-                                className={`px-6 py-3 rounded-full transition-all flex items-center gap-2 text-sm font-bold ${viewMode === 'map' ? 'bg-brand-dark text-white shadow-lg' : 'text-gray-500'}`}
+                                className={`px-6 py-3 rounded-full transition-all flex items-center gap-2 text-sm font-bold ${viewMode === 'map' ? 'bg-brand-dark dark:bg-gray-700 text-white shadow-lg' : 'text-gray-500 dark:text-gray-400'}`}
                             >
                                 <MapIcon size={18} /> Carte
                             </button>
@@ -235,16 +235,16 @@ const Home = () => {
                                 <PlaceCard key={place.id} {...place} />
                             ))}
                             {sortedPlaces.length > 11 && (
-                                <div className="group relative h-full min-h-[300px] flex flex-col bg-white rounded-3xl border border-dashed border-gray-300 hover:border-brand-orange hover:bg-orange-50 transition-all duration-300 overflow-hidden shadow-sm hover:shadow-lg">
+                                <div className="group relative h-full min-h-[300px] flex flex-col bg-white dark:bg-[#1E1E1E] rounded-3xl border border-dashed border-gray-300 dark:border-gray-800 hover:border-brand-orange hover:bg-orange-50 dark:hover:bg-orange-950/20 transition-all duration-300 overflow-hidden shadow-sm hover:shadow-lg">
                                     <button
                                         onClick={() => navigate('/search')}
                                         className="flex-grow flex flex-col items-center justify-center p-8 text-center"
                                     >
-                                        <div className="w-16 h-16 bg-brand-orange/10 text-brand-orange rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                        <div className="w-16 h-16 bg-brand-orange/10 dark:bg-brand-orange/20 text-brand-orange rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                                             <ArrowRight size={32} />
                                         </div>
-                                        <h3 className="text-xl font-bold text-gray-800 mb-2">Voir plus de pépites</h3>
-                                        <p className="text-gray-500">
+                                        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">Voir plus de pépites</h3>
+                                        <p className="text-gray-500 dark:text-gray-400">
                                             Découvrez {sortedPlaces.length - 11} autres lieux exceptionnels dans notre catalogue.
                                         </p>
                                     </button>
@@ -266,7 +266,7 @@ const Home = () => {
                             <div className="p-2 bg-brand-orange/10 rounded-full text-brand-orange">
                                 <BookOpen size={20} />
                             </div>
-                            <h2 className="text-2xl font-bold text-gray-900">À la une du Mag</h2>
+                            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">À la une du Mag</h2>
                         </div>
                         <Link to="/blog" className="text-brand-orange font-medium hover:underline flex items-center gap-1">
                             Voir tout <ArrowRight size={16} />
@@ -281,11 +281,11 @@ const Home = () => {
                 </section>
 
                 {/* Categories / Guides could go here */}
-                <section className="mt-16 bg-brand-orange/5 rounded-3xl p-8 md:p-12 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-8">
+                <section className="mt-16 bg-brand-orange/5 dark:bg-brand-orange/10 border border-transparent dark:border-brand-orange/20 rounded-3xl p-8 md:p-12 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-8">
                     <div className="max-w-xl">
-                        <h2 className="text-3xl font-bold text-brand-dark mb-4">{t('footer_explore')}</h2>
-                        <p className="text-gray-600 mb-6 text-lg">{t('footer_desc')}</p>
-                        <Link to="/submit" className="bg-brand-dark text-white px-8 py-3 rounded-full font-bold hover:bg-black transition-colors shadow-lg inline-block">
+                        <h2 className="text-3xl font-bold text-brand-dark dark:text-gray-100 mb-4">{t('footer_explore')}</h2>
+                        <p className="text-gray-600 dark:text-gray-300 mb-6 text-lg">{t('footer_desc')}</p>
+                        <Link to="/submit" className="bg-brand-dark dark:bg-gray-800 text-white px-8 py-3 rounded-full font-bold hover:bg-black dark:hover:bg-gray-700 transition-colors shadow-lg inline-block">
                             {t('footer_btn')}
                         </Link>
                     </div>

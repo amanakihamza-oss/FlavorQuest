@@ -5,7 +5,7 @@ const SEO = ({ title, description, image, schema, type = 'website', keywords, br
     const siteTitle = 'FlavorQuest';
     // If title already contains "FlavorQuest", don't append it again
     const rawTitle = title ? (title.includes(siteTitle) ? title : `${title} | ${siteTitle}`) : siteTitle;
-    const defaultImage = 'https://flavorquest.be/logo.png';
+    const defaultImage = 'https://www.flavorquest.be/logo.png';
     const finalImage = image || defaultImage;
 
     // Let search engines and browsers handle truncation natively. 
@@ -13,7 +13,7 @@ const SEO = ({ title, description, image, schema, type = 'website', keywords, br
     const fullTitle = rawTitle;
 
     // Safe URL generation
-    const currentUrl = typeof window !== 'undefined' ? window.location.href.split('?')[0] : 'https://flavorquest.be';
+    const currentUrl = typeof window !== 'undefined' ? window.location.href.split('?')[0] : 'https://www.flavorquest.be';
 
     // Use provided schema or default based on type
     const finalSchema = schema || {

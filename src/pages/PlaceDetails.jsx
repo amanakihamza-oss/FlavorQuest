@@ -156,13 +156,13 @@ const PlaceDetails = () => {
     const pageDesc = `Découvrez ${place.name}, une pépite ${place.category} à ${place.city || 'Namur'}. Note: ${place.rating}/5 sur ${place.reviews} avis. Photos, menu et horaires.`;
 
     const breadcrumbs = [
-        { name: 'Accueil', item: 'https://flavorquest.be' },
-        { name: place.city || 'Wallonie', item: `https://flavorquest.be/search?q=${place.city || ''}` },
-        { name: place.name, item: `https://flavorquest.be${location.pathname}` }
+        { name: 'Accueil', item: 'https://www.flavorquest.be' },
+        { name: place.city || 'Wallonie', item: `https://www.flavorquest.be/search?q=${place.city || ''}` },
+        { name: place.name, item: `https://www.flavorquest.be${location.pathname}` }
     ];
 
     return (
-        <div className="bg-white min-h-screen pb-20">
+        <div className="bg-brand-gray dark:bg-brand-dark min-h-screen pb-20 transition-colors duration-200">
             <SEO
                 title={pageTitle}
                 description={pageDesc}
@@ -186,16 +186,16 @@ const PlaceDetails = () => {
                         e.target.style.backgroundColor = '#f8f9fa';
                     }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent"></div>
 
-                <Link to="/" className="absolute top-6 left-6 p-3 bg-white/20 backdrop-blur-md rounded-full text-white hover:bg-white/30 transition-all">
+                <Link to="/" className="absolute top-6 left-6 p-3 bg-black/40 hover:bg-black/60 dark:bg-white/20 dark:hover:bg-white/30 backdrop-blur-md rounded-full text-white transition-all shadow-md">
                     <ChevronLeft size={24} />
                 </Link>
 
                 <div className="absolute bottom-0 left-0 w-full p-6 md:p-10">
                     <div className="max-w-7xl mx-auto">
                         <span className="bg-brand-orange text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-3 inline-block">
-                            {place.category === 'Snack' ? 'Fast Food' : place.category}
+                            {place.category === 'Snack' ? 'Fast Food' : place.category === 'CoffeeShop' ? 'Coffee Shop' : place.category}
                         </span>
                         <h1 className="text-3xl md:text-5xl font-bold text-white mb-2">{place.name}</h1>
                         <div className="flex items-center gap-4 text-white/90 text-sm md:text-base">
@@ -205,9 +205,9 @@ const PlaceDetails = () => {
                                 <span className="opacity-70">({place.reviews} avis)</span>
                             </div>
                             <span className="flex items-center gap-1">
-                                <MapPin size={18} /> {place.distance}
+                                <MapPin size={18} className="text-brand-orange" /> {place.distance}
                             </span>
-                            <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold ${color}`}>
+                            <span className={`flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold ${color}`}>
                                 <Clock size={16} /> {status}
                             </span>
                         </div>
@@ -218,18 +218,18 @@ const PlaceDetails = () => {
             <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-3 gap-10">
                 {/* Main Content */}
                 <div className="md:col-span-2 space-y-8">
-                    <section>
-                        <h2 className="text-xl font-bold text-brand-dark mb-4">À propos</h2>
-                        <p className="text-gray-600 leading-relaxed">
+                    <section className="bg-white dark:bg-[#1E1E1E] rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 dark:border-gray-800/80 transition-colors">
+                        <h2 className="text-xl font-bold text-brand-dark dark:text-gray-100 mb-4">À propos</h2>
+                        <p className="text-gray-600 dark:text-gray-300 leading-relaxed text-sm md:text-base">
                             {place.description || "Ce lieu est une véritable pépite découverte par notre communauté. Venez découvrir une ambiance unique et des saveurs authentiques qui font la réputation de la gastronomie wallonne."}
                         </p>
                     </section>
 
                     {/* Reviews Section */}
-                    <section>
-                        <h2 className="text-xl font-bold text-brand-dark mb-6 flex items-center gap-2">
+                    <section className="bg-white dark:bg-[#1E1E1E] rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 dark:border-gray-800/80 transition-colors">
+                        <h2 className="text-xl font-bold text-brand-dark dark:text-gray-100 mb-6 flex items-center gap-2">
                             Avis de la communauté
-                            <span className="text-sm font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded-full">{place.reviews}</span>
+                            <span className="text-sm font-normal text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-full">{place.reviews}</span>
                         </h2>
 
                         <ReviewForm onSubmit={handleReviewSubmit} />
@@ -237,80 +237,77 @@ const PlaceDetails = () => {
                         <div className="space-y-6">
                             {/* Display new user reviews first */}
                             {place.userReviews && place.userReviews.length > 0 && place.userReviews.slice().reverse().map((review, index) => (
-                                <div key={`user-${index}`} className="bg-white border border-gray-100 p-6 rounded-2xl shadow-sm animate-fade-in">
-                                    <div className="flex justify-between items-start mb-2">
+                                <div key={`user-${index}`} className="bg-white dark:bg-[#1E1E1E] border border-gray-100 dark:border-gray-800 p-6 rounded-2xl shadow-sm animate-fade-in">
+                                    <div className="flex justify-between items-start mb-3">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 bg-brand-orange/10 rounded-full flex items-center justify-center text-brand-orange font-bold">
+                                            <div className="w-10 h-10 bg-brand-orange/10 dark:bg-brand-orange/20 text-brand-orange rounded-full flex items-center justify-center font-bold">
                                                 {review.author.charAt(0)}
                                             </div>
                                             <div>
-                                                <p className="font-bold text-brand-dark">{review.author}</p>
+                                                <p className="font-bold text-brand-dark dark:text-gray-200">{review.author}</p>
                                                 <p className="text-xs text-gray-400">{new Date(review.date).toLocaleDateString()}</p>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded-lg">
+                                        <div className="flex items-center gap-1 bg-yellow-50 dark:bg-yellow-950/20 px-2.5 py-1 rounded-lg">
                                             <Star size={14} className="fill-brand-yellow text-brand-yellow" />
-                                            <span className="font-bold text-sm text-yellow-700">{review.rating}</span>
+                                            <span className="font-bold text-sm text-yellow-700 dark:text-yellow-500">{review.rating}</span>
                                         </div>
                                     </div>
-                                    <p className="text-gray-600 text-sm ml-13">{review.text}</p>
+                                    <p className="text-gray-600 dark:text-gray-300 text-sm ml-13 leading-relaxed">{review.text}</p>
                                 </div>
                             ))}
-
-
                         </div>
                     </section>
                 </div>
 
                 {/* Sidebar Info */}
                 <div className="space-y-6">
-                    <div className="bg-gray-50 rounded-2xl p-6 space-y-4">
-                        <div className="flex items-center gap-3 text-gray-700">
-                            <MapPin className="text-brand-orange" />
+                    <div className="bg-white dark:bg-[#1E1E1E] rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-800/80 space-y-4 transition-colors">
+                        <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300 text-sm md:text-base">
+                            <MapPin className="text-brand-orange shrink-0" size={18} />
                             <span>{place.address || `Rue de Fer 24, 5000 ${place.city || 'Namur'}`}</span>
                         </div>
-                        <div className="flex items-center gap-3 text-gray-700">
-                            <Phone className="text-brand-orange" />
+                        <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300 text-sm md:text-base">
+                            <Phone className="text-brand-orange shrink-0" size={18} />
                             {place.phone ? (
-                                <a href={`tel:${place.phone}`} className="hover:text-brand-orange transition-colors">
+                                <a href={`tel:${place.phone}`} className="hover:text-brand-orange dark:hover:text-brand-orange transition-colors">
                                     {place.phone}
                                 </a>
                             ) : (
-                                <span className="text-gray-400 italic">Non renseigné</span>
+                                <span className="text-gray-400 dark:text-gray-500 italic">Non renseigné</span>
                             )}
                         </div>
-                        <div className="flex items-center gap-3 text-gray-700">
-                            <Globe className="text-brand-orange" />
+                        <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300 text-sm md:text-base">
+                            <Globe className="text-brand-orange shrink-0" size={18} />
                             {place.website ? (
-                                <a href={place.website} target="_blank" rel="noopener noreferrer" className="hover:text-brand-orange transition-colors truncate max-w-[200px]">
+                                <a href={place.website} target="_blank" rel="noopener noreferrer" className="hover:text-brand-orange dark:hover:text-brand-orange transition-colors truncate max-w-[200px]">
                                     {place.website.replace(/^https?:\/\//, '')}
                                 </a>
                             ) : (
-                                <span className="text-gray-400 italic">Site web non disponible</span>
+                                <span className="text-gray-400 dark:text-gray-500 italic">Site web non disponible</span>
                             )}
                         </div>
-                        <div className="border-t border-gray-200 pt-4 mt-4">
-                            <h3 className="font-bold mb-2">Horaires</h3>
-                            <div className="space-y-1 text-sm text-gray-600">
+                        <div className="border-t border-gray-100 dark:border-gray-800 pt-4 mt-4">
+                            <h3 className="font-bold mb-3 text-brand-dark dark:text-gray-100">Horaires</h3>
+                            <div className="space-y-1.5 text-sm text-gray-600 dark:text-gray-300">
                                 {typeof place.openingHours === 'object' ? (
                                     getFormattedHours(place.openingHours).map((schedule, idx) => (
-                                        <div key={idx} className={`flex justify-between ${schedule.isToday ? 'font-bold text-brand-dark bg-brand-yellow/10 px-2 rounded' : ''}`}>
+                                        <div key={idx} className={`flex justify-between py-0.5 px-1 rounded-lg ${schedule.isToday ? 'font-bold text-brand-dark dark:text-gray-100 bg-brand-yellow/10 dark:bg-brand-yellow/20' : ''}`}>
                                             <span>{schedule.day}</span>
                                             <span>{schedule.hours}</span>
                                         </div>
                                     ))
                                 ) : (
-                                    place.openingHours ? <p className="whitespace-pre-line">{place.openingHours}</p> : <div className="italic text-gray-400">Horaires non renseignés</div>
+                                    place.openingHours ? <p className="whitespace-pre-line leading-relaxed">{place.openingHours}</p> : <div className="italic text-gray-400 dark:text-gray-500">Horaires non renseignés</div>
                                 )}
                             </div>
                         </div>
                     </div>
 
-
                     {/* Tags Section */}
                     {place.tags && place.tags.length > 0 && (
-                        <div className="bg-gray-50 rounded-2xl p-6">
-                            <h3 className="font-bold text-brand-dark mb-4 flex items-center gap-2">
+                        <div className="bg-white dark:bg-[#1E1E1E] rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-800/80 transition-colors">
+                            <h3 className="font-bold text-brand-dark dark:text-gray-100 mb-4 flex items-center gap-2">
                                 <Tag size={18} className="text-brand-orange" />
                                 Ambiance & Services
                             </h3>
@@ -319,7 +316,7 @@ const PlaceDetails = () => {
                                     <Link
                                         key={tag}
                                         to={`/search?q=${tag}`}
-                                        className="bg-white border border-gray-200 text-gray-600 px-3 py-1 rounded-full text-xs font-bold hover:bg-brand-orange hover:text-white hover:border-brand-orange transition-colors"
+                                        className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 px-3 py-1 rounded-full text-xs font-bold hover:bg-brand-orange hover:text-white hover:border-brand-orange dark:hover:bg-brand-orange dark:hover:text-white transition-all shadow-sm"
                                     >
                                         #{tag}
                                     </Link>
@@ -329,17 +326,17 @@ const PlaceDetails = () => {
                     )}
 
                     {/* Admin Verification Badge - Mock */}
-                    <div className="bg-green-50 rounded-2xl p-6 border border-green-100 flex items-start gap-3">
-                        <ShieldCheck className="text-green-600 shrink-0" size={24} />
+                    <div className="bg-green-50 dark:bg-green-950/10 rounded-3xl p-6 border border-green-100 dark:border-green-900/30 flex items-start gap-3 transition-colors">
+                        <ShieldCheck className="text-green-600 dark:text-green-500 shrink-0" size={24} />
                         <div>
-                            <h3 className="font-bold text-green-800 text-sm">Lieu Vérifié</h3>
-                            <p className="text-green-700 text-xs mt-1">Cette pépite a été validée par l'équipe FlavorQuest pour sa qualité.</p>
+                            <h3 className="font-bold text-green-800 dark:text-green-400 text-sm">Lieu Vérifié</h3>
+                            <p className="text-green-700 dark:text-green-500 text-xs mt-1 leading-relaxed">Cette pépite a été validée par l'équipe FlavorQuest pour sa qualité.</p>
                         </div>
                     </div>
 
                     {/* Claim Business Link */}
                     <div className="text-center pt-2">
-                        <Link to={`/claim/${place.id}`} className="text-xs text-gray-400 hover:text-brand-orange hover:underline transition-colors">
+                        <Link to={`/claim/${place.id}`} className="text-xs text-gray-400 dark:text-gray-500 hover:text-brand-orange dark:hover:text-brand-orange hover:underline transition-colors">
                             Vous êtes le propriétaire ? Revendiquez votre fiche
                         </Link>
                     </div>

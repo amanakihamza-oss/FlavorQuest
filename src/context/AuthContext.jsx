@@ -7,7 +7,7 @@ import {
     onAuthStateChanged,
     updateProfile
 } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 
 const AuthContext = createContext();
 
@@ -21,16 +21,33 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             if (currentUser) {
+                // Fetch user document from Firestore to sync role and favorites
+                let role = 'user';
+                let userFavorites = [];
+                try {
+                    const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+                    if (userDoc.exists()) {
+                        const userData = userDoc.data();
+                        userFavorites = userData.favorites || [];
+                        role = userData.role || 'user';
+                    }
+                } catch (e) {
+                    console.error("Error loading user profile:", e);
+                }
+
                 setUser({
                     uid: currentUser.uid,
                     email: currentUser.email,
                     name: currentUser.displayName || currentUser.email.split('@')[0],
-                    photoURL: currentUser.photoURL
+                    photoURL: currentUser.photoURL,
+                    role: role
                 });
+                setFavorites(userFavorites);
                 setIsAuthenticated(true);
             } else {
                 setUser(null);
                 setIsAuthenticated(false);
+                setFavorites([]);
             }
             setIsLoading(false);
         });
@@ -102,11 +119,23 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const toggleFavorite = (placeId) => {
-        if (!isAuthenticated) return;
-        setFavorites(prev =>
-            prev.includes(placeId) ? prev.filter(id => id !== placeId) : [...prev, placeId]
-        );
+    const toggleFavorite = async (placeId) => {
+        if (!isAuthenticated || !user) return;
+        
+        let newFavorites;
+        setFavorites(prev => {
+            newFavorites = prev.includes(placeId) ? prev.filter(id => id !== placeId) : [...prev, placeId];
+            return newFavorites;
+        });
+
+        // Sync to Firestore if not the backdoor partner account
+        if (user.uid !== 'partner-access') {
+            try {
+                await setDoc(doc(db, "users", user.uid), { favorites: newFavorites }, { merge: true });
+            } catch (error) {
+                console.error("Error saving favorites to Firestore:", error);
+            }
+        }
     };
 
     const updateUserProfile = async (data) => {

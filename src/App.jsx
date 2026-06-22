@@ -36,6 +36,62 @@ import { AuthProvider } from './context/AuthContext';
 import { BlogProvider } from './context/BlogContext';
 import { ToastProvider } from './context/ToastContext';
 
+import { useAuth } from './context/AuthContext';
+import { AnimatePresence } from 'framer-motion';
+
+function AppContent() {
+    const { showAuthModal } = useAuth();
+
+    return (
+        <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+            <ScrollToTop />
+            <SEO
+                title="FlavorQuest - Guide Gastronomique"
+                description="FlavorQuest : Le guide ultime des meilleures adresses food en Wallonie. Découvrez nos sélections de burgers, brunchs, restos insolites et pépites cachées à Liège, Namur et ailleurs."
+            />
+            <AnimatePresence>
+                {showAuthModal && <AuthModal />}
+            </AnimatePresence>
+            <Suspense fallback={<PageLoader />}>
+                <Routes>
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/" element={<Layout />}>
+                        <Route index element={<Home />} />
+                        {/* City Silo Route */}
+                        <Route path="/:city" element={<CityPage />} />
+                        {/* SEO Silo Route (Priority) */}
+                        <Route path="/:city/:category/:slug" element={<PlaceDetails />} />
+                        {/* Legacy Route (Fallback) */}
+                        <Route path="/place/:slug" element={<PlaceDetails />} />
+                        <Route path="/submit" element={<SubmitGuide />} />
+                        <Route path="/blog" element={<BlogHome />} />
+                        <Route path="/blog/new" element={
+                            <ProtectedRoute>
+                                <CreateArticle />
+                            </ProtectedRoute>
+                        } />
+                        <Route path="/blog/:slug" element={<BlogArticle />} />
+                        <Route path="/search" element={<Search />} />
+                        <Route path="/saved" element={<FavoritesPage />} />
+                        <Route path="/profile" element={<ProfilePage />} />
+                        <Route path="/admin" element={
+                            <ProtectedRoute>
+                                <AdminDashboard />
+                            </ProtectedRoute>
+                        } />
+                        <Route path="/privacy" element={<PrivacyPage />} />
+                        <Route path="/legal" element={<LegalPage />} />
+                        <Route path="/contact" element={<ContactPage />} />
+                        <Route path="/claim/:id" element={<ClaimPlace />} />
+                        <Route path="*" element={<NotFound />} />
+                    </Route>
+                </Routes>
+            </Suspense>
+            <CookieConsent />
+        </Router>
+    );
+}
+
 function App() {
     return (
         <LanguageProvider>
@@ -43,50 +99,7 @@ function App() {
                 <AuthProvider>
                     <PlacesProvider>
                         <BlogProvider>
-                            <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-                                <ScrollToTop />
-                                <SEO
-                                    title="FlavorQuest - Guide Gastronomique"
-                                    description="FlavorQuest : Le guide ultime des meilleures adresses food en Wallonie. Découvrez nos sélections de burgers, brunchs, restos insolites et pépites cachées à Liège, Namur et ailleurs."
-                                />
-                                <AuthModal />
-                                <Suspense fallback={<PageLoader />}>
-                                    <Routes>
-                                        <Route path="/login" element={<Login />} />
-                                        <Route path="/" element={<Layout />}>
-                                            <Route index element={<Home />} />
-                                            {/* City Silo Route */}
-                                            <Route path="/:city" element={<CityPage />} />
-                                            {/* SEO Silo Route (Priority) */}
-                                            <Route path="/:city/:category/:slug" element={<PlaceDetails />} />
-                                            {/* Legacy Route (Fallback) */}
-                                            <Route path="/place/:slug" element={<PlaceDetails />} />
-                                            <Route path="/submit" element={<SubmitGuide />} />
-                                            <Route path="/blog" element={<BlogHome />} />
-                                            <Route path="/blog/new" element={
-                                                <ProtectedRoute>
-                                                    <CreateArticle />
-                                                </ProtectedRoute>
-                                            } />
-                                            <Route path="/blog/:slug" element={<BlogArticle />} />
-                                            <Route path="/search" element={<Search />} />
-                                            <Route path="/saved" element={<FavoritesPage />} />
-                                            <Route path="/profile" element={<ProfilePage />} />
-                                            <Route path="/admin" element={
-                                                <ProtectedRoute>
-                                                    <AdminDashboard />
-                                                </ProtectedRoute>
-                                            } />
-                                            <Route path="/privacy" element={<PrivacyPage />} />
-                                            <Route path="/legal" element={<LegalPage />} />
-                                            <Route path="/contact" element={<ContactPage />} />
-                                            <Route path="/claim/:id" element={<ClaimPlace />} />
-                                            <Route path="*" element={<NotFound />} />
-                                        </Route>
-                                    </Routes>
-                                </Suspense>
-                                <CookieConsent />
-                            </Router>
+                            <AppContent />
                         </BlogProvider>
                     </PlacesProvider>
                 </AuthProvider>

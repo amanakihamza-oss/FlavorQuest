@@ -24,13 +24,13 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-brand-gray to-orange-50 flex items-center justify-center px-6">
+        <div className="min-h-screen bg-gradient-to-br from-brand-gray to-orange-50 dark:from-brand-dark dark:to-[#1E1E1E] flex items-center justify-center px-6 transition-colors duration-200">
             <Helmet>
                 <title>Accès Partenaire - FlavorQuest</title>
                 <meta name="robots" content="noindex" />
             </Helmet>
 
-            <div className="w-full max-w-md bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 md:p-10 border border-white/50 relative overflow-hidden">
+            <div className="w-full max-w-md bg-white/80 dark:bg-[#1D1D1D]/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 md:p-10 border border-white/50 dark:border-gray-800 relative overflow-hidden transition-colors duration-200">
 
                 {/* Decorative Elements */}
                 <div className="absolute -top-20 -right-20 w-40 h-40 bg-brand-orange/10 rounded-full blur-3xl"></div>
@@ -43,8 +43,8 @@ const Login = () => {
                         </div>
                     </div>
 
-                    <h1 className="text-2xl font-bold text-center text-brand-dark mb-2">Espace Partenaire</h1>
-                    <p className="text-gray-500 text-center mb-8 text-sm">Veuillez saisir votre code d'accès pour continuer.</p>
+                    <h1 className="text-2xl font-bold text-center text-brand-dark dark:text-gray-100 mb-2">Espace Partenaire</h1>
+                    <p className="text-gray-500 dark:text-gray-400 text-center mb-8 text-sm">Veuillez saisir votre code d'accès pour continuer.</p>
 
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="relative">
@@ -54,7 +54,7 @@ const Login = () => {
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 placeholder="Code d'accès"
-                                className={`w-full px-5 py-4 rounded-xl bg-gray-50 border-2 ${error ? 'border-red-500 shake' : 'border-transparent focus:border-brand-orange'} outline-none focus:bg-white transition-all text-center tracking-widest font-mono text-lg`}
+                                className={`w-full px-5 py-4 rounded-xl bg-gray-50 dark:bg-gray-800 border-2 ${error ? 'border-red-500 shake' : 'border-transparent focus:border-brand-orange'} outline-none focus:bg-white dark:focus:bg-[#1D1D1D] text-gray-900 dark:text-gray-100 transition-all text-center tracking-widest font-mono text-lg`}
                                 autoFocus
                             />
                             {error && (
@@ -66,14 +66,14 @@ const Login = () => {
 
                         <button
                             type="submit"
-                            className="w-full py-4 bg-brand-dark text-white rounded-xl font-bold text-lg hover:bg-black transition-all transform hover:scale-[1.02] flex items-center justify-center gap-2 shadow-lg"
+                            className="w-full py-4 bg-brand-dark dark:bg-gray-700 text-white dark:text-gray-100 rounded-xl font-bold text-lg hover:bg-black dark:hover:bg-gray-600 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-2 shadow-lg"
                         >
                             Connexion <ArrowRight size={20} />
                         </button>
                     </form>
 
                     <div className="mt-8 text-center">
-                        <button onClick={() => navigate('/')} className="text-xs text-gray-400 hover:text-brand-orange transition-colors">
+                        <button onClick={() => navigate('/')} className="text-xs text-gray-400 dark:text-gray-500 hover:text-brand-orange dark:hover:text-brand-orange transition-colors">
                             Retour au site
                         </button>
                     </div>

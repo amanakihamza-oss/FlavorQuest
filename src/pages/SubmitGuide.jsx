@@ -6,12 +6,14 @@ import { geocodeAddress } from '../utils/geocoding';
 import { usePlaces } from '../context/PlacesContext';
 import { useAuth } from '../context/AuthContext';
 import { compressImage } from '../utils/compressImage';
+import { useToast } from '../context/ToastContext';
 import { Helmet } from 'react-helmet-async';
 
 const SubmitGuide = () => {
     const navigate = useNavigate();
     const { addPlace } = usePlaces();
     const { isAuthenticated, setShowAuthModal } = useAuth();
+    const { showToast } = useToast();
 
     const [currentStep, setCurrentStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -83,7 +85,7 @@ const SubmitGuide = () => {
             setCurrentStep(prev => prev + 1);
             window.scrollTo(0, 0);
         } else {
-            alert(validation);
+            showToast(validation, 'error');
         }
     };
 
@@ -121,7 +123,7 @@ const SubmitGuide = () => {
         // 2. Validate Final Step (Step 3)
         const finalValidation = validateStep(3);
         if (finalValidation !== true) {
-            alert(finalValidation);
+            showToast(finalValidation, 'error');
             return;
         }
 
@@ -153,7 +155,7 @@ const SubmitGuide = () => {
             setShowSuccess(true);
         } catch (error) {
             console.error("Erreur lors de l'envoi :", error);
-            alert("Une erreur est survenue lors de l'envoi. Veuillez réessayer.");
+            showToast("Une erreur est survenue lors de l'envoi. Veuillez réessayer.", 'error');
         } finally {
             setIsSubmitting(false);
         }
@@ -174,12 +176,12 @@ const SubmitGuide = () => {
 
     if (!isAuthenticated) {
         return (
-            <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 text-center">
-                <div className="w-20 h-20 bg-brand-orange/10 text-brand-orange rounded-full flex items-center justify-center mb-6">
+            <div className="min-h-screen bg-white dark:bg-brand-dark flex flex-col items-center justify-center p-6 text-center transition-colors duration-200">
+                <div className="w-20 h-20 bg-brand-orange/10 dark:bg-brand-orange/20 text-brand-orange rounded-full flex items-center justify-center mb-6">
                     <Lock size={40} />
                 </div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-4">Rejoignez la communauté</h1>
-                <p className="text-gray-500 max-w-md mb-8">
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-105 mb-4">Rejoignez la communauté</h1>
+                <p className="text-gray-500 dark:text-gray-400 max-w-md mb-8">
                     Pour proposer vos meilleures adresses et contribuer au guide FlavorQuest, vous devez avoir un compte.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 w-full max-w-sm">
@@ -191,7 +193,7 @@ const SubmitGuide = () => {
                     </button>
                     <NavLink
                         to="/"
-                        className="flex-1 bg-gray-100 text-gray-700 font-bold py-3 rounded-xl hover:bg-gray-200 transition-colors"
+                        className="flex-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-bold py-3 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                     >
                         Retour
                     </NavLink>
@@ -227,7 +229,7 @@ const SubmitGuide = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-gray-50 pb-20">
+        <div className="min-h-screen bg-gray-50 dark:bg-brand-dark pb-20 transition-colors duration-200">
             <Helmet>
                 <title>Proposer une pépite - FlavorQuest</title>
             </Helmet>
@@ -239,11 +241,11 @@ const SubmitGuide = () => {
             </div>
 
             <main className="max-w-2xl mx-auto px-6 -mt-10 relative z-20">
-                <div className="bg-white rounded-3xl p-6 md:p-10 shadow-xl border border-gray-100">
+                <div className="bg-white dark:bg-[#1D1D1D] rounded-3xl p-6 md:p-10 shadow-xl border border-gray-100 dark:border-gray-800 transition-colors duration-200">
 
                     {/* Progress Bar */}
                     <div className="flex justify-between mb-8 relative">
-                        <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-100 -z-10 rounded-full"></div>
+                        <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-100 dark:bg-gray-800 -z-10 rounded-full"></div>
                         <div
                             className="absolute top-1/2 left-0 h-1 bg-brand-orange -z-10 rounded-full transition-all duration-300"
                             style={{ width: `${((currentStep - 1) / 2) * 100}%` }}
@@ -251,11 +253,11 @@ const SubmitGuide = () => {
 
                         {steps.map((s) => (
                             <div key={s.num} className="flex flex-col items-center gap-2">
-                                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${currentStep >= s.num ? 'bg-brand-orange text-white' : 'bg-gray-100 text-gray-400'
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${currentStep >= s.num ? 'bg-brand-orange text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500'
                                     }`}>
                                     {currentStep > s.num ? <Check size={18} /> : s.num}
                                 </div>
-                                <span className={`text-xs font-semibold ${currentStep >= s.num ? 'text-brand-dark' : 'text-gray-300'}`}>{s.title}</span>
+                                <span className={`text-xs font-semibold ${currentStep >= s.num ? 'text-brand-dark dark:text-gray-200' : 'text-gray-300 dark:text-gray-600'}`}>{s.title}</span>
                             </div>
                         ))}
                     </div>
@@ -266,39 +268,39 @@ const SubmitGuide = () => {
                         {currentStep === 1 && (
                             <div className="space-y-6 animate-fade-in">
                                 <div>
-                                    <label htmlFor="submit-name" className="block text-sm font-bold text-brand-dark uppercase mb-2">Nom de l'établissement</label>
+                                    <label htmlFor="submit-name" className="block text-sm font-bold text-brand-dark dark:text-gray-200 uppercase mb-2">Nom de l'établissement</label>
                                     <input
                                         id="submit-name"
                                         type="text"
                                         name="name"
                                         value={formData.name}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange transition-all font-medium"
+                                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange transition-all font-medium"
                                         placeholder="Ex: Le Petit Bistro"
                                         autoFocus
                                     />
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label htmlFor="submit-city" className="block text-sm font-bold text-brand-dark uppercase mb-2">Ville</label>
+                                        <label htmlFor="submit-city" className="block text-sm font-bold text-brand-dark dark:text-gray-200 uppercase mb-2">Ville</label>
                                         <input
                                             id="submit-city"
                                             type="text"
                                             name="city"
                                             value={formData.city}
                                             onChange={handleChange}
-                                            className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange transition-all font-medium"
+                                            className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange transition-all font-medium"
                                             placeholder="Ex: Namur"
                                         />
                                     </div>
                                     <div>
-                                        <label htmlFor="submit-category" className="block text-sm font-bold text-brand-dark uppercase mb-2">Catégorie</label>
+                                        <label htmlFor="submit-category" className="block text-sm font-bold text-brand-dark dark:text-gray-200 uppercase mb-2">Catégorie</label>
                                         <select
                                             id="submit-category"
                                             name="category"
                                             value={formData.category}
                                             onChange={handleChange}
-                                            className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange transition-all font-medium appearance-none bg-white"
+                                            className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange transition-all font-medium appearance-none bg-white dark:bg-gray-800"
                                         >
                                             <option value="Restaurant">Restaurant</option>
                                             <option value="Brasserie">Brasserie</option>
@@ -311,16 +313,16 @@ const SubmitGuide = () => {
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-bold text-brand-dark uppercase mb-2">Budget</label>
+                                    <label className="block text-sm font-bold text-brand-dark dark:text-gray-200 uppercase mb-2">Budget</label>
                                     <div className="flex gap-4">
                                         {['€', '€€', '€€€'].map((price) => (
                                             <button
                                                 key={price}
                                                 type="button"
                                                 onClick={() => setFormData({ ...formData, priceLevel: price })}
-                                                className={`flex-1 py-3 rounded-xl font-bold transition-all ${formData.priceLevel === price
-                                                    ? 'bg-brand-dark text-white shadow-lg'
-                                                    : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
+                                                className={`flex-1 py-3 rounded-xl font-bold transition-all border ${formData.priceLevel === price
+                                                    ? 'bg-brand-dark dark:bg-gray-700 text-white dark:text-gray-100 border-transparent shadow-lg'
+                                                    : 'bg-gray-50 dark:bg-gray-800 text-gray-400 dark:text-gray-500 border-transparent dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700'
                                                     }`}
                                             >
                                                 {price}
@@ -335,16 +337,16 @@ const SubmitGuide = () => {
                         {currentStep === 2 && (
                             <div className="space-y-6 animate-fade-in">
                                 <div>
-                                    <label htmlFor="submit-address" className="block text-sm font-bold text-brand-dark uppercase mb-2">Adresse complète</label>
+                                    <label htmlFor="submit-address" className="block text-sm font-bold text-brand-dark dark:text-gray-200 uppercase mb-2">Adresse complète</label>
                                     <div className="relative">
-                                        <MapPin className="absolute top-3.5 left-4 text-gray-400" size={20} />
+                                        <MapPin className="absolute top-3.5 left-4 text-gray-400 dark:text-gray-500" size={20} />
                                         <input
                                             id="submit-address"
                                             type="text"
                                             name="address"
                                             value={formData.address}
                                             onChange={handleChange}
-                                            className="w-full pl-12 pr-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange transition-all font-medium"
+                                            className="w-full pl-12 pr-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange transition-all font-medium"
                                             placeholder="Rue de Fer 25, 5000 Namur"
                                             autoFocus
                                         />
@@ -352,41 +354,41 @@ const SubmitGuide = () => {
                                 </div>
 
                                 <div>
-                                    <label htmlFor="submit-description" className="block text-sm font-bold text-brand-dark uppercase mb-2">Description</label>
+                                    <label htmlFor="submit-description" className="block text-sm font-bold text-brand-dark dark:text-gray-200 uppercase mb-2">Description</label>
                                     <textarea
                                         id="submit-description"
                                         name="description"
                                         value={formData.description}
                                         onChange={handleChange}
                                         rows="4"
-                                        className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange transition-all font-medium resize-none"
+                                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange transition-all font-medium resize-none"
                                         placeholder="Qu'est-ce qui rend cet endroit spécial ? L'ambiance, un plat en particulier..."
                                     ></textarea>
                                     <p className="text-right text-xs text-gray-400 mt-1">{formData.description.length}/20 minimum</p>
                                 </div>
 
                                 <div>
-                                    <label htmlFor="submit-tags" className="block text-sm font-bold text-brand-dark uppercase mb-2">Tags (Ambiance, Spécialités...)</label>
+                                    <label htmlFor="submit-tags" className="block text-sm font-bold text-brand-dark dark:text-gray-200 uppercase mb-2">Tags (Ambiance, Spécialités...)</label>
                                     <div className="flex gap-2 mb-3">
                                         <input
                                             id="submit-tags"
                                             value={tagInput}
                                             onChange={(e) => setTagInput(e.target.value)}
                                             onKeyDown={(e) => e.key === 'Enter' && handleAddTag(e)}
-                                            className="flex-1 px-4 py-2 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:border-brand-orange"
+                                            className="flex-1 px-4 py-2 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-brand-orange bg-white dark:bg-gray-800"
                                             placeholder="Ex: Terrasse, Végétarien..."
                                         />
                                         <button
                                             type="button"
                                             onClick={handleAddTag}
-                                            className="px-4 py-2 bg-gray-100 text-brand-dark font-bold rounded-xl hover:bg-gray-200"
+                                            className="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-brand-dark dark:text-gray-200 font-bold rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700"
                                         >
                                             <Plus size={20} />
                                         </button>
                                     </div>
                                     <div className="flex flex-wrap gap-2">
                                         {formData.tags.map(tag => (
-                                            <span key={tag} className="bg-orange-50 text-brand-orange px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1">
+                                            <span key={tag} className="bg-orange-50 dark:bg-orange-950/20 text-brand-orange px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1">
                                                 <Tag size={12} />
                                                 {tag}
                                                 <button type="button" onClick={() => removeTag(tag)} className="ml-1 hover:text-red-500">&times;</button>
@@ -397,27 +399,27 @@ const SubmitGuide = () => {
                                 </div>
 
                                 <div>
-                                    <label htmlFor="submit-phone" className="block text-sm font-bold text-brand-dark uppercase mb-2">Téléphone (Optionnel)</label>
+                                    <label htmlFor="submit-phone" className="block text-sm font-bold text-brand-dark dark:text-gray-200 uppercase mb-2">Téléphone (Optionnel)</label>
                                     <input
                                         id="submit-phone"
                                         type="tel"
                                         name="phone"
                                         value={formData.phone}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange transition-all font-medium"
+                                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange transition-all font-medium"
                                         placeholder="+32 4..."
                                     />
                                 </div>
 
                                 <div>
-                                    <label htmlFor="submit-website" className="block text-sm font-bold text-brand-dark uppercase mb-2">Site Web (Optionnel)</label>
+                                    <label htmlFor="submit-website" className="block text-sm font-bold text-brand-dark dark:text-gray-200 uppercase mb-2">Site Web (Optionnel)</label>
                                     <input
                                         id="submit-website"
                                         type="url"
                                         name="website"
                                         value={formData.website}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange transition-all font-medium"
+                                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange transition-all font-medium"
                                         placeholder="https://..."
                                     />
                                 </div>
@@ -435,9 +437,9 @@ const SubmitGuide = () => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-2">Photo de l'établissement</label>
+                                    <label className="block text-sm font-bold text-brand-dark dark:text-gray-200 mb-2">Photo de l'établissement</label>
                                     <div
-                                        className={`border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center transition-all cursor-pointer relative overflow-hidden h-48 ${formData.image ? 'border-brand-orange bg-orange-50' : 'border-gray-300 hover:border-brand-orange hover:bg-orange-50'}`}
+                                        className={`border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center transition-all cursor-pointer relative overflow-hidden h-48 ${formData.image ? 'border-brand-orange bg-orange-50 dark:bg-orange-950/10' : 'border-gray-300 dark:border-gray-700 hover:border-brand-orange hover:bg-orange-50 dark:hover:bg-orange-950/10'}`}
                                         onClick={() => document.getElementById('fileInput').click()}
                                     >
                                         <input
@@ -461,10 +463,10 @@ const SubmitGuide = () => {
                                             </div>
                                         ) : (
                                             <>
-                                                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-gray-400 mb-2">
+                                                <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center text-gray-400 mb-2">
                                                     <Camera size={24} />
                                                 </div>
-                                                <p className="text-gray-500 font-medium">Ajouter une photo</p>
+                                                <p className="text-gray-500 dark:text-gray-400 font-medium">Ajouter une photo</p>
                                             </>
                                         )}
                                     </div>
@@ -476,13 +478,13 @@ const SubmitGuide = () => {
                         <div className="h-20 md:hidden"></div>
 
                         {/* Navigation Buttons */}
-                        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 z-40 md:static md:bg-transparent md:border-none md:p-0">
+                        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white dark:bg-[#1D1D1D] border-t border-gray-100 dark:border-gray-800 z-40 md:static md:bg-transparent md:border-none md:p-0 transition-colors duration-200">
                             <div className="flex gap-4 max-w-2xl mx-auto">
                                 {currentStep > 1 && (
                                     <button
                                         type="button"
                                         onClick={handleBack}
-                                        className="px-6 py-3 bg-gray-100 text-gray-600 font-bold rounded-xl hover:bg-gray-200 transition-colors"
+                                        className="px-6 py-3 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 font-bold rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                                     >
                                         Retour
                                     </button>
@@ -492,7 +494,7 @@ const SubmitGuide = () => {
                                     <button
                                         type="button"
                                         onClick={handleNext}
-                                        className="flex-1 bg-brand-dark text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-black transition-colors"
+                                        className="flex-1 bg-brand-dark dark:bg-gray-800 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-black dark:hover:bg-gray-700 transition-colors"
                                     >
                                         Suivant <ChevronRight size={20} />
                                     </button>
@@ -501,7 +503,7 @@ const SubmitGuide = () => {
                                         type="button"
                                         onClick={handleSubmit}
                                         disabled={isSubmitting}
-                                        className="flex-1 bg-brand-orange text-white py-3 rounded-xl font-bold text-lg flex items-center justify-center gap-2 hover:bg-orange-600 transition-all shadow-lg shadow-orange-200 disabled:opacity-70 disabled:cursor-wait"
+                                        className="flex-1 bg-brand-orange text-white py-3 rounded-xl font-bold text-lg flex items-center justify-center gap-2 hover:bg-orange-600 transition-all shadow-lg shadow-orange-200 dark:shadow-none disabled:opacity-70 disabled:cursor-wait"
                                     >
                                         {isSubmitting ? 'Envoi en cours...' : 'Envoyer ma pépite !'} <Send size={20} />
                                     </button>

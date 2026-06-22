@@ -8,6 +8,7 @@ import FAQSection from '../components/FAQSection';
 import PageLoader from '../components/PageLoader';
 import SEO from '../components/SEO';
 import { Clock, Calendar, ChevronLeft, MapPin, Heart, Share2, Facebook, Twitter, ArrowRight } from 'lucide-react';
+import { useToast } from '../context/ToastContext';
 
 // Helper to safely render HTML content with minimal sanitization for trusted admin content
 // Also cleans non-breaking spaces that can cause word-breaking issues
@@ -45,6 +46,7 @@ const renderContent = (content) => {
 const BlogArticle = () => {
     const { slug } = useParams();
     const { getArticleBySlug, toggleArticleLike, articles, isLive } = useBlog();
+    const { showToast } = useToast();
     const article = getArticleBySlug(slug);
     const { places } = usePlaces();
     const [isLiked, setIsLiked] = useState(false);
@@ -141,7 +143,7 @@ const BlogArticle = () => {
             }
         } else {
             navigator.clipboard.writeText(window.location.href);
-            alert("Lien copié !");
+            showToast("Lien copié !", "success");
         }
     };
 
@@ -182,9 +184,9 @@ const BlogArticle = () => {
 
     // Breadcrumbs for SEO
     const breadcrumbs = [
-        { name: 'Accueil', item: 'https://flavorquest.be/' },
-        { name: 'Le Mag', item: 'https://flavorquest.be/blog' },
-        { name: article.title, item: `https://flavorquest.be/blog/${article.slug}` }
+        { name: 'Accueil', item: 'https://www.flavorquest.be/' },
+        { name: 'Le Mag', item: 'https://www.flavorquest.be/blog' },
+        { name: article.title, item: `https://www.flavorquest.be/blog/${article.slug}` }
     ];
 
     // Enhanced SEO Schema
@@ -197,20 +199,20 @@ const BlogArticle = () => {
         "publisher": {
             "@type": "Organization",
             "name": "FlavorQuest",
-            "logo": { "@type": "ImageObject", "url": "https://flavorquest.be/logo.png" }
+            "logo": { "@type": "ImageObject", "url": "https://www.flavorquest.be/logo.png" }
         },
         "datePublished": article.date,
         "dateModified": article.date, // Idealement lastUpdated, mais date publié est le fallback
         "description": article.excerpt,
         "articleBody": article.content?.replace(/<[^>]*>?/gm, "") || "", // Strip HTML for body
         "keywords": article.tags ? article.tags.join(', ') : article.category,
-        "mainEntityOfPage": { "@type": "WebPage", "@id": `https://flavorquest.be/blog/${slug}` }
+        "mainEntityOfPage": { "@type": "WebPage", "@id": `https://www.flavorquest.be/blog/${slug}` }
     };
 
     // ...
 
     return (
-        <div className="min-h-screen bg-white pb-20 font-sans text-brand-dark selection:bg-brand-orange/20">
+        <div className="min-h-screen bg-white dark:bg-brand-dark pb-20 font-sans text-brand-dark dark:text-gray-100 selection:bg-brand-orange/20 transition-colors duration-200">
             {/* Reading Progress */}
             <motion.div
                 className="fixed top-0 left-0 right-0 h-1 bg-brand-orange z-50 origin-left"
@@ -228,7 +230,7 @@ const BlogArticle = () => {
             />
 
             {/* V2 Header: Image Only (Reduced Height + Gradient) */}
-            <div className="relative w-full h-[40vh] md:h-[400px] bg-gray-100 group">
+            <div className="relative w-full h-[40vh] md:h-[400px] bg-gray-100 dark:bg-gray-800 group">
                 <img src={article.image} alt={article.title} className="w-full h-full object-cover" />
                 <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/30 to-transparent"></div>
 
@@ -239,9 +241,9 @@ const BlogArticle = () => {
 
             {/* NEW LOCATION: Header Info - Overlap Card */}
             <div className="max-w-5xl mx-auto px-6 relative z-10 -mt-32">
-                <div className="bg-white rounded-3xl p-8 md:p-12 shadow-xl border border-gray-100 text-center">
+                <div className="bg-white dark:bg-[#1D1D1D] rounded-3xl p-8 md:p-12 shadow-xl border border-gray-100 dark:border-gray-800 text-center transition-colors duration-200">
                     <div className="flex items-center justify-center gap-3 mb-6">
-                        <span className="bg-orange-50 text-brand-orange px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                        <span className="bg-orange-50 dark:bg-orange-950/20 text-brand-orange px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
                             {article.category}
                         </span>
                         {article.city && (
@@ -251,7 +253,7 @@ const BlogArticle = () => {
                         )}
                     </div>
 
-                    <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-8 font-serif">
+                    <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white leading-tight mb-8 font-serif">
                         {article.title}
                     </h1>
 
@@ -262,7 +264,7 @@ const BlogArticle = () => {
                                     {article.author.charAt(0)}
                                 </div>
                             </div>
-                            <span className="font-medium text-gray-900">{article.author}</span>
+                            <span className="font-medium text-gray-900 dark:text-gray-100">{article.author}</span>
                         </div>
                         <span>•</span>
                         <span className="flex items-center gap-1"><Calendar size={14} /> {new Date(article.date).toLocaleDateString()}</span>
@@ -280,7 +282,7 @@ const BlogArticle = () => {
                     <div className="sticky top-32 flex flex-col gap-6 items-center">
                         <button
                             onClick={handleLike}
-                            className={`relative w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-sm hover:scale-110 border border-gray-100 ${isLiked ? 'bg-red-50 text-red-500 border-red-100' : 'bg-white text-gray-400 hover:text-red-500'}`}
+                            className={`relative w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-sm hover:scale-110 border border-gray-100 dark:border-gray-800 ${isLiked ? 'bg-red-50 dark:bg-red-950/20 text-red-500 border-red-100' : 'bg-white dark:bg-[#1D1D1D] text-gray-400 dark:text-gray-500 hover:text-red-500'}`}
                             title="J'aime"
                         >
                             <Heart size={20} className={isLiked ? 'fill-current' : ''} />
@@ -288,11 +290,11 @@ const BlogArticle = () => {
                         </button>
                         <span className="text-xs font-bold text-gray-400 -mt-4">{localLikes}</span>
 
-                        <div className="w-8 h-px bg-gray-200"></div>
+                        <div className="w-8 h-px bg-gray-200 dark:bg-gray-700"></div>
 
                         <button
                             onClick={handleShare}
-                            className="w-10 h-10 rounded-full bg-white border border-gray-100 text-gray-400 flex items-center justify-center transition-all shadow-sm hover:scale-110 hover:text-brand-dark hover:border-gray-300"
+                            className="w-10 h-10 rounded-full bg-white dark:bg-[#1D1D1D] border border-gray-100 dark:border-gray-800 text-gray-400 flex items-center justify-center transition-all shadow-sm hover:scale-110 hover:text-brand-dark dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-700"
                             title="Partager"
                         >
                             <Share2 size={18} />
@@ -326,12 +328,12 @@ const BlogArticle = () => {
                 <article className="lg:col-span-8 min-w-0 w-full text-left">
 
                     {/* Content */}
-                    <div
-                        className={`prose prose-lg prose-slate w-full max-w-full pr-6 hyphens-none prose-headings:font-bold prose-headings:text-gray-900 prose-p:text-gray-600 prose-img:rounded-2xl prose-img:shadow-sm prose-lead:text-xl prose-lead:font-normal prose-lead:text-gray-500 prose-a:text-brand-orange prose-a:font-medium prose-a:underline prose-a:decoration-brand-orange/30 prose-a:underline-offset-2 hover:prose-a:decoration-brand-orange hover:prose-a:text-orange-600 prose-a:transition-colors ${article.hasDropCap ? 'prose-p:first-of-type:first-letter:float-left prose-p:first-of-type:first-letter:text-7xl prose-p:first-of-type:first-letter:pr-4 prose-p:first-of-type:first-letter:font-bold prose-p:first-of-type:first-letter:text-brand-orange prose-p:first-of-type:first-letter:leading-none' : ''}`}
+                     <div
+                        className={`prose prose-lg prose-slate dark:prose-invert w-full max-w-full pr-6 hyphens-none prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-600 dark:prose-p:text-gray-300 prose-img:rounded-2xl prose-img:shadow-sm prose-lead:text-xl prose-lead:font-normal prose-lead:text-gray-500 dark:prose-lead:text-gray-400 prose-a:text-brand-orange prose-a:font-medium prose-a:underline prose-a:decoration-brand-orange/30 prose-a:underline-offset-2 hover:prose-a:decoration-brand-orange hover:prose-a:text-orange-600 prose-a:transition-colors ${article.hasDropCap ? 'prose-p:first-of-type:first-letter:float-left prose-p:first-of-type:first-letter:text-7xl prose-p:first-of-type:first-letter:pr-4 prose-p:first-of-type:first-letter:font-bold prose-p:first-of-type:first-letter:text-brand-orange prose-p:first-of-type:first-letter:leading-none' : ''}`}
                         style={{ wordBreak: 'normal', overflowWrap: 'break-word', WebkitHyphens: 'none', hyphens: 'none' }}
                     >
                         {/* Excerpt as Lead Paragraph with Drop Cap applied via classes above */}
-                        <p className="lead border-l-4 border-brand-orange pl-6 italic mb-10 text-gray-700">
+                        <p className="lead border-l-4 border-brand-orange pl-6 italic mb-10 text-gray-700 dark:text-gray-300">
                             {article.excerpt}
                         </p>
 
@@ -339,16 +341,16 @@ const BlogArticle = () => {
                     </div>
 
                     {/* Mobile Action Bar (Sticky Bottom) - Hidden initially, appears on scroll */}
-                    <div className={`lg:hidden fixed bottom-20 left-1/2 -translate-x-1/2 z-40 flex items-center gap-4 bg-white/90 backdrop-blur-md px-6 py-3 rounded-full shadow-xl border border-gray-100 ring-1 ring-black/5 transition-all duration-500 transform ${showMobileActions ? 'translate-y-0 opacity-100' : 'translate-y-24 opacity-0 pointer-events-none'}`}>
+                    <div className={`lg:hidden fixed bottom-20 left-1/2 -translate-x-1/2 z-40 flex items-center gap-4 bg-white/90 dark:bg-[#1D1D1D]/90 backdrop-blur-md px-6 py-3 rounded-full shadow-xl border border-gray-100 dark:border-gray-800 ring-1 ring-black/5 transition-all duration-500 transform ${showMobileActions ? 'translate-y-0 opacity-100' : 'translate-y-24 opacity-0 pointer-events-none'}`}>
                         <button
                             onClick={handleLike}
-                            className={`relative flex items-center gap-2 px-3 py-1 rounded-full font-bold transition-all cursor-pointer active:scale-95 touch-manipulation ${isLiked ? 'text-red-500 bg-red-50' : 'text-gray-600'}`}
+                            className={`relative flex items-center gap-2 px-3 py-1 rounded-full font-bold transition-all cursor-pointer active:scale-95 touch-manipulation ${isLiked ? 'text-red-500 bg-red-50' : 'text-gray-600 dark:text-gray-300'}`}
                         >
                             <Heart size={20} className={isLiked ? 'fill-current' : ''} />
                             {localLikes}
                             {animateLike && <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-sm font-bold text-red-500 animate-slide-up">+1</span>}
                         </button>
-                        <div className="w-px h-4 bg-gray-300"></div>
+                        <div className="w-px h-4 bg-gray-300 dark:bg-gray-700"></div>
                         <a
                             href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`}
                             target="_blank"
@@ -365,20 +367,20 @@ const BlogArticle = () => {
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21" /></svg>
                         </a>
-                        <div className="w-px h-4 bg-gray-300"></div>
-                        <button onClick={handleShare} className="text-gray-600">
+                        <div className="w-px h-4 bg-gray-300 dark:bg-gray-700"></div>
+                        <button onClick={handleShare} className="text-gray-600 dark:text-gray-300">
                             <Share2 size={20} />
                         </button>
                     </div>
 
                     {/* Author Bio Simple */}
-                    <div className="mt-16 pt-10 border-t border-gray-100 flex items-center gap-4">
+                    <div className="mt-16 pt-10 border-t border-gray-100 dark:border-gray-800 flex items-center gap-4">
                         <div className="w-16 h-16 rounded-full bg-gradient-to-br from-brand-orange to-brand-yellow flex items-center justify-center text-white text-xl font-bold shadow-sm">
                             {article.author.charAt(0)}
                         </div>
                         <div>
-                            <p className="text-sm text-gray-400 uppercase font-bold tracking-wider mb-1">Écrit par</p>
-                            <h3 className="font-bold text-lg text-gray-900">{article.author}</h3>
+                            <p className="text-sm text-gray-400 dark:text-gray-500 uppercase font-bold tracking-wider mb-1">Écrit par</p>
+                            <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100">{article.author}</h3>
                         </div>
                     </div>
 
@@ -391,17 +393,17 @@ const BlogArticle = () => {
                 </article>
 
                 {/* Sidebar Right (Related) - Takes 3 columns */}
-                <aside className="lg:col-span-3 space-y-10 lg:pl-6 lg:border-l lg:border-gray-100 h-full">
+                <aside className="lg:col-span-3 space-y-10 lg:pl-6 lg:border-l lg:border-gray-100 dark:border-gray-800 h-full">
                     <div className="sticky top-32 space-y-12">
                         {relatedPlaces.length > 0 && (
                             <div>
-                                <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2 text-sm uppercase tracking-wider">
+                                <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2 text-sm uppercase tracking-wider">
                                     <MapPin size={16} className="text-brand-orange" />
                                     Lieux cités
                                 </h3>
                                 <div className="space-y-4">
                                     {relatedPlaces.map(place => (
-                                        <div key={place.id} className="hover:bg-gray-50 p-2 -m-2 rounded-xl transition-colors">
+                                        <div key={place.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/40 p-2 -m-2 rounded-xl transition-colors">
                                             <PlaceCard {...place} compact />
                                         </div>
                                     ))}
@@ -411,21 +413,21 @@ const BlogArticle = () => {
 
                         {moreArticles.length > 0 && (
                             <div>
-                                <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2 text-sm uppercase tracking-wider">
+                                <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2 text-sm uppercase tracking-wider">
                                     <ArrowRight size={16} className="text-brand-orange" />
                                     À lire aussi
                                 </h3>
                                 <div className="space-y-6">
                                     {moreArticles.map(art => (
                                         <Link key={art.id} to={`/blog/${art.slug}`} className="group flex gap-4 items-start">
-                                            <div className="w-24 h-20 rounded-lg overflow-hidden shrink-0 bg-gray-100">
+                                            <div className="w-24 h-20 rounded-lg overflow-hidden shrink-0 bg-gray-100 dark:bg-gray-800">
                                                 <img src={art.image} alt={art.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                                             </div>
                                             <div>
-                                                <h4 className="font-bold text-gray-800 text-sm leading-snug group-hover:text-brand-orange transition-colors line-clamp-2 mb-1">
+                                                <h4 className="font-bold text-gray-800 dark:text-gray-200 text-sm leading-snug group-hover:text-brand-orange transition-colors line-clamp-2 mb-1">
                                                     {art.title}
                                                 </h4>
-                                                <span className="text-xs text-gray-400 capitalize">{art.category}</span>
+                                                <span className="text-xs text-gray-400 dark:text-gray-500 capitalize">{art.category}</span>
                                             </div>
                                         </Link>
                                     ))}

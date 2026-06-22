@@ -4,6 +4,7 @@ import OpeningHoursInput from './OpeningHoursInput';
 import { geocodeAddress } from '../utils/geocoding';
 import { usePlaces } from '../context/PlacesContext';
 import { compressImage } from '../utils/compressImage';
+import { useToast } from '../context/ToastContext';
 
 const ICON_MAP = {
     'Leaf': Leaf,
@@ -23,6 +24,7 @@ const ICON_MAP = {
 
 const EditPlaceModal = ({ isOpen, onClose, place }) => {
     const { updatePlace, filters } = usePlaces();
+    const { showToast } = useToast();
 
     const [formData, setFormData] = useState({
         name: '',
@@ -95,7 +97,7 @@ const EditPlaceModal = ({ isOpen, onClose, place }) => {
                         finalData.lat = coordinates.lat;
                         finalData.lng = coordinates.lng;
                     } else {
-                        alert("Attention : L'adresse n'a pas pu être géolocalisée automatiquement. Le point sur la carte risque de ne pas être jour.");
+                        showToast("Attention : L'adresse n'a pas pu être géolocalisée automatiquement. Le point sur la carte risque de ne pas être à jour.", 'error');
                     }
                 } catch (error) {
                     console.error("Geocoding update failed", error);
@@ -106,7 +108,7 @@ const EditPlaceModal = ({ isOpen, onClose, place }) => {
             onClose();
         } catch (error) {
             console.error("Error updating place:", error);
-            alert("Une erreur est survenue lors de l'enregistrement.");
+            showToast("Une erreur est survenue lors de l'enregistrement.", 'error');
         } finally {
             setIsSubmitting(false);
         }

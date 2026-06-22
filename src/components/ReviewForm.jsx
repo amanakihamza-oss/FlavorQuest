@@ -24,11 +24,11 @@ const ReviewForm = ({ onSubmit }) => {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="bg-gray-50 rounded-2xl p-6 border border-gray-100 mb-8">
-            <h3 className="font-bold text-gray-900 mb-4">Laisser un avis</h3>
+        <form onSubmit={handleSubmit} className="bg-gray-50 dark:bg-[#1E1E1E] rounded-2xl p-6 border border-gray-100 dark:border-gray-800 mb-8">
+            <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-4">Laisser un avis</h3>
 
             <div className="mb-4">
-                <label className="block text-xs font-bold uppercase text-gray-400 mb-2">Votre note</label>
+                <label className="block text-xs font-bold uppercase text-gray-400 dark:text-gray-500 mb-2">Votre note</label>
                 <div className="flex gap-1">
                     {[1, 2, 3, 4, 5].map((star) => (
                         <button
@@ -41,7 +41,7 @@ const ReviewForm = ({ onSubmit }) => {
                         >
                             <Star
                                 size={24}
-                                className={`${star <= (hover || rating) ? 'fill-brand-yellow text-brand-yellow' : 'text-gray-300'}`}
+                                className={`${star <= (hover || rating) ? 'fill-brand-yellow text-brand-yellow' : 'text-gray-300 dark:text-gray-600'}`}
                             />
                         </button>
                     ))}
@@ -49,23 +49,23 @@ const ReviewForm = ({ onSubmit }) => {
             </div>
 
             <div className="mb-4">
-                <label className="block text-xs font-bold uppercase text-gray-400 mb-2">Votre nom (optionnel)</label>
+                <label className="block text-xs font-bold uppercase text-gray-400 dark:text-gray-500 mb-2">Votre nom (optionnel)</label>
                 <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange transition-all"
+                    className="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange transition-all"
                     placeholder="Jean Dupont"
                 />
             </div>
 
             <div className="mb-4">
-                <label className="block text-xs font-bold uppercase text-gray-400 mb-2">Votre commentaire</label>
+                <label className="block text-xs font-bold uppercase text-gray-400 dark:text-gray-500 mb-2">Votre commentaire</label>
                 <textarea
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
                     rows="3"
-                    className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange transition-all resize-none"
+                    className="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange transition-all resize-none"
                     placeholder="C'était délicieux..."
                     required
                 ></textarea>
@@ -74,7 +74,7 @@ const ReviewForm = ({ onSubmit }) => {
             <button
                 type="submit"
                 disabled={rating === 0 || !comment.trim()}
-                className="w-full py-3 bg-brand-dark text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-black transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-3 bg-brand-dark dark:bg-gray-800 text-white dark:text-gray-100 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-black dark:hover:bg-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
                 <Send size={18} /> Publier mon avis
             </button>

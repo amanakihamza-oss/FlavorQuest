@@ -1,4 +1,5 @@
-import { Star, MapPin, Wallet, Heart } from 'lucide-react';
+import React, { useState } from 'react';
+import { Star, MapPin, Wallet, Heart, Utensils, Coffee, Beer, Croissant, Leaf, Pizza } from 'lucide-react';
 import { checkIsOpen } from '../utils/hours';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -9,11 +10,26 @@ import { getPlaceUrl } from '../utils/url';
 const optimizeImage = (url, width = 600) => {
     if (!url) return null;
     if (url.includes('images.unsplash.com')) {
-        // If it already has params, append or replace? Simplest is to append specific overrides
-        // Unsplash API prioritizes the last parameter often, or we can just append.
         return `${url}&w=${width}&q=80&auto=format`;
     }
     return url;
+};
+
+const getCategoryIcon = (category) => {
+    switch (category) {
+        case 'CoffeeShop':
+            return <Coffee size={12} />;
+        case 'Bar':
+            return <Beer size={12} />;
+        case 'Boulangerie':
+            return <Croissant size={12} />;
+        case 'Vegan':
+            return <Leaf size={12} />;
+        case 'Snack':
+            return <Pizza size={12} />;
+        default:
+            return <Utensils size={12} />;
+    }
 };
 
 const PlaceCard = ({ id, name, rating, reviews, image, category, distance, status, openingHours, city, isSponsored, slug, priceLevel }) => {
@@ -21,6 +37,8 @@ const PlaceCard = ({ id, name, rating, reviews, image, category, distance, statu
     const { favorites, toggleFavorite, isAuthenticated, setShowAuthModal } = useAuth();
     const { showToast } = useToast();
     const isFavorite = favorites.includes(id);
+    const [imageLoaded, setImageLoaded] = useState(false);
+    const [imageError, setImageError] = useState(false);
 
     const handleHeartClick = (e) => {
         e.preventDefault(); // Prevent navigation
@@ -40,37 +58,35 @@ const PlaceCard = ({ id, name, rating, reviews, image, category, distance, statu
 
     return (
         <NavLink to={linkTarget} className="block group">
-            <div className={`bg-white rounded-2xl overflow-hidden transition-transform duration-300 border relative transform-gpu hover:-translate-y-1 hover:shadow-2xl will-change-transform ${isSponsored ? 'border-yellow-400 shadow-md shadow-yellow-100' : 'border-gray-100 shadow-sm'}`}>
+            <div className={`bg-white dark:bg-[#1E1E1E] rounded-2xl overflow-hidden transition-all duration-300 border relative transform-gpu hover:-translate-y-1.5 hover:shadow-xl hover:shadow-brand-orange/5 dark:hover:shadow-brand-orange/5 will-change-transform ${isSponsored ? 'border-yellow-400 dark:border-yellow-500 shadow-md shadow-yellow-100/50 dark:shadow-yellow-950/10' : 'border-gray-100 dark:border-gray-800/80 shadow-sm'}`}>
                 {/* Image Container with Skeleton Loader */}
-                <div className="relative h-48 overflow-hidden bg-gray-200 animate-pulse flex items-center justify-center group-hover:animate-none">
+                <div className={`relative h-48 overflow-hidden bg-gray-200 dark:bg-gray-800 flex items-center justify-center ${!imageLoaded ? 'animate-pulse' : ''}`}>
                     {/* Placeholder Icon (Visible while loading) */}
-                    <img src="/favicon.svg" alt="" className="absolute w-12 h-12 opacity-20 grayscale" />
+                    <img src="/favicon.svg" alt="" className="absolute w-12 h-12 opacity-20 grayscale dark:invert" />
 
                     <img
-                        src={optimizedImage}
+                        src={imageError ? '/logo.png' : optimizedImage}
                         alt={name}
                         loading="lazy"
                         decoding="async"
-                        onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = '/logo.png'; // Fallback to safe local image
-                            e.target.style.objectFit = 'contain';
-                            e.target.style.padding = '20px';
-                            e.target.parentElement.classList.remove('animate-pulse'); // Stop pulsing on error
+                        onError={() => {
+                            setImageError(true);
+                            setImageLoaded(true);
                         }}
-                        onLoad={(e) => {
-                            e.target.parentElement.classList.remove('animate-pulse'); // Stop pulsing on load
+                        onLoad={() => {
+                            setImageLoaded(true);
                         }}
-                        className="relative z-10 w-full h-full object-cover transform-gpu group-hover:scale-110 transition-transform duration-500 bg-transparent will-change-transform"
+                        className={`relative z-10 w-full h-full object-cover transform-gpu group-hover:scale-105 transition-transform duration-700 bg-transparent will-change-transform ${imageError ? 'p-5 bg-gray-50 dark:bg-gray-800 object-contain' : ''}`}
                     />
 
-                    <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-2 py-1 rounded-md text-xs font-bold text-brand-orange uppercase tracking-wider z-20">
-                        {category === 'Snack' ? 'Fast Food' : category}
+                    <div className="absolute top-3 left-3 bg-white/95 dark:bg-[#1D1D1D]/90 backdrop-blur-sm px-2.5 py-1 rounded-full text-[10px] font-extrabold text-brand-orange uppercase tracking-wider z-20 shadow-sm border border-gray-100/50 dark:border-gray-800/50 flex items-center gap-1.5">
+                        {getCategoryIcon(category)}
+                        <span>{category === 'Snack' ? 'Fast Food' : category === 'CoffeeShop' ? 'Coffee Shop' : category}</span>
                     </div>
 
                     {/* Sponsored Badge */}
                     {isSponsored && (
-                        <div className="absolute top-3 right-12 bg-yellow-400 text-white px-2 py-1 rounded-md text-xs font-bold uppercase tracking-wider shadow-sm flex items-center gap-1 z-20">
+                        <div className="absolute top-3 right-12 bg-yellow-400 text-white px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider shadow-sm flex items-center gap-1 z-20">
                             <Star size={10} className="fill-white" /> Partner
                         </div>
                     )}
@@ -78,9 +94,9 @@ const PlaceCard = ({ id, name, rating, reviews, image, category, distance, statu
                     <button
                         onClick={handleHeartClick}
                         aria-label={isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
-                        className="absolute top-3 right-3 p-2 rounded-full bg-white/90 backdrop-blur-sm shadow-sm hover:scale-110 transition-transform z-20"
+                        className="absolute top-3 right-3 p-2 rounded-full bg-white/90 dark:bg-[#1D1D1D]/90 backdrop-blur-sm shadow-sm hover:scale-110 active:scale-95 transition-transform z-20 border border-gray-100/50 dark:border-gray-800/50"
                     >
-                        <Heart size={18} className={isFavorite ? "fill-red-500 text-red-500" : "text-gray-400"} />
+                        <Heart size={16} className={isFavorite ? "fill-red-500 text-red-500" : "text-gray-400 dark:text-gray-500"} />
                     </button>
                     {/* Status Badge Logic */}
                     {(() => {
@@ -95,7 +111,7 @@ const PlaceCard = ({ id, name, rating, reviews, image, category, distance, statu
                         if (!displayStatus) return null;
 
                         return (
-                            <div className={`absolute bottom-3 right-3 px-2 py-1 rounded-full text-xs font-medium text-white z-20 ${displayColor}`}>
+                            <div className={`absolute bottom-3 right-3 px-2.5 py-0.5 rounded-full text-[10px] font-bold text-white z-20 shadow-sm ${displayColor}`}>
                                 {displayStatus}
                             </div>
                         );
@@ -104,22 +120,21 @@ const PlaceCard = ({ id, name, rating, reviews, image, category, distance, statu
 
                 {/* Content */}
                 <div className="p-4">
-                    <div className="flex justify-between items-start mb-1">
-                        <h3 className="text-lg font-bold text-brand-dark group-hover:text-brand-orange transition-colors line-clamp-1">{name}</h3>
-                        <div className="flex items-center gap-1 bg-brand-yellow/10 px-1.5 py-0.5 rounded text-brand-yellow font-bold text-sm">
+                    <div className="flex justify-between items-start gap-2 mb-1">
+                        <h3 className="text-lg font-bold text-brand-dark dark:text-gray-100 group-hover:text-brand-orange dark:group-hover:text-brand-orange transition-colors line-clamp-1">{name}</h3>
+                        <div className="flex items-center gap-1 bg-brand-yellow/10 dark:bg-brand-yellow/20 px-2 py-0.5 rounded text-brand-yellow font-bold text-sm shrink-0">
                             <Star size={14} className="fill-current" />
                             <span>{rating}</span>
-
                         </div>
                     </div>
 
-                    <div className="flex items-center text-gray-500 text-sm gap-4 mt-3">
-                        <div className="flex items-center gap-1 text-gray-500">
-                            <MapPin size={16} />
+                    <div className="flex items-center text-gray-500 dark:text-gray-400 text-sm gap-4 mt-3">
+                        <div className="flex items-center gap-1">
+                            <MapPin size={14} className="text-gray-400" />
                             <span>{city || 'Namur'}</span>
                         </div>
                         <div className="flex items-center gap-1">
-                            <Wallet size={14} />
+                            <Wallet size={14} className="text-gray-400" />
                             <span>{priceLevel || '€€'}</span>
                         </div>
                     </div>

@@ -5,11 +5,13 @@ import { db } from '../firebase';
 import { collection, addDoc } from 'firebase/firestore';
 import { Helmet } from 'react-helmet-async';
 import { ShieldCheck, CheckCircle, ArrowLeft, Building2 } from 'lucide-react';
+import { useToast } from '../context/ToastContext';
 
 const ClaimPlace = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const { places } = usePlaces();
+    const { showToast } = useToast();
     const [place, setPlace] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
@@ -48,7 +50,7 @@ const ClaimPlace = () => {
             setIsSuccess(true);
         } catch (error) {
             console.error("Error submitting claim:", error);
-            alert("Une erreur est survenue. Veuillez réessayer.");
+            showToast("Une erreur est survenue. Veuillez réessayer.", 'error');
         } finally {
             setIsSubmitting(false);
         }
@@ -60,20 +62,20 @@ const ClaimPlace = () => {
 
     if (isSuccess) {
         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-                <div className="bg-white p-8 rounded-3xl shadow-xl max-w-md text-center animate-scale-in">
-                    <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="min-h-screen bg-gray-50 dark:bg-brand-dark flex items-center justify-center p-6">
+                <div className="bg-white dark:bg-[#1E1E1E] p-8 rounded-3xl shadow-xl border border-transparent dark:border-gray-850 max-w-md text-center animate-scale-in">
+                    <div className="w-20 h-20 bg-green-100 dark:bg-green-950/30 text-green-600 dark:text-green-400 rounded-full flex items-center justify-center mx-auto mb-6">
                         <CheckCircle size={40} />
                     </div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-4">Demande Reçue !</h2>
-                    <p className="text-gray-600 mb-8">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Demande Reçue !</h2>
+                    <p className="text-gray-600 dark:text-gray-300 mb-8">
                         Merci {formData.contactName}. Nous avons bien reçu votre demande de revendication pour <strong>{place?.name}</strong>.
                         <br /><br />
                         Notre équipe va vérifier vos informations et vous recontactera sous 24h.
                     </p>
                     <button
                         onClick={() => navigate('/')}
-                        className="bg-brand-dark text-white px-8 py-3 rounded-xl font-bold hover:bg-black transition-colors"
+                        className="bg-brand-dark dark:bg-gray-800 text-white px-8 py-3 rounded-xl font-bold hover:bg-black dark:hover:bg-gray-700 transition-colors"
                     >
                         Retour à l'accueil
                     </button>
@@ -83,7 +85,7 @@ const ClaimPlace = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 py-20 px-6">
+        <div className="min-h-screen bg-gray-50 dark:bg-brand-dark py-20 px-6">
             <Helmet>
                 <title>Revendiquer {place ? place.name : 'un lieu'} - FlavorQuest</title>
             </Helmet>
@@ -91,12 +93,12 @@ const ClaimPlace = () => {
             <div className="max-w-2xl mx-auto">
                 <button
                     onClick={() => navigate(-1)}
-                    className="flex items-center gap-2 text-gray-500 hover:text-brand-orange mb-8 transition-colors"
+                    className="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-brand-orange dark:hover:text-brand-orange mb-8 transition-colors"
                 >
                     <ArrowLeft size={20} /> Retour
                 </button>
 
-                <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
+                <div className="bg-white dark:bg-[#1E1E1E] border border-transparent dark:border-gray-800 rounded-3xl shadow-xl overflow-hidden">
                     <div className="bg-brand-dark text-white p-8 md:p-10">
                         <div className="flex items-center gap-4 mb-4">
                             <div className="p-3 bg-white/10 rounded-xl">
@@ -113,53 +115,53 @@ const ClaimPlace = () => {
                     <form onSubmit={handleSubmit} className="p-8 md:p-10 space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Nom du contact</label>
+                                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Nom du contact</label>
                                 <input
                                     type="text"
                                     name="contactName"
                                     required
                                     value={formData.contactName}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
+                                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-850 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
                                     placeholder="Jean Dupont"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Email professionnel</label>
+                                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Email professionnel</label>
                                 <input
                                     type="email"
                                     name="contactEmail"
                                     required
                                     value={formData.contactEmail}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
+                                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-855 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
                                     placeholder="contact@example.com"
                                 />
                             </div>
                         </div>
 
                         <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">Numéro de téléphone</label>
+                            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Numéro de téléphone</label>
                             <input
                                 type="tel"
                                 name="contactPhone"
                                 required
                                 value={formData.contactPhone}
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
+                                className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-850 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
                                 placeholder="+32 470 12 34 56"
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">Preuve de propriété / Message</label>
+                            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Preuve de propriété / Message</label>
                             <textarea
                                 name="message"
                                 required
                                 rows="4"
                                 value={formData.message}
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
+                                className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-850 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
                                 placeholder="Dites-nous comment vérifier que c'est bien vous (ex: lien page Facebook, n° TVA, lien site web...)"
                             />
                         </div>

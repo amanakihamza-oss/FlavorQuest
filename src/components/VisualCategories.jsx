@@ -62,10 +62,10 @@ const VisualCategories = ({ onSelect }) => {
     return (
         <section className="py-8">
             <div className="flex items-center justify-between mb-6 px-6 max-w-7xl mx-auto">
-                <h2 className="text-2xl font-bold text-gray-900">Envie de quoi ?</h2>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Envie de quoi ?</h2>
                 <button
                     onClick={() => onSelect(null)}
-                    className="text-sm font-bold text-brand-orange hover:text-orange-700 transition-colors flex items-center gap-1"
+                    className="text-sm font-bold text-brand-orange hover:text-orange-700 dark:hover:text-orange-500 transition-colors flex items-center gap-1"
                 >
                     Tout voir <ArrowRight size={16} />
                 </button>
@@ -75,13 +75,13 @@ const VisualCategories = ({ onSelect }) => {
                 {/* Desktop Scroll Buttons */}
                 <button
                     onClick={() => scroll(-300)}
-                    className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 bg-white/90 backdrop-blur-sm border border-gray-100 rounded-full items-center justify-center shadow-lg text-brand-dark opacity-0 group-hover:opacity-100 transition-opacity hover:bg-brand-orange hover:text-white"
+                    className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 bg-white/90 dark:bg-[#1D1D1D]/90 backdrop-blur-sm border border-gray-100 dark:border-gray-800 rounded-full items-center justify-center shadow-lg text-brand-dark dark:text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-brand-orange hover:text-white dark:hover:bg-brand-orange"
                 >
                     <ChevronLeft size={24} />
                 </button>
                 <button
                     onClick={() => scroll(300)}
-                    className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 bg-white/90 backdrop-blur-sm border border-gray-100 rounded-full items-center justify-center shadow-lg text-brand-dark opacity-0 group-hover:opacity-100 transition-opacity hover:bg-brand-orange hover:text-white"
+                    className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 bg-white/90 dark:bg-[#1D1D1D]/90 backdrop-blur-sm border border-gray-100 dark:border-gray-800 rounded-full items-center justify-center shadow-lg text-brand-dark dark:text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-brand-orange hover:text-white dark:hover:bg-brand-orange"
                 >
                     <ChevronRight size={24} />
                 </button>
@@ -99,16 +99,16 @@ const VisualCategories = ({ onSelect }) => {
                                 <div
                                     key={cat.id}
                                     onClick={() => onSelect(cat.id)}
-                                    className="relative w-64 h-80 rounded-3xl overflow-hidden cursor-pointer group/card shadow-md hover:shadow-xl transition-all duration-500"
+                                    className="relative w-64 h-80 rounded-3xl overflow-hidden cursor-pointer group/card shadow-md dark:shadow-black/50 hover:shadow-2xl hover:shadow-brand-orange/10 hover:-translate-y-2.5 transition-all duration-500 transform-gpu will-change-transform"
                                 >
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-transparent z-10" />
                                     <img
                                         src={cat.image}
                                         alt={cat.label}
                                         className="absolute inset-0 w-full h-full object-cover transform group-hover/card:scale-110 transition-transform duration-700"
                                     />
                                     <div className="absolute bottom-6 left-6 z-20">
-                                        <span className="block text-xs font-bold text-white/80 uppercase tracking-wider mb-2 bg-white/20 backdrop-blur-sm px-2 py-1 rounded w-fit">
+                                        <span className="block text-xs font-bold text-white uppercase tracking-wider mb-2 bg-brand-orange/80 backdrop-blur-sm px-2.5 py-1 rounded-full w-fit">
                                             {count} {count > 1 ? 'lieux' : 'lieu'}
                                         </span>
                                         <h3 className="text-xl font-bold text-white group-hover/card:translate-x-1 transition-transform">{cat.label}</h3>

@@ -44,7 +44,7 @@ const FAQSection = ({ data = FAQ_DATA, title = "Questions Fréquentes" }) => {
     };
 
     return (
-        <section className="py-16 bg-white relative overflow-hidden">
+        <section className="py-16 bg-white dark:bg-brand-dark relative overflow-hidden transition-colors duration-200">
             {/* SEO Schema Injection */}
             <Helmet>
                 <script type="application/ld+json">
@@ -57,8 +57,8 @@ const FAQSection = ({ data = FAQ_DATA, title = "Questions Fréquentes" }) => {
                     <div className="inline-flex items-center justify-center p-3 bg-brand-orange/10 rounded-2xl mb-4 text-brand-orange">
                         <HelpCircle size={32} />
                     </div>
-                    <h2 className="text-3xl md:text-4xl font-bold text-brand-dark mb-4">{title}</h2>
-                    <p className="text-gray-500 text-lg max-w-2xl mx-auto">
+                    <h2 className="text-3xl md:text-4xl font-bold text-brand-dark dark:text-gray-100 mb-4">{title}</h2>
+                    <p className="text-gray-500 dark:text-gray-400 text-lg max-w-2xl mx-auto">
                         Tout ce que vous devez savoir pour profiter au mieux de l'expérience FlavorQuest.
                     </p>
                 </div>
@@ -67,17 +67,20 @@ const FAQSection = ({ data = FAQ_DATA, title = "Questions Fréquentes" }) => {
                     {data.map((item, index) => (
                         <div
                             key={index}
-                            className={`border rounded-2xl transition-all duration-300 ${openIndex === index ? 'border-brand-orange bg-orange-50/30' : 'border-gray-100 bg-white hover:border-gray-200'
-                                }`}
+                            className={`border rounded-2xl transition-all duration-300 ${
+                                openIndex === index 
+                                    ? 'border-brand-orange bg-orange-50/30 dark:bg-orange-950/10' 
+                                    : 'border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1D1D1D] hover:border-gray-200 dark:hover:border-gray-700'
+                            }`}
                         >
                             <button
                                 onClick={() => toggleAccordion(index)}
                                 className="w-full flex items-center justify-between p-6 text-left focus:outline-none"
                             >
-                                <span className={`font-bold text-lg ${openIndex === index ? 'text-brand-orange' : 'text-gray-800'}`}>
+                                <span className={`font-bold text-lg ${openIndex === index ? 'text-brand-orange' : 'text-gray-800 dark:text-gray-200'}`}>
                                     {item.question}
                                 </span>
-                                <span className={`ml-4 p-1 rounded-full transition-colors ${openIndex === index ? 'bg-brand-orange text-white' : 'bg-gray-100 text-gray-500'}`}>
+                                <span className={`ml-4 p-1 rounded-full transition-colors ${openIndex === index ? 'bg-brand-orange text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400'}`}>
                                     {openIndex === index ? <Minus size={20} /> : <Plus size={20} />}
                                 </span>
                             </button>
@@ -90,7 +93,7 @@ const FAQSection = ({ data = FAQ_DATA, title = "Questions Fréquentes" }) => {
                                         exit={{ height: 0, opacity: 0 }}
                                         transition={{ duration: 0.3, ease: "easeInOut" }}
                                     >
-                                        <div className="px-6 pb-6 text-gray-600 leading-relaxed border-t border-dashed border-gray-200/50 pt-4 mt-2">
+                                        <div className="px-6 pb-6 text-gray-600 dark:text-gray-300 leading-relaxed border-t border-dashed border-gray-200/50 dark:border-gray-800/50 pt-4 mt-2">
                                             {item.answer}
                                         </div>
                                     </motion.div>
@@ -100,7 +103,7 @@ const FAQSection = ({ data = FAQ_DATA, title = "Questions Fréquentes" }) => {
                     ))}
                 </div>
 
-                <div className="text-center mt-12 text-gray-500">
+                <div className="text-center mt-12 text-gray-500 dark:text-gray-400">
                     <p>
                         Vous ne trouvez pas votre réponse ?{' '}
                         <NavLink to="/contact" className="text-brand-orange font-bold hover:underline">

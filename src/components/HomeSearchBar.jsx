@@ -153,16 +153,15 @@ const HomeSearchBar = () => {
         }
         setShowSuggestions(false);
     };
-
-    return (
+    return (
         <div ref={wrapperRef} className="w-full relative z-50 max-w-4xl mx-auto">
-            <form onSubmit={handleSearch} className="flex flex-col md:flex-row items-stretch md:items-center bg-white rounded-[2rem] shadow-2xl p-1.5 transition-all duration-300 focus-within:ring-4 focus-within:ring-brand-orange/20 border border-gray-100/50">
+            <form onSubmit={handleSearch} className="flex flex-col md:flex-row items-stretch md:items-center bg-white dark:bg-[#1D1D1D] rounded-[2rem] shadow-2xl p-1.5 transition-all duration-300 focus-within:ring-4 focus-within:ring-brand-orange/20 border border-gray-100/50 dark:border-gray-800/80">
 
                 {/* Search Input */}
-                <div className="md:w-[55%] flex-grow relative flex items-center px-4 py-2 md:px-6 md:py-3 border-b md:border-b-0 border-gray-100">
-                    <Search className="text-gray-400 shrink-0 mr-3 md:mr-4 w-5 h-5 md:w-6 md:h-6" />
+                <div className="md:w-[55%] flex-grow relative flex items-center px-4 py-2 md:px-6 md:py-3 border-b md:border-b-0 border-gray-100 dark:border-gray-800">
+                    <Search className="text-gray-400 dark:text-gray-500 shrink-0 mr-3 md:mr-4 w-5 h-5 md:w-6 md:h-6" />
                     <div className="w-full flex flex-col justify-center min-w-0">
-                        <label htmlFor="home-search-query" className="block text-[10px] md:text-[11px] uppercase font-extrabold text-gray-500 tracking-widest mb-0.5 truncate">Quoi ?</label>
+                        <label htmlFor="home-search-query" className="block text-[10px] md:text-[11px] uppercase font-extrabold text-gray-500 dark:text-gray-400 tracking-widest mb-0.5 truncate">Quoi ?</label>
                         <input
                             id="home-search-query"
                             name="search-query"
@@ -178,7 +177,7 @@ const HomeSearchBar = () => {
                                 setShowCitySuggestions(false);
                             }}
                             placeholder="Ex: Burger, Pizza..."
-                            className="w-full outline-none text-brand-dark font-bold placeholder-gray-400 bg-transparent text-sm md:text-base lg:text-lg leading-relaxed h-6 md:h-7 text-ellipsis"
+                            className="w-full outline-none text-brand-dark dark:text-gray-100 font-bold placeholder-gray-400 bg-transparent text-sm md:text-base lg:text-lg leading-relaxed h-6 md:h-7 text-ellipsis"
                             autoComplete="off"
                         />
                     </div>
@@ -190,12 +189,12 @@ const HomeSearchBar = () => {
                 </div>
 
                 {/* City Custom Input + Autocomplete */}
-                <div ref={cityDropdownRef} className="w-full md:w-[45%] flex items-center px-4 py-2 md:px-6 md:py-3 relative md:border-l border-gray-100">
-                    <div className="p-1.5 md:p-2 bg-orange-50 rounded-full mr-3 text-brand-orange shrink-0">
+                <div ref={cityDropdownRef} className="w-full md:w-[45%] flex items-center px-4 py-2 md:px-6 md:py-3 relative md:border-l border-gray-100 dark:border-gray-800">
+                    <div className="p-1.5 md:p-2 bg-orange-50 dark:bg-orange-950/20 rounded-full mr-3 text-brand-orange shrink-0">
                         <MapPin size={18} className="md:w-5 md:h-5" />
                     </div>
                     <div className="w-full flex flex-col justify-center min-w-0">
-                        <label htmlFor="home-search-city" className="block text-[10px] md:text-[11px] uppercase font-extrabold text-gray-500 tracking-widest mb-0.5 truncate">Où ?</label>
+                        <label htmlFor="home-search-city" className="block text-[10px] md:text-[11px] uppercase font-extrabold text-gray-500 dark:text-gray-400 tracking-widest mb-0.5 truncate">Où ?</label>
                         <input
                             id="home-search-city"
                             name="search-city"
@@ -211,7 +210,7 @@ const HomeSearchBar = () => {
                                 setShowSuggestions(false);
                             }}
                             placeholder="Partout"
-                            className="w-full outline-none font-bold text-gray-900 bg-transparent text-sm md:text-base lg:text-lg leading-relaxed h-6 md:h-7 placeholder-gray-400 text-ellipsis"
+                            className="w-full outline-none font-bold text-gray-900 dark:text-gray-100 bg-transparent text-sm md:text-base lg:text-lg leading-relaxed h-6 md:h-7 placeholder-gray-400 text-ellipsis"
                             autoComplete="off"
                         />
                     </div>
@@ -223,14 +222,14 @@ const HomeSearchBar = () => {
 
                     {/* City Suggestions Dropdown */}
                     {showCitySuggestions && (citySuggestions.length > 0 || !selectedCity) && (
-                        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden animate-fade-in z-50 max-h-48 md:max-h-60 overflow-y-auto pt-2 pb-8 pr-2">
+                        <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#1D1D1D] rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden animate-fade-in z-50 max-h-48 md:max-h-60 overflow-y-auto pt-2 pb-8 pr-2">
                             <button
                                 type="button"
                                 onClick={() => {
                                     setSelectedCity("");
                                     setShowCitySuggestions(false);
                                 }}
-                                className={`w-full text-left px-6 py-3 hover:bg-orange-50 font-bold transition-colors flex items-center justify-between ${selectedCity === "" ? 'bg-orange-50 text-brand-orange' : 'text-gray-700'}`}
+                                className={`w-full text-left px-6 py-3 hover:bg-orange-50 dark:hover:bg-orange-950/20 font-bold transition-colors flex items-center justify-between ${selectedCity === "" ? 'bg-orange-50 dark:bg-orange-950/20 text-brand-orange' : 'text-gray-700 dark:text-gray-200'}`}
                             >
                                 <span>Partout</span>
                                 {selectedCity === "" && <div className="w-2 h-2 bg-brand-orange rounded-full"></div>}
@@ -243,7 +242,7 @@ const HomeSearchBar = () => {
                                         setSelectedCity(city);
                                         setShowCitySuggestions(false);
                                     }}
-                                    className={`w-full text-left px-6 py-3 hover:bg-orange-50 font-bold transition-colors flex items-center justify-between border-t border-gray-50 ${selectedCity === city ? 'bg-orange-50 text-brand-orange' : 'text-gray-700'}`}
+                                    className={`w-full text-left px-6 py-3 hover:bg-orange-50 dark:hover:bg-orange-950/20 font-bold transition-colors flex items-center justify-between border-t border-gray-55 dark:border-gray-800 ${selectedCity === city ? 'bg-orange-50 dark:bg-orange-950/20 text-brand-orange' : 'text-gray-700 dark:text-gray-200'}`}
                                 >
                                     <span>{city}</span>
                                     {selectedCity === city && <div className="w-2 h-2 bg-brand-orange rounded-full"></div>}
@@ -256,7 +255,7 @@ const HomeSearchBar = () => {
                 {/* Search Button */}
                 <button
                     type="submit"
-                    className="w-full md:w-auto md:min-w-[140px] mt-2 md:mt-0 bg-brand-orange hover:bg-orange-600 text-white rounded-[1.6rem] px-6 py-4 font-bold shadow-lg shadow-orange-200 transition-all flex items-center justify-center gap-2 group hover:-translate-y-0.5"
+                    className="w-full md:w-auto md:min-w-[140px] mt-2 md:mt-0 bg-brand-orange hover:bg-orange-600 text-white rounded-[1.6rem] px-6 py-4 font-bold shadow-lg shadow-orange-200 dark:shadow-none transition-all flex items-center justify-center gap-2 group hover:-translate-y-0.5"
                 >
                     <span className="hidden md:inline text-lg">Explorer</span>
                     <span className="md:hidden text-lg">Rechercher</span>
@@ -266,25 +265,25 @@ const HomeSearchBar = () => {
 
             {/* Main Search Autocomplete Dropdown */}
             {showSuggestions && suggestions.length > 0 && (
-                <div className="absolute top-full left-0 mt-4 w-full md:w-[55%] bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden animate-fade-in z-50">
-                    <div className="px-6 py-3 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
-                        <span className="text-xs font-bold text-gray-400 uppercase">Suggestions</span>
+                <div className="absolute top-full left-0 mt-4 w-full md:w-[55%] bg-white dark:bg-[#1D1D1D] rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden animate-fade-in z-50">
+                    <div className="px-6 py-3 bg-gray-50 dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                        <span className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase">Suggestions</span>
                         <span className="text-xs text-brand-orange font-bold cursor-pointer hover:underline" onClick={() => setShowSuggestions(false)}>Fermer</span>
                     </div>
                     {suggestions.map((suggestion, idx) => (
                         <button
                             key={idx}
                             onClick={() => handleSuggestionClick(suggestion)}
-                            className="w-full text-left px-6 py-4 hover:bg-orange-50 flex items-center gap-4 transition-colors border-b border-gray-50 last:border-none group"
+                            className="w-full text-left px-6 py-4 hover:bg-orange-50 dark:hover:bg-orange-950/20 flex items-center gap-4 transition-colors border-b border-gray-50 dark:border-gray-800 last:border-none group"
                         >
-                            <div className={`p-3 rounded-2xl ${suggestion.type === 'place' ? 'bg-orange-100 text-brand-orange' : 'bg-gray-100 text-gray-500'}`}>
+                            <div className={`p-3 rounded-2xl ${suggestion.type === 'place' ? 'bg-orange-100 dark:bg-orange-950/40 text-brand-orange' : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400'}`}>
                                 {suggestion.type === 'place' ? <MapPin size={20} /> : <TrendingUp size={20} />}
                             </div>
                             <div className="flex-grow">
-                                <p className="font-bold text-gray-800 text-lg group-hover:text-brand-orange transition-colors">{suggestion.label}</p>
-                                {suggestion.type === 'place' && <p className="text-sm text-gray-400">{suggestion.data.city}</p>}
+                                <p className="font-bold text-gray-800 dark:text-gray-100 text-lg group-hover:text-brand-orange transition-colors">{suggestion.label}</p>
+                                {suggestion.type === 'place' && <p className="text-sm text-gray-400 dark:text-gray-500">{suggestion.data.city}</p>}
                             </div>
-                            <ChevronRight size={20} className="text-gray-300 group-hover:text-brand-orange" />
+                            <ChevronRight size={20} className="text-gray-300 dark:text-gray-600 group-hover:text-brand-orange" />
                         </button>
                     ))}
                 </div>

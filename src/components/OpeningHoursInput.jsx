@@ -77,8 +77,8 @@ const OpeningHoursInput = ({ value, onChange }) => {
     };
 
     return (
-        <div className="space-y-4 bg-gray-50 p-4 rounded-xl border border-gray-200">
-            <h4 className="font-bold text-gray-700 flex items-center gap-2 mb-2">
+        <div className="space-y-4 bg-gray-50 dark:bg-[#1E1E1E] p-4 rounded-xl border border-gray-200 dark:border-gray-800 transition-colors duration-200">
+            <h4 className="font-bold text-gray-700 dark:text-gray-250 flex items-center gap-2 mb-2">
                 <Clock size={16} /> Horaires d'ouverture
             </h4>
 
@@ -91,9 +91,9 @@ const OpeningHoursInput = ({ value, onChange }) => {
                 const isSplit = ranges.length > 1;
 
                 return (
-                    <div key={day} className="flex flex-col gap-2 border-b border-gray-100 last:border-0 pb-3 last:pb-0">
+                    <div key={day} className="flex flex-col gap-2 border-b border-gray-100 dark:border-gray-800 last:border-0 pb-3 last:pb-0">
                         <div className="flex items-center justify-between">
-                            <div className="w-24 font-medium text-gray-700 capitalize">
+                            <div className="w-24 font-medium text-gray-700 dark:text-gray-300 capitalize">
                                 {DAY_LABELS[day]}
                             </div>
 
@@ -105,7 +105,7 @@ const OpeningHoursInput = ({ value, onChange }) => {
                                         onChange={() => handleToggleClosed(day)}
                                         className="w-4 h-4 rounded text-brand-orange focus:ring-brand-orange"
                                     />
-                                    <span className="text-gray-500 text-xs">Fermé</span>
+                                    <span className="text-gray-500 dark:text-gray-400 text-xs">Fermé</span>
                                 </label>
 
                                 {!isClosed && (
@@ -116,7 +116,7 @@ const OpeningHoursInput = ({ value, onChange }) => {
                                             onChange={() => handleToggleSplit(day)}
                                             className="w-4 h-4 rounded text-blue-500 focus:ring-blue-500"
                                         />
-                                        <span className="text-gray-500 text-xs">Coupure ?</span>
+                                        <span className="text-gray-500 dark:text-gray-400 text-xs">Coupure ?</span>
                                     </label>
                                 )}
                             </div>
@@ -126,19 +126,19 @@ const OpeningHoursInput = ({ value, onChange }) => {
                             <div className="space-y-2 pl-2">
                                 {ranges.map((range, idx) => (
                                     <div key={idx} className="flex items-center gap-2">
-                                        <span className="text-xs text-gray-400 w-16">{idx === 0 ? 'Matin' : 'Soir'} :</span>
+                                        <span className="text-xs text-gray-400 dark:text-gray-500 w-16">{idx === 0 ? 'Matin' : 'Soir'} :</span>
                                         <input
                                             type="time"
                                             value={range.open || ''}
                                             onChange={(e) => handleChange(day, 'open', e.target.value, idx)}
-                                            className="px-2 py-1 rounded border border-gray-300 focus:outline-none focus:border-brand-orange bg-white w-24 text-sm"
+                                            className="px-2 py-1 rounded border border-gray-300 dark:border-gray-700 focus:outline-none focus:border-brand-orange bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 w-24 text-sm"
                                         />
-                                        <span className="text-gray-400">-</span>
+                                        <span className="text-gray-400 dark:text-gray-600">-</span>
                                         <input
                                             type="time"
                                             value={range.close || ''}
                                             onChange={(e) => handleChange(day, 'close', e.target.value, idx)}
-                                            className="px-2 py-1 rounded border border-gray-300 focus:outline-none focus:border-brand-orange bg-white w-24 text-sm"
+                                            className="px-2 py-1 rounded border border-gray-300 dark:border-gray-700 focus:outline-none focus:border-brand-orange bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 w-24 text-sm"
                                         />
                                     </div>
                                 ))}
@@ -146,7 +146,7 @@ const OpeningHoursInput = ({ value, onChange }) => {
                         )}
 
                         {isClosed && (
-                            <div className="text-center text-gray-400 italic text-xs py-1">
+                            <div className="text-center text-gray-400 dark:text-gray-550 italic text-xs py-1">
                                 Fermé toute la journée
                             </div>
                         )}
