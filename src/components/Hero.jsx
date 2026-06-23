@@ -28,6 +28,9 @@ const Hero = () => {
             <div className="absolute inset-0 z-0 bg-brand-dark">
                 <img
                     src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=60&w=1200&auto=format&fit=crop"
+                    srcSet="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=50&w=600&auto=format&fit=crop 600w,
+                            https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=60&w=1200&auto=format&fit=crop 1200w"
+                    sizes="(max-width: 768px) 600px, 1200px"
                     alt="Delicious Food"
                     fetchpriority="high"
                     loading="eager"

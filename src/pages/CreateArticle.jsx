@@ -51,47 +51,65 @@ const CreateArticle = () => {
 
     // Intercept Paste to handle images
     useEffect(() => {
-        if (!quillRef.current) return;
+        let rootElement = null;
+        let handlePasteRef = null;
 
-        const editor = quillRef.current.getEditor();
-        const root = editor.root;
+        const initPasteHandler = () => {
+            if (!quillRef.current) return;
+            try {
+                const editor = quillRef.current.getEditor();
+                const root = editor.root;
+                rootElement = root;
 
-        const handlePaste = async (e) => {
-            const clipboardData = e.clipboardData || window.clipboardData;
-            const items = clipboardData.items;
+                const handlePaste = async (e) => {
+                    const clipboardData = e.clipboardData || window.clipboardData;
+                    const items = clipboardData.items;
 
-            if (!items) return;
+                    if (!items) return;
 
-            for (let i = 0; i < items.length; i++) {
-                if (items[i].type.indexOf('image') !== -1) {
-                    e.preventDefault(); // Stop base64 insertion
-                    const file = items[i].getAsFile();
+                    for (let i = 0; i < items.length; i++) {
+                        if (items[i].type.indexOf('image') !== -1) {
+                            e.preventDefault(); // Stop base64 insertion
+                            const file = items[i].getAsFile();
 
-                    if (file) {
-                        try {
-                            const range = editor.getSelection(true);
-                            // Insert placeholder
-                            editor.insertText(range.index, '⏳ Upload en cours...', 'bold', true);
+                            if (file) {
+                                try {
+                                    const range = editor.getSelection(true);
+                                    // Insert placeholder
+                                    editor.insertText(range.index, '⏳ Upload en cours...', 'bold', true);
 
-                            // Compress & Upload
-                            const compressed = await compressImage(file);
-                            const url = await uploadToImgBB(compressed);
+                                    // Compress & Upload
+                                    const compressed = await compressImage(file);
+                                    const url = await uploadToImgBB(compressed);
 
-                            // Remove placeholder and insert image
-                            editor.deleteText(range.index, '⏳ Upload en cours...'.length);
-                            editor.insertEmbed(range.index, 'image', url);
-                        } catch (err) {
-                            console.error(err);
-                            showToast("Erreur lors de l'upload de l'image collée", "error");
+                                    // Remove placeholder and insert image
+                                    editor.deleteText(range.index, '⏳ Upload en cours...'.length);
+                                    editor.insertEmbed(range.index, 'image', url);
+                                } catch (err) {
+                                    console.error(err);
+                                    showToast("Erreur lors de l'upload de l'image collée", "error");
+                                }
+                            }
+                            return; // Handle only one image for now or the first one found
                         }
                     }
-                    return; // Handle only one image for now or the first one found
-                }
+                };
+
+                handlePasteRef = handlePaste;
+                root.addEventListener('paste', handlePaste);
+            } catch (e) {
+                // Editor not instantiated yet, wait and try again
+                setTimeout(initPasteHandler, 100);
             }
         };
 
-        root.addEventListener('paste', handlePaste);
-        return () => root.removeEventListener('paste', handlePaste);
+        initPasteHandler();
+
+        return () => {
+            if (rootElement && handlePasteRef) {
+                rootElement.removeEventListener('paste', handlePasteRef);
+            }
+        };
     }, []);
 
     const modules = React.useMemo(() => ({
@@ -120,6 +138,7 @@ const CreateArticle = () => {
     const navigate = useNavigate();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [currentStep, setCurrentStep] = useState(1);
+    const [showSource, setShowSource] = useState(false);
 
     const checkStep1Validity = () => {
         if (!formData.title || !formData.excerpt || !formData.content) {
@@ -250,9 +269,9 @@ const CreateArticle = () => {
     };
 
     return (
-        <div className="min-h-screen relative overflow-hidden bg-gray-50 pt-24 pb-20 selection:bg-brand-orange/20">
+        <div className="min-h-screen relative overflow-hidden bg-gray-50 dark:bg-brand-dark pt-24 pb-20 selection:bg-brand-orange/20 transition-colors duration-200">
             {/* Minimalist Background Pattern (Subtle Dots) */}
-            <div className="fixed inset-0 z-0 opacity-40 pointer-events-none"
+            <div className="fixed inset-0 z-0 opacity-40 dark:opacity-10 pointer-events-none"
                 style={{ backgroundImage: 'radial-gradient(#d1d5db 1px, transparent 1px)', backgroundSize: '32px 32px' }}>
             </div>
 
@@ -265,16 +284,16 @@ const CreateArticle = () => {
                 <div className="flex items-center justify-between mb-8">
                     <button
                         onClick={() => currentStep === 1 ? navigate('/blog') : prevStep()}
-                        className="flex items-center gap-2 text-gray-500 hover:text-brand-orange transition-colors font-medium group"
+                        className="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-brand-orange dark:hover:text-brand-orange transition-colors font-medium group"
                     >
                         <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
                         {currentStep === 1 ? "Retour au Mag" : "Retour à l'édition"}
                     </button>
 
                     <div className="flex items-center gap-3">
-                        <div className={`h-2.5 w-12 rounded-full transition-colors duration-500 ${currentStep >= 1 ? 'bg-brand-orange' : 'bg-gray-200'}`}></div>
-                        <div className={`h-2.5 w-12 rounded-full transition-colors duration-500 ${currentStep >= 2 ? 'bg-brand-orange' : 'bg-gray-200'}`}></div>
-                        <span className="text-xs font-bold text-gray-400 ml-2">ÉTAPE {currentStep} / 2</span>
+                        <div className={`h-2.5 w-12 rounded-full transition-colors duration-500 ${currentStep >= 1 ? 'bg-brand-orange' : 'bg-gray-200 dark:bg-gray-800'}`}></div>
+                        <div className={`h-2.5 w-12 rounded-full transition-colors duration-500 ${currentStep >= 2 ? 'bg-brand-orange' : 'bg-gray-200 dark:bg-gray-800'}`}></div>
+                        <span className="text-xs font-bold text-gray-400 dark:text-gray-500 ml-2">ÉTAPE {currentStep} / 2</span>
                     </div>
                 </div>
 
@@ -283,11 +302,10 @@ const CreateArticle = () => {
                     {/* STEP 1: CONTENT */}
                     <div className={`transition-all duration-500 ${currentStep === 1 ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-full absolute top-0 left-0 w-full pointer-events-none'}`}>
                         {/* Header Card with Dynamic Background */}
-                        <div className="bg-white rounded-3xl shadow-xl shadow-brand-orange/5 p-8 border border-white/50 backdrop-blur-sm relative overflow-hidden group mb-8">
+                        <div className="bg-white dark:bg-[#1D1D1D] rounded-3xl shadow-xl shadow-brand-orange/5 p-8 border border-white/50 dark:border-gray-800 backdrop-blur-sm relative overflow-hidden group mb-8 transition-colors duration-200">
                             <div className="absolute inset-0 bg-cover bg-center transition-all duration-700 opacity-20 blur-3xl scale-110 group-hover:scale-125"
                                 style={{
-                                    backgroundImage: imagePreview ? `url(${imagePreview})` : 'none',
-                                    backgroundColor: imagePreview ? 'transparent' : 'white'
+                                    backgroundImage: imagePreview ? `url(${imagePreview})` : 'none'
                                 }}>
                             </div>
                             <div className="relative z-10 flex items-center gap-6">
@@ -295,19 +313,19 @@ const CreateArticle = () => {
                                     <PenTool size={32} />
                                 </div>
                                 <div>
-                                    <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">
+                                    <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">
                                         À vos plumes ! ✍️
                                     </h1>
-                                    <p className="text-gray-600 font-medium text-lg mt-1">Écrivez la prochaine pépite culinaire.</p>
+                                    <p className="text-gray-600 dark:text-gray-300 font-medium text-lg mt-1">Écrivez la prochaine pépite culinaire.</p>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="bg-white rounded-3xl shadow-2xl shadow-gray-200/50 p-8 border border-gray-100 space-y-8">
+                        <div className="bg-white dark:bg-[#1D1D1D] rounded-3xl shadow-2xl shadow-gray-200/50 dark:shadow-none p-8 border border-gray-100 dark:border-gray-800 space-y-8 transition-colors duration-200">
                             {/* Title & Slug */}
                             <div className="space-y-5">
                                 <div>
-                                    <label htmlFor="create-title" className="block text-xs font-extrabold text-gray-400 uppercase tracking-widest mb-3">Titre de l'article</label>
+                                    <label htmlFor="create-title" className="block text-xs font-extrabold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">Titre de l'article</label>
                                     <input
                                         id="create-title"
                                         type="text"
@@ -315,15 +333,15 @@ const CreateArticle = () => {
                                         required
                                         value={formData.title}
                                         onChange={handleChange}
-                                        className="w-full px-6 py-5 bg-white border-2 border-gray-100 focus:border-brand-orange/50 rounded-2xl shadow-sm focus:shadow-xl focus:shadow-brand-orange/10 transition-all outline-none font-bold text-2xl text-gray-900 placeholder-gray-300"
+                                        className="w-full px-6 py-5 bg-white dark:bg-[#151515] border-2 border-gray-100 dark:border-gray-800 focus:border-brand-orange/50 rounded-2xl shadow-sm focus:shadow-xl focus:shadow-brand-orange/10 transition-all outline-none font-bold text-2xl text-gray-900 dark:text-white placeholder-gray-300 dark:placeholder-gray-700"
                                         placeholder="Ex: Ma virée gourmande..."
                                     />
                                 </div>
-                                <div className="flex items-center gap-3 text-sm text-gray-500 bg-gray-50 p-4 rounded-xl border border-gray-100/50">
-                                    <div className="bg-white p-2 rounded-lg shadow-sm border border-gray-200">
+                                <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/40 p-4 rounded-xl border border-gray-100/50 dark:border-gray-800">
+                                    <div className="bg-white dark:bg-gray-900 p-2 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800">
                                         <LinkIcon size={14} className="text-gray-400" />
                                     </div>
-                                    <span className="font-mono text-gray-400 tracking-tight">www.flavorquest.be/blog/</span>
+                                    <span className="font-mono text-gray-400 dark:text-gray-500 tracking-tight">www.flavorquest.be/blog/</span>
                                     <input
                                         type="text"
                                         name="slug"
@@ -337,7 +355,19 @@ const CreateArticle = () => {
 
                             {/* Writer Area */}
                             <div>
-                                <label className="block text-xs font-extrabold text-gray-400 uppercase tracking-widest mb-3">L'histoire</label>
+                                <div className="flex justify-between items-center mb-1">
+                                    <label className="block text-xs font-extrabold text-gray-400 dark:text-gray-500 uppercase tracking-widest">L'histoire</label>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowSource(!showSource)}
+                                        className={`text-xs font-bold px-3 py-1.5 rounded-lg border transition-colors ${showSource ? 'bg-gray-900 text-green-400 border-gray-700' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+                                    >
+                                        {showSource ? '👁️ Mode Visuel' : '💻 Mode Code HTML'}
+                                    </button>
+                                </div>
+                                <p className="text-xs text-gray-450 dark:text-gray-500 mb-3 leading-relaxed">
+                                    💡 <strong>Astuce :</strong> Pour insérer des éléments personnalisés (encadrés stylisés, tableaux, etc.), écrivez votre code HTML entouré par les balises <code className="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded font-mono text-brand-orange">[HTML]...[/HTML]</code>. L'éditeur visuel ne le modifiera pas et il sera affiché de manière sécurisée.
+                                </p>
 
                                 <textarea
                                     name="excerpt"
@@ -345,34 +375,43 @@ const CreateArticle = () => {
                                     required
                                     value={formData.excerpt}
                                     onChange={handleChange}
-                                    className="w-full px-6 py-4 bg-white border-2 border-gray-100 focus:border-brand-orange/50 rounded-2xl shadow-sm transition-all outline-none text-gray-700 font-medium placeholder-gray-300 resize-none text-lg leading-relaxed mb-1"
+                                    className="w-full px-6 py-4 bg-white dark:bg-[#151515] border-2 border-gray-100 dark:border-gray-800 focus:border-brand-orange/50 rounded-2xl shadow-sm transition-all outline-none text-gray-700 dark:text-gray-300 font-medium placeholder-gray-300 dark:placeholder-gray-700 resize-none text-lg leading-relaxed mb-1"
                                     placeholder="L'intro qui tue (accroche)..."
                                     maxLength={250}
                                 />
-                                <div className={`flex justify-end mb-6 text-xs font-bold transition-colors ${formData.excerpt.length > 160 ? 'text-orange-500' : 'text-gray-400'}`}>
+                                <div className={`flex justify-end mb-6 text-xs font-bold transition-colors ${formData.excerpt.length > 160 ? 'text-orange-500' : 'text-gray-400 dark:text-gray-500'}`}>
                                     {formData.excerpt.length} / 160
                                 </div>
 
-                                <div className="prose-editor group rounded-2xl shadow-sm hover:shadow-md border border-gray-100 transition-shadow">
-                                    <ReactQuill
-                                        ref={quillRef}
-                                        theme="snow"
+                                {showSource ? (
+                                    <textarea
                                         value={formData.content}
-                                        onChange={handleContentChange}
-                                        modules={modules}
-                                        formats={['header', 'bold', 'italic', 'underline', 'strike', 'blockquote', 'code-block', 'list', 'link', 'image', 'video']}
-                                        className="bg-white rounded-2xl overflow-hidden"
-                                        style={{ height: '500px', marginBottom: '50px' }}
-                                        placeholder="Racontez tout..."
+                                        onChange={(e) => handleContentChange(e.target.value)}
+                                        className="w-full h-[500px] bg-gray-900 text-green-400 font-mono text-sm p-4 rounded-2xl focus:outline-none focus:ring-2 focus:ring-green-500/50 resize-y shadow-inner mb-[50px]"
+                                        placeholder="Collez votre code HTML ou embed ici..."
                                     />
-                                </div>
+                                ) : (
+                                    <div className="prose-editor group rounded-2xl shadow-sm hover:shadow-md border border-gray-100 dark:border-gray-800 transition-shadow">
+                                        <ReactQuill
+                                            ref={quillRef}
+                                            theme="snow"
+                                            value={formData.content}
+                                            onChange={handleContentChange}
+                                            modules={modules}
+                                            formats={['header', 'bold', 'italic', 'underline', 'strike', 'blockquote', 'code-block', 'list', 'link', 'image', 'video']}
+                                            className="bg-white dark:bg-[#151515] rounded-2xl overflow-hidden"
+                                            style={{ height: '500px', marginBottom: '50px' }}
+                                            placeholder="Racontez tout..."
+                                        />
+                                    </div>
+                                )}
                             </div>
 
                             <div className="flex justify-end pt-4">
                                 <button
                                     type="button"
                                     onClick={nextStep}
-                                    className="bg-gray-900 hover:bg-brand-orange text-white text-lg font-bold px-8 py-4 rounded-2xl shadow-xl shadow-gray-200 hover:shadow-brand-orange/30 transition-all flex items-center gap-3 group"
+                                    className="bg-gray-900 dark:bg-gray-800 hover:bg-brand-orange dark:hover:bg-brand-orange text-white text-lg font-bold px-8 py-4 rounded-2xl shadow-xl shadow-gray-200/10 dark:shadow-none hover:shadow-brand-orange/30 transition-all flex items-center gap-3 group"
                                 >
                                     Suivant : Les détails <ArrowLeft size={20} className="rotate-180 group-hover:translate-x-1 transition-transform" />
                                 </button>
@@ -384,68 +423,68 @@ const CreateArticle = () => {
                     <div className={`transition-all duration-500 ${currentStep === 2 ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full absolute top-0 left-0 w-full pointer-events-none'}`}>
 
                         <div className="text-center mb-10">
-                            <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl shadow-lg animate-bounce">
+                            <div className="w-16 h-16 bg-green-100 dark:bg-green-950/30 text-green-600 dark:text-green-400 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl shadow-lg animate-bounce">
                                 🎉
                             </div>
-                            <h2 className="text-3xl font-extrabold text-gray-900">Superbe ! Plus que les finitions.</h2>
-                            <p className="text-gray-500 text-lg mt-2">Ajoutez une couverture et classez votre chef d'oeuvre.</p>
+                            <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white">Superbe ! Plus que les finitions.</h2>
+                            <p className="text-gray-500 dark:text-gray-400 text-lg mt-2">Ajoutez une couverture et classez votre chef d'oeuvre.</p>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
                             {/* Left: General Info */}
-                            <div className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100 space-y-6">
-                                <h3 className="font-bold text-xl text-gray-900 flex items-center gap-2">
+                            <div className="bg-white dark:bg-[#1D1D1D] rounded-3xl shadow-xl p-8 border border-gray-100 dark:border-gray-800 space-y-6 transition-colors duration-200">
+                                <h3 className="font-bold text-xl text-gray-900 dark:text-white flex items-center gap-2">
                                     <span className="w-2 h-6 bg-brand-orange rounded-full"></span> Général
                                 </h3>
 
                                 <div>
-                                    <label className="block text-xs font-extrabold text-gray-400 uppercase tracking-widest mb-3">Auteur</label>
+                                    <label className="block text-xs font-extrabold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">Auteur</label>
                                     <input
                                         type="text"
                                         name="author"
                                         required
                                         value={formData.author}
                                         onChange={handleChange}
-                                        className="w-full px-5 py-4 bg-gray-50 border-2 border-transparent focus:bg-white focus:border-brand-orange/50 rounded-2xl transition-all outline-none font-bold text-gray-800"
+                                        className="w-full px-5 py-4 bg-gray-50 dark:bg-[#151515] border-2 border-transparent focus:bg-white focus:border-brand-orange/50 rounded-2xl transition-all outline-none font-bold text-gray-850 dark:text-white"
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="block text-xs font-extrabold text-gray-400 uppercase tracking-widest mb-3">Catégorie</label>
+                                    <label className="block text-xs font-extrabold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">Catégorie</label>
                                     <div className="relative">
                                         <select
                                             name="category"
                                             value={formData.category}
                                             onChange={handleChange}
-                                            className="w-full px-5 py-4 bg-gray-50 border-2 border-transparent focus:bg-white focus:border-brand-orange/50 rounded-2xl appearance-none font-bold text-gray-800 cursor-pointer"
+                                            className="w-full px-5 py-4 bg-gray-50 dark:bg-[#151515] border-2 border-transparent focus:bg-white focus:border-brand-orange/50 rounded-2xl appearance-none font-bold text-gray-800 dark:text-white cursor-pointer"
                                         >
-                                            {BLOG_CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                                            {BLOG_CATEGORIES.map(cat => <option key={cat} value={cat} className="bg-white dark:bg-[#1D1D1D] text-gray-800 dark:text-white">{cat}</option>)}
                                         </select>
-                                        <ArrowLeft size={16} className="absolute right-5 top-1/2 -translate-y-1/2 -rotate-90 text-gray-400 pointer-events-none" />
+                                        <ArrowLeft size={16} className="absolute right-5 top-1/2 -translate-y-1/2 -rotate-90 text-gray-400 dark:text-gray-500 pointer-events-none" />
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label className="block text-xs font-extrabold text-gray-400 uppercase tracking-widest mb-3">Style</label>
-                                    <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl cursor-pointer hover:bg-orange-50/50 transition-colors" onClick={() => setFormData(prev => ({ ...prev, hasDropCap: !prev.hasDropCap }))}>
-                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${formData.hasDropCap ? 'bg-brand-orange text-white' : 'bg-white border-2 border-gray-200 text-gray-300'}`}>
+                                    <label className="block text-xs font-extrabold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">Style</label>
+                                    <div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-[#151515] rounded-2xl cursor-pointer hover:bg-orange-50/50 dark:hover:bg-brand-orange/10 transition-colors" onClick={() => setFormData(prev => ({ ...prev, hasDropCap: !prev.hasDropCap }))}>
+                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${formData.hasDropCap ? 'bg-brand-orange text-white' : 'bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 text-gray-300'}`}>
                                             {formData.hasDropCap && <span className="font-bold">✓</span>}
                                         </div>
                                         <div>
-                                            <p className="font-bold text-gray-900">Lettrine Stylée</p>
-                                            <p className="text-xs text-gray-500">Ajoute une grande première lettre</p>
+                                            <p className="font-bold text-gray-900 dark:text-white">Lettrine Stylée</p>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">Ajoute une grande première lettre</p>
                                         </div>
-                                        <span className="text-4xl font-serif font-black text-gray-200 ml-auto">L</span>
+                                        <span className="text-4xl font-serif font-black text-gray-200 dark:text-gray-800 ml-auto select-none">L</span>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Right: Visuals & Links */}
                             <div className="space-y-8">
-                                <div className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100">
-                                    <label className="block text-xs font-extrabold text-gray-400 uppercase tracking-widest mb-4">Image de couverture (Obligatoire)</label>
+                                <div className="bg-white dark:bg-[#1D1D1D] rounded-3xl shadow-xl p-8 border border-gray-100 dark:border-gray-800 transition-colors duration-200">
+                                    <label className="block text-xs font-extrabold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4">Image de couverture (Obligatoire)</label>
                                     <div
-                                        className={`aspect-video border-3 border-dashed rounded-3xl flex flex-col items-center justify-center transition-all cursor-pointer relative overflow-hidden ${imagePreview ? 'border-transparent shadow-lg' : 'border-gray-200 hover:border-brand-orange hover:bg-orange-50'}`}
+                                        className={`aspect-video border-3 border-dashed rounded-3xl flex flex-col items-center justify-center transition-all cursor-pointer relative overflow-hidden ${imagePreview ? 'border-transparent shadow-lg' : 'border-gray-200 dark:border-gray-800 hover:border-brand-orange hover:bg-orange-50 dark:hover:bg-brand-orange/5'}`}
                                         onClick={() => document.getElementById('blogImageInput').click()}
                                     >
                                         <input
@@ -467,30 +506,30 @@ const CreateArticle = () => {
                                                 <div className="bg-brand-orange/10 p-4 rounded-full inline-block mb-3 text-brand-orange">
                                                     <Camera size={32} />
                                                 </div>
-                                                <p className="font-bold text-gray-600">Cliquez pour ajouter</p>
-                                                <p className="text-xs text-gray-400 mt-1">1920x1080 recommandé</p>
+                                                <p className="font-bold text-gray-600 dark:text-gray-300">Cliquez pour ajouter</p>
+                                                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">1920x1080 recommandé</p>
                                             </div>
                                         )}
                                     </div>
                                 </div>
 
-                                <div className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100">
-                                    <label className="block text-xs font-extrabold text-gray-400 uppercase tracking-widest mb-4">Lieu associé</label>
+                                <div className="bg-white dark:bg-[#1D1D1D] rounded-3xl shadow-xl p-8 border border-gray-100 dark:border-gray-800 transition-colors duration-200">
+                                    <label className="block text-xs font-extrabold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4">Lieu associé</label>
                                     <select
                                         onChange={handlePlaceLink}
-                                        className="w-full px-5 py-4 bg-gray-50 border-2 border-transparent focus:bg-white focus:border-brand-orange/50 rounded-2xl font-bold text-gray-800 mb-4"
+                                        className="w-full px-5 py-4 bg-gray-50 dark:bg-[#151515] border-2 border-transparent focus:bg-white focus:border-brand-orange/50 rounded-2xl font-bold text-gray-800 dark:text-white mb-4 cursor-pointer"
                                     >
-                                        <option value="">-- Rechercher un lieu --</option>
-                                        {availablePlaces.map(place => <option key={place.id} value={place.id}>{place.name} ({place.city})</option>)}
+                                        <option value="" className="text-gray-500">-- Rechercher un lieu --</option>
+                                        {availablePlaces.map(place => <option key={place.id} value={place.id} className="bg-white dark:bg-[#1D1D1D] text-gray-850 dark:text-white">{place.name} ({place.city})</option>)}
                                     </select>
                                     <div className="flex flex-wrap gap-2">
                                         {formData.relatedPlaceIds.map(id => {
                                             const place = places.find(p => p.id === id);
                                             if (!place) return null;
                                             return (
-                                                <span key={id} className="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-2">
+                                                <span key={id} className="bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-900/50 px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-2">
                                                     {place.name}
-                                                    <button type="button" onClick={() => removePlaceLink(id)}>&times;</button>
+                                                    <button type="button" onClick={() => removePlaceLink(id)} className="hover:text-red-500 transition-colors font-extrabold">&times;</button>
                                                 </span>
                                             )
                                         })}
@@ -563,6 +602,38 @@ const CreateArticle = () => {
                     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
                     margin: 1.5rem 0;
                     max-width: 100%;
+                }
+                /* Dark mode support for ReactQuill */
+                .dark .ql-toolbar.ql-snow {
+                    border-color: #2D2D2D;
+                    background-color: #2D2D2D;
+                    border-bottom: 2px solid #374151;
+                }
+                .dark .ql-toolbar.ql-snow .ql-stroke {
+                    stroke: #e5e7eb;
+                }
+                .dark .ql-toolbar.ql-snow .ql-fill {
+                    fill: #e5e7eb;
+                }
+                .dark .ql-toolbar.ql-snow .ql-picker {
+                    color: #e5e7eb;
+                }
+                .dark .ql-snow .ql-picker-options {
+                    background-color: #2D2D2D;
+                    border-color: #374151;
+                }
+                .dark .ql-container.ql-snow {
+                    border-color: #2D2D2D;
+                    background-color: #151515;
+                }
+                .dark .ql-editor {
+                    color: #e5e7eb;
+                }
+                .dark .ql-editor.ql-blank::before {
+                    color: #6b7280;
+                }
+                .dark .ql-editor h2, .dark .ql-editor h3 {
+                    color: #ffffff;
                 }
             `}</style>
         </div>

@@ -64,44 +64,62 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
 
     // Intercept Paste to handle images
     useEffect(() => {
-        if (!quillRef.current) return;
+        let rootElement = null;
+        let handlePasteRef = null;
 
-        const editor = quillRef.current.getEditor();
-        const root = editor.root;
+        const initPasteHandler = () => {
+            if (!quillRef.current) return;
+            try {
+                const editor = quillRef.current.getEditor();
+                const root = editor.root;
+                rootElement = root;
 
-        const handlePaste = async (e) => {
-            const clipboardData = e.clipboardData || window.clipboardData;
-            const items = clipboardData.items;
+                const handlePaste = async (e) => {
+                    const clipboardData = e.clipboardData || window.clipboardData;
+                    const items = clipboardData.items;
 
-            if (!items) return;
+                    if (!items) return;
 
-            for (let i = 0; i < items.length; i++) {
-                if (items[i].type.indexOf('image') !== -1) {
-                    e.preventDefault();
-                    const file = items[i].getAsFile();
+                    for (let i = 0; i < items.length; i++) {
+                        if (items[i].type.indexOf('image') !== -1) {
+                            e.preventDefault();
+                            const file = items[i].getAsFile();
 
-                    if (file) {
-                        try {
-                            const range = editor.getSelection(true);
-                            editor.insertText(range.index, '⏳ Upload en cours...', 'bold', true);
+                            if (file) {
+                                try {
+                                    const range = editor.getSelection(true);
+                                    editor.insertText(range.index, '⏳ Upload en cours...', 'bold', true);
 
-                            const compressed = await compressImage(file);
-                            const url = await uploadToImgBB(compressed);
+                                    const compressed = await compressImage(file);
+                                    const url = await uploadToImgBB(compressed);
 
-                            editor.deleteText(range.index, '⏳ Upload en cours...'.length);
-                            editor.insertEmbed(range.index, 'image', url);
-                        } catch (err) {
-                            console.error(err);
-                            showToast("Erreur lors de l'upload de l'image collée", "error");
+                                    editor.deleteText(range.index, '⏳ Upload en cours...'.length);
+                                    editor.insertEmbed(range.index, 'image', url);
+                                } catch (err) {
+                                    console.error(err);
+                                    showToast("Erreur lors de l'upload de l'image collée", "error");
+                                }
+                            }
+                            return;
                         }
                     }
-                    return;
-                }
+                };
+
+                handlePasteRef = handlePaste;
+                root.addEventListener('paste', handlePaste);
+            } catch (e) {
+                // Editor not instantiated yet, wait and try again
+                setTimeout(initPasteHandler, 100);
             }
         };
 
-        root.addEventListener('paste', handlePaste);
-        return () => root.removeEventListener('paste', handlePaste);
+        initPasteHandler();
+
+        return () => {
+            if (rootElement && handlePasteRef) {
+                rootElement.removeEventListener('paste', handlePasteRef);
+            }
+        };
     }, [showToast]);
 
     const modules = React.useMemo(() => ({
@@ -247,19 +265,19 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-            <div className="bg-white rounded-3xl w-full max-w-5xl max-h-[90vh] overflow-y-auto shadow-2xl relative animate-scale-in">
+            <div className="bg-white dark:bg-[#1D1D1D] rounded-3xl w-full max-w-5xl max-h-[90vh] overflow-y-auto shadow-2xl relative animate-scale-in text-gray-900 dark:text-gray-100 transition-colors duration-200">
 
                 {/* Header */}
-                <div className="sticky top-0 bg-white z-10 px-8 py-6 border-b border-gray-100 flex justify-between items-center">
+                <div className="sticky top-0 bg-white dark:bg-[#1D1D1D] z-10 px-8 py-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center transition-colors duration-200">
                     <div>
-                        <h2 className="text-2xl font-bold text-gray-900">Modifier l'article</h2>
-                        <p className="text-gray-500 text-sm">Édition complète pour administrateur</p>
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Modifier l'article</h2>
+                        <p className="text-gray-500 dark:text-gray-400 text-sm">Édition complète pour administrateur</p>
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+                        className="p-2 bg-gray-100 dark:bg-gray-800 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                     >
-                        <X size={20} className="text-gray-600" />
+                        <X size={20} className="text-gray-600 dark:text-gray-300" />
                     </button>
                 </div>
 
@@ -269,29 +287,29 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
                     {/* Title & Slug */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="md:col-span-2">
-                            <label htmlFor="edit-title" className="block text-sm font-bold text-gray-700 mb-2">Titre</label>
+                            <label htmlFor="edit-title" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Titre</label>
                             <input
                                 id="edit-title"
                                 type="text"
                                 name="title"
                                 value={formData.title}
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20 font-bold"
+                                className="w-full px-4 py-3 bg-gray-50 dark:bg-[#151515] border border-gray-200 dark:border-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20 font-bold text-gray-900 dark:text-white"
                             />
                         </div>
                         <div>
-                            <label htmlFor="edit-slug" className="block text-sm font-bold text-gray-700 mb-2">Slug (URL)</label>
+                            <label htmlFor="edit-slug" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Slug (URL)</label>
                             <input
                                 id="edit-slug"
                                 type="text"
                                 name="slug"
                                 value={formData.slug}
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20 font-mono text-sm"
+                                className="w-full px-4 py-3 bg-gray-50 dark:bg-[#151515] border border-gray-200 dark:border-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20 font-mono text-sm text-gray-900 dark:text-white"
                             />
                         </div>
                         <div>
-                            <label htmlFor="edit-readTime" className="block text-sm font-bold text-gray-700 mb-2">Temps de lecture</label>
+                            <label htmlFor="edit-readTime" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Temps de lecture</label>
                             <input
                                 id="edit-readTime"
                                 type="text"
@@ -299,25 +317,25 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
                                 value={formData.readTime}
                                 onChange={handleChange}
                                 placeholder="Ex: 5 min"
-                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
+                                className="w-full px-4 py-3 bg-gray-50 dark:bg-[#151515] border border-gray-200 dark:border-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20 text-gray-900 dark:text-white"
                             />
                         </div>
                     </div>
 
                     {/* Excerpt */}
                     <div>
-                        <label htmlFor="edit-excerpt" className="block text-sm font-bold text-gray-700 mb-2">Extrait / Introduction</label>
+                        <label htmlFor="edit-excerpt" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Extrait / Introduction</label>
                         <textarea
                             id="edit-excerpt"
                             name="excerpt"
                             rows="2"
                             value={formData.excerpt}
                             onChange={handleChange}
-                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20 resize-none"
+                            className="w-full px-4 py-3 bg-gray-50 dark:bg-[#151515] border border-gray-200 dark:border-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20 resize-none text-gray-900 dark:text-white"
                             placeholder="L'intro qui accroche..."
                             maxLength={250}
                         />
-                        <div className={`flex justify-end text-xs font-bold mt-1 ${formData.excerpt.length > 160 ? 'text-orange-500' : 'text-gray-400'}`}>
+                        <div className={`flex justify-end text-xs font-bold mt-1 ${formData.excerpt.length > 160 ? 'text-orange-500' : 'text-gray-400 dark:text-gray-500'}`}>
                             {formData.excerpt.length} / 160
                         </div>
                     </div>
@@ -325,19 +343,19 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
                     {/* Meta: Category, City, Author, Date */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label htmlFor="edit-category" className="block text-sm font-bold text-gray-700 mb-2">Catégorie</label>
+                            <label htmlFor="edit-category" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Catégorie</label>
                             <select
                                 id="edit-category"
                                 name="category"
                                 value={formData.category}
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
+                                className="w-full px-4 py-3 bg-gray-50 dark:bg-[#151515] border border-gray-200 dark:border-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20 text-gray-900 dark:text-white cursor-pointer"
                             >
-                                {BLOG_CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                                {BLOG_CATEGORIES.map(cat => <option key={cat} value={cat} className="bg-white dark:bg-[#1D1D1D] text-gray-900 dark:text-white">{cat}</option>)}
                             </select>
                         </div>
                         <div>
-                            <label htmlFor="edit-city" className="block text-sm font-bold text-gray-700 mb-2">Ville (optionnel)</label>
+                            <label htmlFor="edit-city" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Ville (optionnel)</label>
                             <input
                                 id="edit-city"
                                 type="text"
@@ -345,48 +363,48 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
                                 value={formData.city}
                                 onChange={handleChange}
                                 placeholder="Liège, Namur, Bruxelles..."
-                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
+                                className="w-full px-4 py-3 bg-gray-50 dark:bg-[#151515] border border-gray-200 dark:border-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20 text-gray-900 dark:text-white"
                             />
                         </div>
                         <div>
-                            <label htmlFor="edit-author" className="block text-sm font-bold text-gray-700 mb-2">Auteur</label>
+                            <label htmlFor="edit-author" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Auteur</label>
                             <input
                                 id="edit-author"
                                 type="text"
                                 name="author"
                                 value={formData.author}
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
+                                className="w-full px-4 py-3 bg-gray-50 dark:bg-[#151515] border border-gray-200 dark:border-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20 text-gray-900 dark:text-white"
                             />
                         </div>
                         <div>
-                            <label htmlFor="edit-date" className="block text-sm font-bold text-gray-700 mb-2">Date de publication</label>
+                            <label htmlFor="edit-date" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Date de publication</label>
                             <input
                                 id="edit-date"
                                 type="date"
                                 name="date"
                                 value={formData.date}
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
+                                className="w-full px-4 py-3 bg-gray-50 dark:bg-[#151515] border border-gray-200 dark:border-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20 text-gray-900 dark:text-white"
                             />
                         </div>
                     </div>
 
                     {/* SEO Keywords */}
                     <div>
-                        <label htmlFor="edit-tags" className="block text-sm font-bold text-gray-700 mb-2">Mots-clés SEO (séparés par des virgules)</label>
+                        <label htmlFor="edit-tags" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Mots-clés SEO (séparés par des virgules)</label>
                         <input
                             id="edit-tags"
                             type="text"
                             placeholder="Ex: Burger, Guide, Namur, Pas cher"
                             value={tagsInput}
                             onChange={handleTagsChange}
-                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
+                            className="w-full px-4 py-3 bg-gray-50 dark:bg-[#151515] border border-gray-200 dark:border-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20 text-gray-900 dark:text-white"
                         />
                     </div>
 
                     {/* Options */}
-                    <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl border border-gray-100">
+                    <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-[#151515] rounded-xl border border-gray-100 dark:border-gray-800">
                         <input
                             type="checkbox"
                             id="edit-hasDropCap"
@@ -395,18 +413,18 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
                             onChange={(e) => setFormData(prev => ({ ...prev, hasDropCap: e.target.checked }))}
                             className="w-5 h-5 text-brand-orange border-gray-300 rounded focus:ring-brand-orange cursor-pointer"
                         />
-                        <label htmlFor="edit-hasDropCap" className="text-sm font-bold text-gray-700 cursor-pointer user-select-none">
+                        <label htmlFor="edit-hasDropCap" className="text-sm font-bold text-gray-700 dark:text-gray-300 cursor-pointer user-select-none">
                             Activer le style "Lettrine" (Grande première lettre)
                         </label>
                     </div>
 
                     {/* Image Upload */}
                     <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2">Image de couverture</label>
+                        <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Image de couverture</label>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="md:col-span-2">
                                 <div
-                                    className={`aspect-video border-3 border-dashed rounded-2xl flex flex-col items-center justify-center transition-all cursor-pointer relative overflow-hidden ${imagePreview ? 'border-transparent shadow-lg' : 'border-gray-200 hover:border-brand-orange hover:bg-orange-50'}`}
+                                    className={`aspect-video border-3 border-dashed rounded-2xl flex flex-col items-center justify-center transition-all cursor-pointer relative overflow-hidden ${imagePreview ? 'border-transparent shadow-lg' : 'border-gray-200 dark:border-gray-800 hover:border-brand-orange hover:bg-orange-50 dark:hover:bg-brand-orange/5'}`}
                                     onClick={() => document.getElementById('editImageInput').click()}
                                 >
                                     <input
@@ -428,15 +446,15 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
                                             <div className="bg-brand-orange/10 p-4 rounded-full inline-block mb-3 text-brand-orange">
                                                 <Camera size={32} />
                                             </div>
-                                            <p className="font-bold text-gray-600">Cliquez pour uploader</p>
-                                            <p className="text-xs text-gray-400 mt-1">1920x1080 recommandé</p>
+                                            <p className="font-bold text-gray-600 dark:text-gray-300">Cliquez pour uploader</p>
+                                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">1920x1080 recommandé</p>
                                         </div>
                                     )}
                                 </div>
                             </div>
                             <div>
-                                <label htmlFor="edit-image-url" className="block text-xs font-bold text-gray-500 mb-2">Ou URL directe</label>
-                                <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
+                                <label htmlFor="edit-image-url" className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2">Ou URL directe</label>
+                                <div className="flex items-center gap-2 bg-gray-50 dark:bg-[#151515] border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-3">
                                     <ImageIcon size={18} className="text-gray-400" />
                                     <input
                                         id="edit-image-url"
@@ -444,7 +462,7 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
                                         name="image"
                                         value={formData.image}
                                         onChange={handleChange}
-                                        className="bg-transparent w-full focus:outline-none text-sm"
+                                        className="bg-transparent w-full focus:outline-none text-sm text-gray-900 dark:text-white"
                                         placeholder="https://..."
                                     />
                                 </div>
@@ -454,7 +472,7 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
 
                     {/* Linked Places */}
                     <div>
-                        <label htmlFor="edit-place-select" className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                        <label htmlFor="edit-place-select" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
                             <LinkIcon size={16} /> Associer un restaurant
                         </label>
                         <select
@@ -466,11 +484,11 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
                                 }
                             }}
                             value=""
-                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20 mb-3"
+                            className="w-full px-4 py-3 bg-gray-50 dark:bg-[#151515] border border-gray-200 dark:border-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange/20 mb-3 text-gray-900 dark:text-white cursor-pointer"
                         >
                             <option value="">-- Sélectionner un lieu --</option>
                             {places.filter(p => p.validationStatus === 'approved').map(place => (
-                                <option key={place.id} value={place.id}>{place.name} ({place.city})</option>
+                                <option key={place.id} value={place.id} className="bg-white dark:bg-[#1D1D1D] text-gray-900 dark:text-white">{place.name} ({place.city})</option>
                             ))}
                         </select>
 
@@ -486,7 +504,7 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
                                                 ...prev,
                                                 relatedPlaceIds: prev.relatedPlaceIds.filter(pid => pid !== id)
                                             }))}
-                                            className="hover:text-red-500"
+                                            className="hover:text-red-500 font-extrabold"
                                         >
                                             &times;
                                         </button>
@@ -498,16 +516,19 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
 
                     {/* Content (Quill or Source) */}
                     <div>
-                        <div className="flex justify-between items-center mb-2">
-                            <label className="block text-sm font-bold text-gray-700">Contenu</label>
+                        <div className="flex justify-between items-center mb-1">
+                            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300">Contenu</label>
                             <button
                                 type="button"
                                 onClick={() => setShowSource(!showSource)}
-                                className={`text-xs font-bold px-3 py-1 rounded-lg border transition-colors ${showSource ? 'bg-gray-900 text-green-400 border-gray-700' : 'bg-gray-100 text-gray-600 border-gray-200 hover:bg-gray-200'}`}
+                                className={`text-xs font-bold px-3 py-1 rounded-lg border transition-colors ${showSource ? 'bg-gray-900 text-green-400 border-gray-700' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
                             >
                                 {showSource ? '👁️ Mode Visuel' : '💻 Mode Code HTML'}
                             </button>
                         </div>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-3 leading-relaxed">
+                            💡 <strong>Astuce :</strong> Pour insérer des éléments personnalisés (encadrés stylisés, tableaux, etc.), écrivez votre code HTML entouré par les balises <code className="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded font-mono text-brand-orange">[HTML]...[/HTML]</code>. L'éditeur visuel ne le modifiera pas et il sera affiché de manière sécurisée.
+                        </p>
 
                         {showSource ? (
                             <textarea
@@ -517,7 +538,7 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
                                 placeholder="Collez votre code HTML ou embed ici..."
                             />
                         ) : (
-                            <div className="prose-editor group rounded-2xl shadow-sm hover:shadow-md border border-gray-100 transition-shadow">
+                            <div className="prose-editor group rounded-2xl shadow-sm hover:shadow-md border border-gray-100 dark:border-gray-800 transition-shadow">
                                 <ReactQuill
                                     ref={quillRef}
                                     theme="snow"
@@ -525,7 +546,7 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
                                     onChange={handleContentChange}
                                     modules={modules}
                                     formats={['header', 'bold', 'italic', 'underline', 'strike', 'blockquote', 'code-block', 'list', 'link', 'image', 'video']}
-                                    className="bg-white rounded-2xl overflow-hidden"
+                                    className="bg-white dark:bg-[#151515] rounded-2xl overflow-hidden"
                                     style={{ height: '400px', marginBottom: '50px' }}
                                     placeholder="Le contenu de l'article..."
                                 />
@@ -539,16 +560,16 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
                     </div>
 
                     {/* FAQ Section */}
-                    <div className="border border-gray-200 rounded-2xl p-6 bg-gray-50/50 mb-6">
+                    <div className="border border-gray-200 dark:border-gray-800 rounded-2xl p-6 bg-gray-50/50 dark:bg-[#151515]/30 mb-6">
                         <div className="flex items-center justify-between mb-4">
-                            <h3 className="font-bold text-gray-800 text-lg flex items-center gap-2">
+                            <h3 className="font-bold text-gray-800 text-lg dark:text-white flex items-center gap-2">
                                 <span className="bg-brand-orange/10 text-brand-orange p-1 rounded-lg">❓</span>
                                 Foire Aux Questions (FAQ)
                             </h3>
                             <button
                                 type="button"
                                 onClick={addFAQ}
-                                className="text-sm font-bold text-brand-orange bg-orange-50 px-3 py-1.5 rounded-lg hover:bg-orange-100 transition-colors"
+                                className="text-sm font-bold text-brand-orange bg-orange-50 dark:bg-brand-orange/10 px-3 py-1.5 rounded-lg hover:bg-orange-100 dark:hover:bg-brand-orange/20 transition-colors"
                             >
                                 + Ajouter une question
                             </button>
@@ -556,13 +577,13 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
 
                         <div className="space-y-4">
                             {(!formData.faq || formData.faq.length === 0) && (
-                                <p className="text-sm text-gray-400 italic text-center py-4">
+                                <p className="text-sm text-gray-400 dark:text-gray-500 italic text-center py-4">
                                     Aucune question ajoutée. Cliquez sur le bouton pour commencer.
                                 </p>
                             )}
 
                             {formData.faq && formData.faq.map((item, index) => (
-                                <div key={index} className="bg-white border border-gray-200 rounded-xl p-4 relative group">
+                                <div key={index} className="bg-white dark:bg-[#1D1D1D] border border-gray-200 dark:border-gray-800 rounded-xl p-4 relative group">
                                     <button
                                         type="button"
                                         onClick={() => removeFAQ(index)}
@@ -577,14 +598,14 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
                                             placeholder="Question (ex: Quel budget prévoir ?)"
                                             value={item.question}
                                             onChange={(e) => updateFAQ(index, 'question', e.target.value)}
-                                            className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-orange/20 font-bold text-sm"
+                                            className="w-full px-3 py-2 bg-gray-50 dark:bg-[#151515] border border-gray-200 dark:border-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-orange/20 font-bold text-sm text-gray-900 dark:text-white"
                                         />
                                         <textarea
                                             placeholder="Réponse..."
                                             value={item.answer}
                                             onChange={(e) => updateFAQ(index, 'answer', e.target.value)}
                                             rows="2"
-                                            className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-orange/20 text-sm resize-none"
+                                            className="w-full px-3 py-2 bg-gray-50 dark:bg-[#151515] border border-gray-200 dark:border-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-orange/20 text-sm text-gray-900 dark:text-white resize-none"
                                         />
                                     </div>
                                 </div>
@@ -593,11 +614,11 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
                     </div>
 
                     {/* Footer Actions */}
-                    <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                    <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-6 py-3 rounded-xl font-bold text-gray-600 hover:bg-gray-100 transition-colors"
+                            className="px-6 py-3 rounded-xl font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-850 transition-colors"
                         >
                             Annuler
                         </button>
@@ -664,8 +685,40 @@ const EditArticleModal = ({ isOpen, onClose, article }) => {
                     margin: 1.5rem 0;
                     max-width: 100%;
                 }
+                /* Dark mode support for ReactQuill */
+                .dark .ql-toolbar.ql-snow {
+                    border-color: #2D2D2D;
+                    background-color: #2D2D2D;
+                    border-bottom: 2px solid #374151;
+                }
+                .dark .ql-toolbar.ql-snow .ql-stroke {
+                    stroke: #e5e7eb;
+                }
+                .dark .ql-toolbar.ql-snow .ql-fill {
+                    fill: #e5e7eb;
+                }
+                .dark .ql-toolbar.ql-snow .ql-picker {
+                    color: #e5e7eb;
+                }
+                .dark .ql-snow .ql-picker-options {
+                    background-color: #2D2D2D;
+                    border-color: #374151;
+                }
+                .dark .ql-container.ql-snow {
+                    border-color: #2D2D2D;
+                    background-color: #151515;
+                }
+                .dark .ql-editor {
+                    color: #e5e7eb;
+                }
+                .dark .ql-editor.ql-blank::before {
+                    color: #6b7280;
+                }
+                .dark .ql-editor h2, .dark .ql-editor h3 {
+                    color: #ffffff;
+                }
             `}</style>
-        </div >
+        </div>
     );
 };
 

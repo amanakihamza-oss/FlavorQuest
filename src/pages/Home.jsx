@@ -130,16 +130,14 @@ const Home = () => {
                 [regular[i], regular[j]] = [regular[j], regular[i]];
             }
 
-            // 4. Shuffle Articles
-            const shuffledArticles = [...(articles || [])];
-            for (let i = shuffledArticles.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [shuffledArticles[i], shuffledArticles[j]] = [shuffledArticles[j], shuffledArticles[i]];
-            }
+            // 4. Sort Articles by Date (Newest first) and filter by approved status
+            const latestArticles = [...(articles || [])]
+                .filter(a => a.status === 'approved')
+                .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
             return {
                 finalPlaces: [...sponsored, ...regular],
-                finalArticles: shuffledArticles
+                finalArticles: latestArticles
             };
         } catch (e) {
             console.error("Error in shuffle logic:", e);

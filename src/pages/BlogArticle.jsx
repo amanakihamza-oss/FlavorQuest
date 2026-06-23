@@ -9,8 +9,9 @@ import PageLoader from '../components/PageLoader';
 import SEO from '../components/SEO';
 import { Clock, Calendar, ChevronLeft, MapPin, Heart, Share2, Facebook, Twitter, ArrowRight } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
+import DOMPurify from 'dompurify';
 
-// Helper to safely render HTML content with minimal sanitization for trusted admin content
+// Helper to safely render HTML content with robust sanitization
 // Also cleans non-breaking spaces that can cause word-breaking issues
 const renderContent = (content) => {
     if (!content) return null;
@@ -20,9 +21,6 @@ const renderContent = (content) => {
         .replace(/&nbsp;/g, ' ')
         .replace(/\u00A0/g, ' ');
 
-    // 2. DETECT & UNWRAP EMBEDS IN CODE BLOCKS (Magic Fix)
-    // If user put an iframe or script inside a code block <pre>...</pre>,
-    // we assume they wanted to embed it, not show the code.
     const unescapeHTML = (str) =>
         str.replace(/&lt;/g, '<')
             .replace(/&gt;/g, '>')
@@ -30,17 +28,170 @@ const renderContent = (content) => {
             .replace(/&quot;/g, '"')
             .replace(/&#39;/g, "'");
 
-    // Regex to find <pre> blocks containing common embed signatures
-    // We look for patterns like <pre ...>...instagram-media...</pre>
+    // 2. DETECT & UNWRAP EMBEDS IN CODE BLOCKS (Magic Fix)
     const embedRegex = /<pre[^>]*>([\s\S]*?(?:instagram-media|twitter-tweet|youtube\.com|youtu\.be)[\s\S]*?)<\/pre>/gi;
-
     processedContent = processedContent.replace(embedRegex, (match, innerContent) => {
-        // Unescape the inner HTML (turn &lt;iframe into <iframe)
-        // and return it WITHOUT the <pre> wrapper
         return `<div class="embed-wrapper my-8 max-w-[500px] mx-auto overflow-hidden rounded-xl shadow-lg border border-gray-100">${unescapeHTML(innerContent)}</div>`;
     });
 
-    return <div dangerouslySetInnerHTML={{ __html: processedContent }} />;
+    // 3. DETECT & UNWRAP SHORTCODES [HTML] ... [/HTML]
+    // This allows users to insert visual blocks (cards, tables) without Quill breaking/escaping them in visual mode.
+    const htmlShortcodeRegex = /\[HTML\]([\s\S]*?)\[\/HTML\]/gi;
+    processedContent = processedContent.replace(htmlShortcodeRegex, (match, innerContent) => {
+        const unescaped = unescapeHTML(innerContent);
+        // Sanitize inner HTML block immediately with DOMPurify
+        const safeInnerHtml = DOMPurify.sanitize(unescaped, {
+            ADD_TAGS: ['iframe'],
+            ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling']
+        });
+        return safeInnerHtml;
+    });
+
+    // 4. DETECT & UNWRAP GENERIC HTML IN CODE BLOCKS (Backward Compatibility for older articles)
+    const preBlockRegex = /<pre[^>]*>([\s\S]*?)<\/pre>/gi;
+    processedContent = processedContent.replace(preBlockRegex, (match, innerContent) => {
+        const unescaped = unescapeHTML(innerContent);
+        const trimmed = unescaped.trim();
+        // Check if it starts with an HTML tag or comment
+        const isHtml = /^<[a-zA-Z!/]/i.test(trimmed);
+        if (isHtml) {
+            // Sanitize unescaped block with DOMPurify
+            const safeHtml = DOMPurify.sanitize(unescaped, {
+                ADD_TAGS: ['iframe'],
+                ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling']
+            });
+            return safeHtml;
+        }
+        return match;
+    });
+
+    // 5. GLOBAL SECURITY: Sanitize the entire processed content to prevent any XSS
+    const finalSafeContent = DOMPurify.sanitize(processedContent, {
+        ADD_TAGS: ['iframe'],
+        ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling']
+    });
+
+    return <div dangerouslySetInnerHTML={{ __html: finalSafeContent }} />;
+};
+
+const parseRecipeSchema = (article) => {
+    if (typeof window === 'undefined' || !window.DOMParser) return null;
+    if (!article || article.category !== 'Recettes') return null;
+
+    const name = article.title;
+    const description = article.excerpt;
+    const image = article.image;
+    const author = article.author;
+    const datePublished = article.date;
+
+    let prepTime = "PT15M"; // 15 mins default
+    let cookTime = "PT0M";
+    let recipeYield = "2 personnes";
+    const ingredients = [];
+    const instructions = [];
+
+    try {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(article.content, 'text/html');
+
+        // Extract ingredients
+        const headings = Array.from(doc.querySelectorAll('h2, h3, h4, h5, h6, strong'));
+        const ingredientHeading = headings.find(h => h.textContent.toLowerCase().includes('ingrédient'));
+        if (ingredientHeading) {
+            let nextEl = ingredientHeading.nextElementSibling;
+            if (!nextEl && ingredientHeading.parentElement) {
+                nextEl = ingredientHeading.parentElement.nextElementSibling;
+            }
+            for (let i = 0; i < 3 && nextEl; i++) {
+                if (nextEl.tagName === 'UL') {
+                    Array.from(nextEl.querySelectorAll('li')).forEach(li => {
+                        ingredients.push(li.textContent.trim());
+                    });
+                    break;
+                }
+                nextEl = nextEl.nextElementSibling;
+            }
+        }
+
+        // Extract instructions
+        const instructionHeading = headings.find(h => 
+            h.textContent.toLowerCase().includes('préparation') || 
+            h.textContent.toLowerCase().includes('pas à pas') ||
+            h.textContent.toLowerCase().includes('étapes')
+        );
+        if (instructionHeading) {
+            let nextEl = instructionHeading.nextElementSibling;
+            if (!nextEl && instructionHeading.parentElement) {
+                nextEl = instructionHeading.parentElement.nextElementSibling;
+            }
+            for (let i = 0; i < 3 && nextEl; i++) {
+                if (nextEl.tagName === 'OL' || nextEl.tagName === 'UL') {
+                    Array.from(nextEl.querySelectorAll('li')).forEach((li, idx) => {
+                        instructions.push({
+                            "@type": "HowToStep",
+                            "name": `Étape ${idx + 1}`,
+                            "text": li.textContent.trim(),
+                            "url": `https://www.flavorquest.be/blog/${article.slug}#step-${idx + 1}`
+                        });
+                    });
+                    break;
+                }
+                nextEl = nextEl.nextElementSibling;
+            }
+        }
+
+        // Parse prep time from text (e.g. "Temps de préparation : 15 minutes")
+        const allText = doc.body.textContent;
+        const prepMatch = allText.match(/temps\s+de\s+préparation\s*:\s*(\d+)/i);
+        if (prepMatch && prepMatch[1]) {
+            prepTime = `PT${prepMatch[1]}M`;
+        } else if (article.readTime) {
+            const minutes = parseInt(article.readTime);
+            if (!isNaN(minutes)) prepTime = `PT${minutes}M`;
+        }
+
+        // Parse yield (e.g. "Pour 2 personnes")
+        const yieldMatch = allText.match(/pour\s+(\d+)\s+personnes/i);
+        if (yieldMatch && yieldMatch[1]) {
+            recipeYield = `${yieldMatch[1]} personnes`;
+        }
+    } catch (e) {
+        console.error("Failed to parse recipe schema from HTML content:", e);
+    }
+
+    if (ingredients.length === 0) {
+        ingredients.push("Voir le détail des ingrédients dans la recette");
+    }
+    if (instructions.length === 0) {
+        instructions.push({
+            "@type": "HowToStep",
+            "name": "Préparation",
+            "text": "Suivez les étapes détaillées sur la page de la recette.",
+            "url": `https://www.flavorquest.be/blog/${article.slug}`
+        });
+    }
+
+    return {
+        "@context": "https://schema.org",
+        "@type": "Recipe",
+        "name": name,
+        "image": image,
+        "author": { "@type": "Person", "name": author },
+        "datePublished": datePublished,
+        "description": description,
+        "prepTime": prepTime,
+        "cookTime": cookTime,
+        "recipeYield": recipeYield,
+        "recipeCategory": "Dessert",
+        "recipeCuisine": "Belge",
+        "recipeIngredient": ingredients,
+        "recipeInstructions": instructions,
+        "publisher": {
+            "@type": "Organization",
+            "name": "FlavorQuest",
+            "logo": { "@type": "ImageObject", "url": "https://www.flavorquest.be/logo.png" }
+        }
+    };
 };
 
 const BlogArticle = () => {
@@ -190,7 +341,7 @@ const BlogArticle = () => {
     ];
 
     // Enhanced SEO Schema
-    const schema = {
+    const baseSchema = {
         "@context": "https://schema.org",
         "@type": "BlogPosting",
         "headline": article.title,
@@ -208,6 +359,9 @@ const BlogArticle = () => {
         "keywords": article.tags ? article.tags.join(', ') : article.category,
         "mainEntityOfPage": { "@type": "WebPage", "@id": `https://www.flavorquest.be/blog/${slug}` }
     };
+
+    const recipeSchema = parseRecipeSchema(article);
+    const schema = recipeSchema ? [baseSchema, recipeSchema] : baseSchema;
 
     // ...
 

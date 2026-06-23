@@ -2,6 +2,7 @@
 <html lang="fr">
 
 <head>
+  <meta charset="UTF-8" />
   <!-- Google Tag Manager -->
   <script>(function (w, d, s, l, i) {
       w[l] = w[l] || []; w[l].push({
@@ -13,10 +14,20 @@
     })(window, document, 'script', 'dataLayer', 'GTM-NK9KBR9D');</script>
   <!-- End Google Tag Manager -->
 
-  <meta charset="UTF-8" />
   <link rel="preconnect" href="https://images.unsplash.com" />
+  <link rel="preconnect" href="https://i.ibb.co" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <!-- Preload the critical above-the-fold Hero image for LCP optimization -->
+  <link 
+    rel="preload" 
+    as="image" 
+    href="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=60&w=1200&auto=format&fit=crop"
+    imagesrcset="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=50&w=600&auto=format&fit=crop 600w,
+                 https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=60&w=1200&auto=format&fit=crop 1200w"
+    imagesizes="(max-width: 768px) 600px, 1200px"
+    fetchpriority="high"
+  />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="icon" type="image/png" href="/icon.png" />
   <link rel="apple-touch-icon" href="/icon.png" />
